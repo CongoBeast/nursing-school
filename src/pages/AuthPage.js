@@ -179,7 +179,7 @@ const AuthPage = () => {
         const formDataImage = new FormData();
         formDataImage.append('image', avatarFile);
 
-        const uploadRes = await fetch('http://localhost:3001/upload', {
+        const uploadRes = await fetch('https://nursing-school-backend-yz3r.onrender.com/upload', {
           method: 'POST',
           body: formDataImage,
         });
@@ -199,7 +199,7 @@ const AuthPage = () => {
         lastLoggedIn: new Date().toISOString(),
       };
 
-      const response = await fetch(`http://localhost:3001/${endpoint}`, {
+      const response = await fetch(`https://nursing-school-backend-yz3r.onrender.com/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
