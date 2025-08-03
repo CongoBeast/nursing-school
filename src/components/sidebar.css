@@ -47,8 +47,8 @@
   --patient-text: #006080;
   
   /* Admin theme colors */
-  --admin-bg: #E5ECFF;
-  --admin-text: #003366;
+  --admin-bg: #000e36;
+  --admin-text: #ff92cc;
 }
 
 /* Override Bootstrap defaults for sidebar */
@@ -152,12 +152,12 @@
 }
 
 .sidebar.admin .nav-link:hover {
-  background-color: rgba(0, 51, 102, 0.1);
+  background-color: rgba(2, 97, 193, 0.1);
   color: var(--admin-text);
 }
 
 .sidebar.admin .nav-link.active {
-  background-color: rgba(0, 51, 102, 0.2);
+  background-color: rgba(13, 121, 230, 0.2);
   color: var(--admin-text);
 }
 

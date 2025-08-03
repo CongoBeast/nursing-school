@@ -237,15 +237,25 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
       { name: "View Profile", icon: <User size={18} />, href: "/patient" },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
     ],
+    // admin: [
+    //   { name: "Manage Facilities", icon: <Building size={18} />, href: "/facilitiesmanagement" },
+    //   { name: "Reports & Audits", icon: <ClipboardList size={18} />, href: "/audit-reports" },
+    //   { name: "HR Management", icon: <BarChart2 size={18} />, href: "/hrmanagement" },
+    //   { name: "Pandemic Management", icon: <Megaphone size={18} />, href: "/pandemicmanagement" },
+    //   { name: "System Settings", icon: <Settings size={18} />, href: "#settings" },
+    //   { name: "View Profile", icon: <User size={18} />, href: "#profile" },
+    //   { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
+    // ]
     admin: [
-      { name: "Manage Facilities", icon: <Building size={18} />, href: "/facilitiesmanagement" },
-      { name: "Reports & Audits", icon: <ClipboardList size={18} />, href: "/audit-reports" },
-      { name: "HR Management", icon: <BarChart2 size={18} />, href: "/hrmanagement" },
-      { name: "Pandemic Management", icon: <Megaphone size={18} />, href: "/pandemicmanagement" },
-      { name: "System Settings", icon: <Settings size={18} />, href: "#settings" },
-      { name: "View Profile", icon: <User size={18} />, href: "#profile" },
-      { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
-    ]
+          { name: "Home", icon: <Building size={18} />, href: "/" , onClick: handleNavClick},
+          { name: "Student Management", icon: <ClipboardList size={18} />, href: "/students" , onClick: handleNavClick},
+          { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/staff" },
+          { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/facilities-management" , onClick: handleNavClick},
+          { name: "Accomodation Management", icon: <Settings size={18} />, href: "/accomodation" },
+          { divider: true },
+          { name: "View Profile", icon: <User size={18} />, href: "#profile" },
+          { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
+        ]
   };
 
   const getRoleLogo = () => {
@@ -313,7 +323,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         }
         
         .top-navbar.admin {
-          background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+          background: linear-gradient(135deg, #6e0018ff 0%, #1a0043ff 100%);
         }
         
         .navbar-brand {

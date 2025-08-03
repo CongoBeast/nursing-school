@@ -59,7 +59,7 @@ const Sidebar = ({ userRole, show, onHide }) => {
   };
 
   const sidebarItems = {
-    doctor: [
+    staff: [
       { name: "My Patients", icon: <Users size={18} />, href: "/#/patient-list" , onClick: handleNavClick },
       { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "#attendance" },
       { name: "Schedule", icon: <Calendar size={18} />, href: "/#/schedule" , onClick: handleNavClick},
@@ -69,7 +69,7 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "View Profile", icon: <User size={18} />, href: "/#/doctor" , onClick: handleNavClick},
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout ,  }
     ],
-    patient: [
+    student: [
       { name: "My Records", icon: <FileText size={18} />, href: "/#/patient-records" , onClick: handleNavClick },
       { name: "My Doctors", icon: <Stethoscope size={18} />, href: "/#/mydoctors" , onClick: handleNavClick },
       { name: "Prescriptions", icon: <Pill size={18} />, href: "/#/prescriptions" , onClick: handleNavClick},
@@ -79,11 +79,11 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
     ],
     admin: [
-      { name: "Manage Facilities", icon: <Building size={18} />, href: "/#/facilitiesmanagement" , onClick: handleNavClick},
-      { name: "Reports & Audits", icon: <ClipboardList size={18} />, href: "/#/audit-reports" , onClick: handleNavClick},
-      { name: "HR Management", icon: <BarChart2 size={18} />, href: "/#/hrmanagement" },
-      { name: "Pandemic Management", icon: <Megaphone size={18} />, href: "/#/pandemicmanagement" , onClick: handleNavClick},
-      { name: "System Settings", icon: <Settings size={18} />, href: "#settings" },
+      { name: "Home", icon: <Building size={18} />, href: "/#/" , onClick: handleNavClick},
+      { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
+      { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff" },
+      { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
+      { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "#profile" },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
