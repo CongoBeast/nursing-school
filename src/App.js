@@ -72,7 +72,7 @@ import AuthPage from "./pages/AuthPage"
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('token');
 
-  console.log(isAuthenticated)
+  console.log(!isAuthenticated)
   
   if (!isAuthenticated) {
     // Redirect to the auth page if not authenticated
