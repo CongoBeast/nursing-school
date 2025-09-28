@@ -60,10 +60,24 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import TopNavBar from "./components/TopNavBar";
 import AdminDashboard from "./pages/AdminDashboard.js";
-
-
 import AuthPage from "./pages/AuthPage"
 
+
+import PatientProfile from "./pages/PatientDashboard";
+import DoctorProfile from "./pages/DoctorProfile";
+import HRManagement from "./pages/HRManagement.js";
+import FacilitiesManagement from "./pages/FacilitiesManagement.js";
+import ManageFacility from "./pages/ManageFacility.js";
+import PandemicManagement from "./pages/PandemicManagement.js";
+import AuditReports from "./pages/AuditReports.js";
+import DoctorPatientList from "./pages/DoctorPatientList.js"
+import DoctorLabResults from "./pages/DoctorLabResults.js"
+import PrescriptionReview from "./pages/PrescriptionReview.js"
+import DoctorSchedule from "./pages/DoctorSchedule.js"
+import PatientRecords from "./pages/PatientRecords.js"
+import PatientCareTeam from "./pages/PatientCareTeam.js"
+import PatientBookings from "./pages/PatientBookings.js"
+import FacilityResourceManagement from "./pages/FacilityResourceManagement.js"
 
 
 
@@ -113,6 +127,83 @@ function App() {
           <Route path="/" element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          } />
+
+            <Route path="/patient" element={
+            <ProtectedRoute>
+              <PatientProfile/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/doctor" element={
+            <ProtectedRoute>
+              <DoctorProfile/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/hrmanagement" element={
+            <ProtectedRoute>
+              <HRManagement/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/facilitiesmanagement" element={
+            <ProtectedRoute>
+              <FacilitiesManagement/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/managefacility" element={
+            <ProtectedRoute>
+              <ManageFacility/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/facility-resources" element={
+            <ProtectedRoute>
+              <FacilityResourceManagement/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/pandemicmanagement" element={
+            <ProtectedRoute>
+              <PandemicManagement/>
+            </ProtectedRoute>
+          }/>
+           <Route path="/patient-list" element={
+            <ProtectedRoute>
+              <DoctorPatientList/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/lab-results" element={
+            <ProtectedRoute>
+              <DoctorLabResults/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/prescriptions" element={
+            <ProtectedRoute>
+              <PrescriptionReview/>
+            </ProtectedRoute>
+          }/>
+           <Route path="/schedule" element={
+            <ProtectedRoute>
+              <DoctorSchedule/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/patient-records" element={
+            <ProtectedRoute>
+              <PatientRecords/>
+              <PatientCareTeam/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/mydoctors" element={
+            <ProtectedRoute>
+              <PatientCareTeam/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/mybookings" element={
+            <ProtectedRoute>
+              <PatientBookings/>
+            </ProtectedRoute>
+          }/>
+          <Route path="/audit-reports" element={
+            <ProtectedRoute>
+              <AuditReports />
             </ProtectedRoute>
           } />
           
