@@ -62,22 +62,11 @@ import TopNavBar from "./components/TopNavBar";
 import AdminDashboard from "./pages/AdminDashboard.js";
 import AuthPage from "./pages/AuthPage"
 
-
-import PatientProfile from "./pages/PatientDashboard";
-import DoctorProfile from "./pages/DoctorProfile";
-import HRManagement from "./pages/HRManagement.js";
-import FacilitiesManagement from "./pages/FacilitiesManagement.js";
-import ManageFacility from "./pages/ManageFacility.js";
-import PandemicManagement from "./pages/PandemicManagement.js";
-import AuditReports from "./pages/AuditReports.js";
-import DoctorPatientList from "./pages/DoctorPatientList.js"
-import DoctorLabResults from "./pages/DoctorLabResults.js"
-import PrescriptionReview from "./pages/PrescriptionReview.js"
-import DoctorSchedule from "./pages/DoctorSchedule.js"
-import PatientRecords from "./pages/PatientRecords.js"
-import PatientCareTeam from "./pages/PatientCareTeam.js"
-import PatientBookings from "./pages/PatientBookings.js"
-import FacilityResourceManagement from "./pages/FacilityResourceManagement.js"
+import StudentsPage from './pages/StudentsPage.js';
+import StudentProfile from './pages/StudentProfile.js';
+import StaffManagementPage from "./pages/StaffManagementPage.js"
+import FacilitiesManagement from './pages/FacilitiesManagement.js';
+import AccomodationManagement from "./pages/AccomodationManagement.js";
 
 
 
@@ -130,83 +119,35 @@ function App() {
             </ProtectedRoute>
           } />
 
-            <Route path="/patient" element={
+          <Route path="/students" element={
             <ProtectedRoute>
-              <PatientProfile/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/doctor" element={
-            <ProtectedRoute>
-              <DoctorProfile/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/hrmanagement" element={
-            <ProtectedRoute>
-              <HRManagement/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/facilitiesmanagement" element={
-            <ProtectedRoute>
-              <FacilitiesManagement/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/managefacility" element={
-            <ProtectedRoute>
-              <ManageFacility/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/facility-resources" element={
-            <ProtectedRoute>
-              <FacilityResourceManagement/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/pandemicmanagement" element={
-            <ProtectedRoute>
-              <PandemicManagement/>
-            </ProtectedRoute>
-          }/>
-           <Route path="/patient-list" element={
-            <ProtectedRoute>
-              <DoctorPatientList/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/lab-results" element={
-            <ProtectedRoute>
-              <DoctorLabResults/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/prescriptions" element={
-            <ProtectedRoute>
-              <PrescriptionReview/>
-            </ProtectedRoute>
-          }/>
-           <Route path="/schedule" element={
-            <ProtectedRoute>
-              <DoctorSchedule/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/patient-records" element={
-            <ProtectedRoute>
-              <PatientRecords/>
-              <PatientCareTeam/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/mydoctors" element={
-            <ProtectedRoute>
-              <PatientCareTeam/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/mybookings" element={
-            <ProtectedRoute>
-              <PatientBookings/>
-            </ProtectedRoute>
-          }/>
-          <Route path="/audit-reports" element={
-            <ProtectedRoute>
-              <AuditReports />
+              <StudentsPage />
             </ProtectedRoute>
           } />
           
+          <Route path="/student-profile" element={
+            <ProtectedRoute>
+              <StudentProfile />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/staff" element={
+            <ProtectedRoute>
+              <StaffManagementPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/facilities-management" element={
+            <ProtectedRoute>
+              <FacilitiesManagement />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/accomodation" element={
+            <ProtectedRoute>
+              <AccomodationManagement />
+            </ProtectedRoute>
+          } />
           
           {/* Optional: Redirect any unknown paths to /auth or / */}
           <Route path="*" element={<Navigate to="/auth" replace />} />
