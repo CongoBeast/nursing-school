@@ -199,7 +199,8 @@ const AuthPage = () => {
         lastLoggedIn: new Date().toISOString(),
       };
 
-      const response = await fetch(`https://nursing-school-backend-vu0d.onrender.com/${endpoint}`, {
+      // const response = await fetch(`https://nursing-school-backend-vu0d.onrender.com/${endpoint}`, {
+      const response = await fetch(`https://nursing-school-backend.vercel.app/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -842,5 +843,6 @@ const AuthPage = () => {
     </div>
   );
 };
+
 
 export default AuthPage;
