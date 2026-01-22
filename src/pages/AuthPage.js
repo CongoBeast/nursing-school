@@ -3,6 +3,7 @@ import { User, Lock, Mail, Phone, UserCheck, GraduationCap, Shield, BookOpen, Ey
 import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -846,3 +847,4 @@ const AuthPage = () => {
 
 
 export default AuthPage;
+
