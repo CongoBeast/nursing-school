@@ -67,6 +67,12 @@ import StudentProfile from './pages/StudentProfile.js';
 import StaffManagementPage from "./pages/StaffManagementPage.js"
 import FacilitiesManagement from './pages/FacilitiesManagement.js';
 import AccomodationManagement from "./pages/AccomodationManagement.js";
+import StaffAttendance from "./pages/StaffAttendance.js";
+import FaultReporting from './pages/FaultReporting.js';
+import UserProfile from './pages/UserProfile.js';
+import WardenSchedule from './pages/WardenSchedule.js';
+import ManageSchedule from './pages/ManageSchedule.js';
+
 
 
 
@@ -146,6 +152,36 @@ function App() {
           <Route path="/accomodation" element={
             <ProtectedRoute>
               <AccomodationManagement />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/staff-attendance" element={
+            <ProtectedRoute>
+              <StaffAttendance />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/fault-reporting" element={
+            <ProtectedRoute>
+              <FaultReporting />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/user-profile" element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/my-schedule" element={
+            <ProtectedRoute>
+              <WardenSchedule />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/manage-schedule" element={
+            <ProtectedRoute>
+              <ManageSchedule />
             </ProtectedRoute>
           } />
           
