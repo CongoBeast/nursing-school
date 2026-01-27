@@ -1,98 +1,71 @@
 import React, { useState } from 'react';
+import { 
+  Home, 
+  ClipboardCheck, 
+  AlertCircle, 
+  Info, 
+  Bed, 
+  Trash2, 
+  WashingMachine, 
+  Zap, 
+  Coffee, 
+  BookOpen, 
+  Wind,
+  Warehouse,
+  Phone,
+  ShieldAlert,
+  ArrowRight
+} from 'lucide-react';
 
 const FacilitiesManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState(null);
 
-  // Color palette
   const colors = {
-    primary: '#FFEDFA',
-    secondary: '#FFB8E0', 
-    tertiary: '#EC7FA9',
-    accent: '#BE5985'
+    primary: '#F0F7FF',    // Very light blue
+    secondary: '#DBEAFE',  // Light blue
+    tertiary: '#3B82F6',   // Royal blue
+    accent: '#1E3A8A'      // Navy blue
   };
 
-  // Facilities data
   const facilities = [
     {
       id: 1,
-      name: 'Dining Hall',
-      icon: '🍽️',
-      lastInspection: '2024-07-15',
-      inspectionScore: 'A',
+      name: 'Nurses Home',
+      icon: <Home size={32} />,
+      lastInspection: '2026-01-10',
+      inspectionScore: 'A-',
       status: 'Good',
       inventory: [
-        { item: 'Dining Tables', quantity: 25, condition: 'Good' },
-        { item: 'Chairs', quantity: 200, condition: 'Good' },
-        { item: 'Kitchen Equipment', quantity: 15, condition: 'Excellent' },
-        { item: 'Serving Counters', quantity: 3, condition: 'Good' },
-        { item: 'Refrigeration Units', quantity: 4, condition: 'Fair' }
+        { item: 'Accommodation Rooms', quantity: 166, condition: 'Mixed (52+70+3)' },
+        { item: 'Toilets & Baths', quantity: 28, condition: 'Good' },
+        { item: 'Store Rooms', quantity: 6, condition: 'Functional' },
+        { item: 'Laundry Rooms', quantity: 3, condition: 'Good' },
+        { item: 'Kitchenable Rooms', quantity: 1, condition: 'Operational' },
+        { item: 'Electrical Rooms', quantity: 2, condition: 'Regulated' },
+        { item: 'Special Rooms (Study/Living)', quantity: 3, condition: 'Good' },
+        { item: 'Dining Room (Outside)', quantity: 1, condition: 'Good' }
       ],
-      issues: ['Minor plumbing leak in kitchen', 'Replace 2 broken chairs']
+      issues: ['Plumbing check required in Block A bath', 'Update lighting in studying room']
     },
     {
       id: 2,
-      name: 'Student Dormitory',
-      icon: '🏠',
-      lastInspection: '2024-07-20',
+      name: 'Adlam House',
+      icon: <Warehouse size={32} />,
+      lastInspection: '2026-01-15',
       inspectionScore: 'B+',
       status: 'Good',
       inventory: [
-        { item: 'Bed Frames', quantity: 120, condition: 'Good' },
-        { item: 'Mattresses', quantity: 120, condition: 'Good' },
-        { item: 'Study Desks', quantity: 120, condition: 'Fair' },
-        { item: 'Wardrobes', quantity: 60, condition: 'Good' },
-        { item: 'Common Room Furniture', quantity: 25, condition: 'Excellent' }
+        { item: 'Accommodation Rooms', quantity: 119, condition: 'Good' },
+        { item: 'Toilets', quantity: 27, condition: 'Fair' },
+        { item: 'Showers', quantity: 24, condition: 'Good' },
+        { item: 'Laundry & Ironing Rooms', quantity: 9, condition: 'Excellent' },
+        { item: 'Kitchenable Rooms', quantity: 6, condition: 'Operational' },
+        { item: 'Studying Rooms', quantity: 3, condition: 'Quiet Zone' },
+        { item: 'Elevator Rooms', quantity: 4, condition: 'Service Required' },
+        { item: 'Security (Guard/Phone)', quantity: 2, condition: 'Active' }
       ],
-      issues: ['Replace 5 worn mattresses', 'Repair heating system in Block B']
-    },
-    {
-      id: 3,
-      name: 'Sports Field',
-      icon: '⚽',
-      lastInspection: '2024-07-10',
-      inspectionScore: 'A-',
-      status: 'Excellent',
-      inventory: [
-        { item: 'Football Goals', quantity: 2, condition: 'Good' },
-        { item: 'Basketball Hoops', quantity: 4, condition: 'Excellent' },
-        { item: 'Tennis Net', quantity: 2, condition: 'Fair' },
-        { item: 'Changing Room Benches', quantity: 10, condition: 'Good' },
-        { item: 'Sports Equipment Storage', quantity: 1, condition: 'Good' }
-      ],
-      issues: ['Resurface tennis court', 'Replace damaged goal post padding']
-    },
-    {
-      id: 4,
-      name: 'Lecture Rooms',
-      icon: '📚',
-      lastInspection: '2024-07-25',
-      inspectionScore: 'A',
-      status: 'Excellent',
-      inventory: [
-        { item: 'Student Desks', quantity: 480, condition: 'Good' },
-        { item: 'Projectors', quantity: 12, condition: 'Excellent' },
-        { item: 'Whiteboards', quantity: 12, condition: 'Good' },
-        { item: 'Audio Systems', quantity: 8, condition: 'Fair' },
-        { item: 'Air Conditioning Units', quantity: 12, condition: 'Good' }
-      ],
-      issues: ['Update projector in Room 204', 'Service AC units before summer']
-    },
-    {
-      id: 5,
-      name: 'Examination Halls',
-      icon: '📝',
-      lastInspection: '2024-07-18',
-      inspectionScore: 'A+',
-      status: 'Excellent',
-      inventory: [
-        { item: 'Exam Desks', quantity: 300, condition: 'Excellent' },
-        { item: 'Chairs', quantity: 300, condition: 'Good' },
-        { item: 'Clock Systems', quantity: 6, condition: 'Excellent' },
-        { item: 'Ventilation Fans', quantity: 12, condition: 'Good' },
-        { item: 'Emergency Lighting', quantity: 18, condition: 'Excellent' }
-      ],
-      issues: ['All systems functioning optimally']
+      issues: ['Elevator 2 due for annual maintenance', 'Repair shower drain in North Wing']
     }
   ];
 
@@ -100,325 +73,185 @@ const FacilitiesManagement = () => {
     {
       id: 1,
       type: 'urgent',
-      title: 'Scheduled Maintenance - Dining Hall',
-      date: '2024-08-05',
-      content: 'Kitchen deep cleaning scheduled for this weekend. Alternative meal arrangements in place.'
+      icon: <ShieldAlert size={18} />,
+      title: 'Adlam House Elevator Maintenance',
+      date: '2026-01-28',
+      content: 'Elevator technician arriving Jan 29. Use stairs for North Block.'
     },
     {
       id: 2,
       type: 'info',
-      title: 'New Equipment Installation',
-      date: '2024-08-03',
-      content: 'New projectors installed in Lecture Rooms 101-104. Training session for faculty scheduled.'
-    },
-    {
-      id: 3,
-      type: 'warning',
-      title: 'Dormitory Block B Heating',
-      date: '2024-08-01',
-      content: 'Heating system repair in progress. Temporary heaters provided to affected rooms.'
+      icon: <Info size={18} />,
+      title: 'Nurses Home Laundry Update',
+      date: '2026-01-25',
+      content: 'New industrial washing machines installed in the main laundry room.'
     }
   ];
-
-  const handleShowDetails = (facility) => {
-    setSelectedFacility(facility);
-    setShowModal(true);
-  };
-
-  const getStatusBadgeClass = (status) => {
-    switch(status) {
-      case 'Excellent': return 'badge bg-success';
-      case 'Good': return 'badge bg-primary';
-      case 'Fair': return 'badge bg-warning text-dark';
-      default: return 'badge bg-secondary';
-    }
-  };
-
-  const getNoticeClass = (type) => {
-    switch(type) {
-      case 'urgent': return 'alert alert-danger';
-      case 'warning': return 'alert alert-warning';
-      case 'info': return 'alert alert-info';
-      default: return 'alert alert-light';
-    }
-  };
 
   const styles = {
     pageContainer: {
       minHeight: '100vh',
-      background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-      padding: '20px 0'
+      backgroundColor: colors.primary,
+      padding: '40px 0'
     },
     facilityCard: {
-      background: `linear-gradient(135deg, ${colors.primary} 0%, white 100%)`,
-      borderLeft: `5px solid ${colors.accent}`,
-      transition: 'transform 0.2s ease',
-      border: 'none'
-    },
-    facilityCardHover: {
-      transform: 'translateY(-5px)'
-    },
-    facilityHeader: {
-      backgroundColor: colors.secondary,
-      border: 'none'
-    },
-    noticesCard: {
-      background: `linear-gradient(135deg, ${colors.tertiary} 0%, ${colors.secondary} 100%)`,
-      color: 'white',
-      border: 'none'
-    },
-    noticesHeader: {
-      backgroundColor: colors.accent,
+      backgroundColor: 'white',
+      borderLeft: `6px solid ${colors.tertiary}`,
+      borderRadius: '15px',
+      transition: 'all 0.3s ease',
       border: 'none'
     },
     titleAccent: {
-      color: colors.accent
-    },
-    btnOutlineCustom: {
-      borderColor: colors.accent,
       color: colors.accent,
-      backgroundColor: 'transparent'
+      fontWeight: '800'
     },
-    btnOutlineCustomHover: {
+    btnCustom: {
       backgroundColor: colors.accent,
-      borderColor: colors.accent,
-      color: 'white'
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '10px'
     },
     modalHeader: {
-      backgroundColor: colors.secondary,
-      borderBottom: `3px solid ${colors.accent}`
-    },
-    modalBody: {
-      backgroundColor: colors.primary
-    },
-    inventoryHeader: {
-      backgroundColor: colors.secondary
-    },
-    issuesHeader: {
-      backgroundColor: colors.tertiary,
+      backgroundColor: colors.accent,
       color: 'white'
-    }
+    },
+    badge: (status) => ({
+      backgroundColor: status === 'Good' ? '#D1FAE5' : '#FEF3C7',
+      color: status === 'Good' ? '#065F46' : '#92400E',
+      fontWeight: 'bold'
+    })
   };
 
   return (
-    <>
-      {/* Bootstrap CSS CDN */}
-      <link 
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" 
-        rel="stylesheet" 
-      />
+    <div style={styles.pageContainer}>
+      {/* Bootstrap CSS */}
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
       
-      <div style={styles.pageContainer}>
-        <div className="container-fluid">
-          {/* Header */}
-          <div className="row mb-4">
-            <div className="col">
-              <div className="text-center" style={styles.titleAccent}>
-                <h1 className="display-4 fw-bold mb-2">🏥 Zimbabwe Nursing School</h1>
-                <h2 className="h3">Facilities Management Dashboard</h2>
-                <p className="lead">Monitor and manage all campus facilities</p>
-              </div>
-            </div>
+      <div className="container">
+        {/* Header */}
+        <div className="row mb-5 text-center">
+          <div className="col">
+            <h1 style={styles.titleAccent} className="display-5">Dormitory Facilities Management</h1>
+            <p className="text-muted">Tracking inventory and maintenance for Adlam House and Nurses Home</p>
           </div>
+        </div>
 
+        <div className="row g-4">
           {/* Facilities Cards */}
-          <div className="row">
-            {facilities.map((facility) => (
-              <div className="col-lg-4 col-md-6 mb-4" key={facility.id}>
-                <div 
-                  className="card h-100 shadow-sm"
-                  style={styles.facilityCard}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                >
-                  <div className="card-header text-center" style={styles.facilityHeader}>
-                    <div style={{ fontSize: '2rem' }}>{facility.icon}</div>
-                    <h5 className="mb-0" style={styles.titleAccent}>
-                      {facility.name}
-                    </h5>
-                  </div>
-                  <div className="card-body">
-                    <div className="row mb-3">
-                      <div className="col">
-                        <small className="text-muted">Last Inspection</small>
-                        <div className="fw-bold">{facility.lastInspection}</div>
-                      </div>
-                      <div className="col">
-                        <small className="text-muted">Grade</small>
-                        <div>
-                          <span className={getStatusBadgeClass(facility.status)} style={{ fontSize: '0.9rem' }}>
-                            {facility.inspectionScore}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-3">
-                      <small className="text-muted">Status</small>
-                      <div>
-                        <span className={getStatusBadgeClass(facility.status)}>
-                          {facility.status}
+          <div className="col-lg-8">
+            <div className="row g-4">
+              {facilities.map((facility) => (
+                <div className="col-md-6" key={facility.id}>
+                  <div className="card h-100 shadow-sm" style={styles.facilityCard}>
+                    <div className="card-body p-4">
+                      <div className="d-flex justify-content-between align-items-start mb-3">
+                        <div style={{ color: colors.tertiary }}>{facility.icon}</div>
+                        <span className="badge p-2" style={styles.badge(facility.status)}>
+                          Grade: {facility.inspectionScore}
                         </span>
                       </div>
-                    </div>
-
-                    <div className="mb-3">
-                      <small className="text-muted">Key Inventory</small>
-                      <div className="mt-1">
-                        {facility.inventory.slice(0, 3).map((item, index) => (
-                          <div key={index} className="d-flex justify-content-between py-1" style={{ fontSize: '0.85rem' }}>
+                      <h4 style={styles.titleAccent}>{facility.name}</h4>
+                      <p className="small text-muted mb-4">Last Inspected: {facility.lastInspection}</p>
+                      
+                      <div className="mb-4">
+                        <h6 className="fw-bold mb-2 small text-uppercase" style={{ letterSpacing: '1px' }}>Core Facilities</h6>
+                        {facility.inventory.slice(0, 4).map((item, i) => (
+                          <div key={i} className="d-flex justify-content-between border-bottom py-2 small">
                             <span>{item.item}</span>
-                            <span className="text-muted">{item.quantity}</span>
+                            <span className="fw-bold text-primary">{item.quantity}</span>
                           </div>
                         ))}
                       </div>
-                    </div>
 
-                    <button 
-                      className="btn btn-sm w-100"
-                      style={styles.btnOutlineCustom}
-                      onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = colors.accent;
-                        e.target.style.color = 'white';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = 'transparent';
-                        e.target.style.color = colors.accent;
-                      }}
-                      onClick={() => handleShowDetails(facility)}
-                    >
-                      View Details
-                    </button>
+                      <button 
+                        className="btn w-100 d-flex align-items-center justify-content-center" 
+                        style={styles.btnCustom}
+                        onClick={() => { setSelectedFacility(facility); setShowModal(true); }}
+                      >
+                        View Full Assets <ArrowRight size={16} className="ms-2" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
 
-            {/* Notices Card */}
-            <div className="col-lg-4 col-md-6 mb-4">
-              <div className="card h-100 shadow-sm" style={styles.noticesCard}>
-                <div className="card-header text-center" style={styles.noticesHeader}>
-                  <div style={{ fontSize: '2rem' }}>📢</div>
-                  <h5 className="mb-0">Important Notices</h5>
-                </div>
-                <div className="card-body">
-                  {notices.map((notice) => (
-                    <div key={notice.id} className={getNoticeClass(notice.type) + ' mb-2 p-2'} style={{ fontSize: '0.85rem' }}>
-                      <div className="fw-bold">{notice.title}</div>
-                      <small className="text-muted d-block mb-1">{notice.date}</small>
-                      <div>{notice.content}</div>
+          {/* Notices Sidebar */}
+          <div className="col-lg-4">
+            <div className="card border-0 shadow-sm" style={{ borderRadius: '15px', backgroundColor: colors.secondary }}>
+              <div className="card-body p-4">
+                <h5 className="fw-bold mb-4 d-flex align-items-center" style={{ color: colors.accent }}>
+                  <ClipboardCheck className="me-2" /> Maintenance Notices
+                </h5>
+                {notices.map((notice) => (
+                  <div key={notice.id} className="bg-white p-3 rounded-3 mb-3 shadow-sm border-start border-4 border-primary">
+                    <div className="d-flex align-items-center mb-2" style={{ color: colors.tertiary }}>
+                      {notice.icon}
+                      <span className="ms-2 fw-bold small">{notice.title}</span>
                     </div>
-                  ))}
-                </div>
+                    <p className="mb-0 text-muted small" style={{ fontSize: '0.8rem' }}>{notice.content}</p>
+                    <small className="text-primary fw-bold mt-2 d-block">{notice.date}</small>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Details Modal */}
-        {showModal && (
-          <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-            <div className="modal-dialog modal-lg">
-              <div className="modal-content">
-                <div className="modal-header" style={styles.modalHeader}>
-                  <h5 className="modal-title" style={styles.titleAccent}>
-                    {selectedFacility?.icon} {selectedFacility?.name} - Detailed View
-                  </h5>
-                  <button 
-                    type="button" 
-                    className="btn-close" 
-                    onClick={() => setShowModal(false)}
-                  ></button>
-                </div>
-                <div className="modal-body" style={styles.modalBody}>
-                  {selectedFacility && (
-                    <>
-                      <div className="row mb-4">
-                        <div className="col-md-4">
-                          <div className="card text-center border-0" style={{ backgroundColor: 'white' }}>
-                            <div className="card-body">
-                              <h6>Inspection Score</h6>
-                              <span className={getStatusBadgeClass(selectedFacility.status)} style={{ fontSize: '1.2rem' }}>
-                                {selectedFacility.inspectionScore}
-                              </span>
+      {/* Detail Modal */}
+      {showModal && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content border-0" style={{ borderRadius: '20px', overflow: 'hidden' }}>
+              <div className="modal-header border-0 p-4" style={styles.modalHeader}>
+                <h5 className="modal-title fw-bold d-flex align-items-center">
+                  {selectedFacility.icon} <span className="ms-3">{selectedFacility.name} Inventory Report</span>
+                </h5>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
+              </div>
+              <div className="modal-body p-4" style={{ backgroundColor: '#F8FAFC' }}>
+                <div className="row g-4">
+                  <div className="col-md-7">
+                    <div className="bg-white p-3 rounded shadow-sm">
+                      <h6 className="fw-bold mb-3 text-primary">Detailed Room Breakdown</h6>
+                      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                        {selectedFacility.inventory.map((item, i) => (
+                          <div key={i} className="d-flex justify-content-between p-2 border-bottom">
+                            <div>
+                              <div className="fw-bold small">{item.item}</div>
+                              <div className="text-muted" style={{ fontSize: '0.75rem' }}>Condition: {item.condition}</div>
                             </div>
+                            <span className="badge bg-primary align-self-center">{item.quantity}</span>
                           </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="card text-center border-0" style={{ backgroundColor: 'white' }}>
-                            <div className="card-body">
-                              <h6>Last Inspection</h6>
-                              <div className="fw-bold">{selectedFacility.lastInspection}</div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="card text-center border-0" style={{ backgroundColor: 'white' }}>
-                            <div className="card-body">
-                              <h6>Overall Status</h6>
-                              <span className={getStatusBadgeClass(selectedFacility.status)}>
-                                {selectedFacility.status}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        ))}
                       </div>
-
-                      <div className="row">
-                        <div className="col-md-8">
-                          <div className="card border-0" style={{ backgroundColor: 'white' }}>
-                            <div className="card-header" style={styles.inventoryHeader}>
-                              <h6 className="mb-0">Complete Inventory</h6>
-                            </div>
-                            <div className="card-body">
-                              <div className="list-group">
-                                {selectedFacility.inventory.map((item, index) => (
-                                  <div key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                      <div className="fw-bold">{item.item}</div>
-                                      <small className="text-muted">Condition: {item.condition}</small>
-                                    </div>
-                                    <span className="badge bg-primary rounded-pill">{item.quantity}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
+                    </div>
+                  </div>
+                  <div className="col-md-5">
+                    <div className="bg-white p-3 rounded shadow-sm mb-3">
+                      <h6 className="fw-bold text-danger mb-3 d-flex align-items-center">
+                        <AlertCircle size={18} className="me-2" /> Pending Issues
+                      </h6>
+                      {selectedFacility.issues.map((issue, i) => (
+                        <div key={i} className="p-2 mb-2 bg-light rounded small border-start border-danger border-3">
+                          {issue}
                         </div>
-                        <div className="col-md-4">
-                          <div className="card border-0" style={{ backgroundColor: 'white' }}>
-                            <div className="card-header" style={styles.issuesHeader}>
-                              <h6 className="mb-0">Issues & Notes</h6>
-                            </div>
-                            <div className="card-body">
-                              {selectedFacility.issues.map((issue, index) => (
-                                <div key={index} className="alert alert-light mb-2 p-2">
-                                  <small>{issue}</small>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="modal-footer" style={styles.modalBody}>
-                  <button 
-                    type="button" 
-                    className="btn"
-                    style={{ backgroundColor: colors.accent, borderColor: colors.accent, color: 'white' }}
-                    onClick={() => setShowModal(false)}
-                  >
-                    Close
-                  </button>
-                </div>
+              </div>
+              <div className="modal-footer border-0 bg-light">
+                <button className="btn btn-secondary rounded-pill px-4" onClick={() => setShowModal(false)}>Close Report</button>
               </div>
             </div>
           </div>
-        )}
-      </div>
-    </>
+        </div>
+      )}
+    </div>
   );
 };
 

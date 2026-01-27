@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { User, Lock, Mail, Phone, UserCheck, GraduationCap, Shield, BookOpen, Eye, EyeOff, Upload, Calendar, MapPin, Users } from 'lucide-react';
+import { User, Lock, Mail, Phone, UserCheck, GraduationCap, Shield, BookOpen, Eye, EyeOff, Upload, Calendar, MapPin, Users, Building, AlertTriangle, AlertCircle, Info, Clock } from 'lucide-react';
 import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from "react-router-dom";
-
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -38,9 +37,9 @@ const AuthPage = () => {
   });
 
   const userTypes = [
-    { value: 'student', label: 'Student', icon: <GraduationCap size={20} />, color: '#EC7FA9' },
-    { value: 'staff', label: 'Staff', icon: <Users size={20} />, color: '#BE5985' },
-    { value: 'admin', label: 'Administrator', icon: <Shield size={20} />, color: '#FFB8E0' }
+    { value: 'student', label: 'Student', icon: <GraduationCap size={20} />, color: '#3B82F6' },
+    { value: 'staff', label: 'Staff', icon: <Users size={20} />, color: '#2563EB' },
+    { value: 'admin', label: 'Administrator', icon: <Shield size={20} />, color: '#1E40AF' }
   ];
 
   const courses = [
@@ -200,7 +199,6 @@ const AuthPage = () => {
         lastLoggedIn: new Date().toISOString(),
       };
 
-      // const response = await fetch(`https://nursing-school-backend-vu0d.onrender.com/${endpoint}`, {
       const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/${endpoint}`, {
         method: 'POST',
         headers: {
@@ -212,7 +210,6 @@ const AuthPage = () => {
       const data = await response.json();
 
       if (response.ok && data.token) {
-        // Use in-memory storage for demo purposes
         const authData = {
           token: data.token,
           user: formData.username,
@@ -224,8 +221,6 @@ const AuthPage = () => {
         localStorage.setItem('userType', formData.userType);
         
         setMessage('Authentication successful! Redirecting...');
-
-        
         
         setTimeout(() => {
           console.log('Redirecting based on user type:', authData.userType);
@@ -244,7 +239,7 @@ const AuthPage = () => {
 
   const customStyles = {
     authBg: {
-      background: 'linear-gradient(135deg, #FFEDFA 0%, #FFB8E0 100%)',
+      background: 'linear-gradient(135deg, #F0F9FF 0%, #BFDBFE 100%)',
       minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
@@ -253,20 +248,20 @@ const AuthPage = () => {
     },
     authCard: {
       borderRadius: '1.5rem',
-      boxShadow: '0 20px 40px rgba(190, 89, 133, 0.15)',
+      boxShadow: '0 20px 40px rgba(30, 58, 138, 0.15)',
       overflow: 'hidden',
       border: 'none'
     },
     authHeader: {
-      background: 'linear-gradient(135deg, #BE5985 0%, #EC7FA9 100%)',
+      background: 'linear-gradient(135deg, #1E40AF 0%, #2563EB 100%)',
       color: 'white',
       padding: '2rem',
       textAlign: 'center'
     },
     toggleBtn: {
       backgroundColor: 'transparent',
-      border: '2px solid #FFB8E0',
-      color: '#BE5985',
+      border: '2px solid #93C5FD',
+      color: '#1E40AF',
       padding: '0.5rem 1.5rem',
       borderRadius: '2rem',
       fontWeight: '500',
@@ -275,12 +270,12 @@ const AuthPage = () => {
       margin: '0 0.5rem'
     },
     toggleBtnActive: {
-      backgroundColor: '#FFB8E0',
-      borderColor: '#FFB8E0',
-      color: '#BE5985'
+      backgroundColor: '#3B82F6',
+      borderColor: '#3B82F6',
+      color: 'white'
     },
     userTypeCard: {
-      border: '2px solid #FFB8E0',
+      border: '2px solid #93C5FD',
       borderRadius: '0.75rem',
       padding: '1rem',
       textAlign: 'center',
@@ -290,18 +285,18 @@ const AuthPage = () => {
       marginBottom: '1rem'
     },
     userTypeCardSelected: {
-      borderColor: '#EC7FA9',
-      backgroundColor: '#EC7FA9',
+      borderColor: '#2563EB',
+      backgroundColor: '#2563EB',
       color: 'white'
     },
     formControl: {
-      border: '2px solid #FFB8E0',
+      border: '2px solid #93C5FD',
       borderRadius: '0.75rem',
       padding: '0.75rem 1rem',
       transition: 'all 0.3s ease'
     },
     btnPrimary: {
-      background: 'linear-gradient(135deg, #EC7FA9 0%, #BE5985 100%)',
+      background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
       border: 'none',
       borderRadius: '0.75rem',
       padding: '0.75rem 2rem',
@@ -315,7 +310,7 @@ const AuthPage = () => {
       left: '1rem',
       top: '50%',
       transform: 'translateY(-50%)',
-      color: '#EC7FA9',
+      color: '#2563EB',
       zIndex: 10
     },
     passwordToggle: {
@@ -325,7 +320,7 @@ const AuthPage = () => {
       transform: 'translateY(-50%)',
       background: 'none',
       border: 'none',
-      color: '#EC7FA9',
+      color: '#2563EB',
       cursor: 'pointer',
       zIndex: 10
     },
@@ -333,7 +328,7 @@ const AuthPage = () => {
       width: '100px',
       height: '100px',
       borderRadius: '50%',
-      border: '3px dashed #FFB8E0',
+      border: '3px dashed #93C5FD',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -405,7 +400,7 @@ const AuthPage = () => {
                 <Form onSubmit={handleSubmit}>
                   {/* Account Type Dropdown */}
                   <Form.Group className="mb-4">
-                    <Form.Label className="fw-medium" style={{ color: '#BE5985' }}>
+                    <Form.Label className="fw-medium" style={{ color: '#1E3A8A' }}>
                       Account Type
                     </Form.Label>
                     <div className="position-relative">
@@ -428,7 +423,7 @@ const AuthPage = () => {
                   {/* User Type Cards (Registration Only) */}
                   {!isLogin && (
                     <Form.Group className="mb-4">
-                      <Form.Label className="fw-medium mb-3" style={{ color: '#BE5985' }}>
+                      <Form.Label className="fw-medium mb-3" style={{ color: '#1E3A8A' }}>
                         I am registering as:
                       </Form.Label>
                       <Row>
@@ -455,14 +450,14 @@ const AuthPage = () => {
                   {/* Avatar Upload (Registration Only) */}
                   {!isLogin && (
                     <Form.Group className="mb-4 text-center">
-                      <Form.Label className="fw-medium d-block mb-2" style={{ color: '#BE5985' }}>
+                      <Form.Label className="fw-medium d-block mb-2" style={{ color: '#1E3A8A' }}>
                         Profile Picture
                       </Form.Label>
                       <div style={customStyles.avatarUpload} onClick={() => document.getElementById('avatar-input').click()}>
                         {avatarPreview ? (
                           <img src={avatarPreview} alt="Avatar preview" style={customStyles.avatarPreview} />
                         ) : (
-                          <Upload style={{ color: '#EC7FA9' }} size={24} />
+                          <Upload style={{ color: '#2563EB' }} size={24} />
                         )}
                       </div>
                       <Form.Control
@@ -755,7 +750,7 @@ const AuthPage = () => {
 
                       {/* Emergency Contact */}
                       <Form.Group className="mb-3">
-                        <Form.Label className="fw-medium mb-2" style={{ color: '#BE5985' }}>
+                        <Form.Label className="fw-medium mb-2" style={{ color: '#1E3A8A' }}>
                           Emergency Contact
                         </Form.Label>
                         <Row>
@@ -810,24 +805,24 @@ const AuthPage = () => {
                   {/* Additional Links */}
                   <div className="text-center">
                     {isLogin ? (
-                      <p className="small mb-0" style={{ color: '#EC7FA9' }}>
+                      <p className="small mb-0" style={{ color: '#2563EB' }}>
                         Don't have an account?{' '}
                         <Button
                           variant="link"
                           className="p-0 fw-medium text-decoration-none"
-                          style={{ color: '#EC7FA9' }}
+                          style={{ color: '#2563EB' }}
                           onClick={() => handleToggle(false)}
                         >
                           Sign up here
                         </Button>
                       </p>
                     ) : (
-                      <p className="small mb-0" style={{ color: '#EC7FA9' }}>
+                      <p className="small mb-0" style={{ color: '#2563EB' }}>
                         Already have an account?{' '}
                         <Button
                           variant="link"
                           className="p-0 fw-medium text-decoration-none"
-                          style={{ color: '#EC7FA9' }}
+                          style={{ color: '#2563EB' }}
                           onClick={() => handleToggle(true)}
                         >
                           Sign in here
@@ -845,7 +840,4 @@ const AuthPage = () => {
   );
 };
 
-
 export default AuthPage;
-
-
