@@ -37,18 +37,22 @@
 
 :root {
   /* Primary color palette */
-  --primary-dark: #004030;
-  --primary-medium: #4A9782;
-  --primary-light: #DCD0A8;
-  --primary-lightest: #FFF9E5;
+  --primary-dark: #000e36;
+  --primary-medium: #002078;
+  --primary-light: #97b3ff;
+  --primary-lightest: #dde6ff;
+
+  /* staff theme colors */
+  --staff-bg: #003ad8;
+  --staff-text: #ffffff;
   
-  /* Patient theme colors */
-  --patient-bg: #E5F9FF;
-  --patient-text: #006080;
+  /* student theme colors */
+  --student-bg: #caf3ff;
+  --student-text: #000e36;
   
   /* Admin theme colors */
   --admin-bg: #000e36;
-  --admin-text: #ff92cc;
+  --admin-text: #ffffff;
 }
 
 /* Override Bootstrap defaults for sidebar */
@@ -74,70 +78,70 @@
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
-/* Doctor theme (default) */
-.sidebar.doctor {
-  background-color: var(--primary-lightest);
+/* staff theme (default) */
+.sidebar.staff {
+  background-color: var(--staff-bg);
   border-right-color: var(--primary-dark);
-  color: var(--primary-dark);
+  color: var(--staff-text);
 }
 
-.sidebar.doctor .sidebar-header {
-  border-bottom-color: var(--primary-dark);
+.sidebar.staff .sidebar-header {
+  border-bottom-color: var(--admin-bg);
 }
 
-.sidebar.doctor .nav-link:hover {
+.sidebar.staff .nav-link:hover {
   background-color: rgba(0, 64, 48, 0.1);
   color: var(--primary-dark);
 }
 
-.sidebar.doctor .nav-link.active {
+.sidebar.staff .nav-link.active {
   background-color: rgba(0, 64, 48, 0.2);
   color: var(--primary-dark);
 }
 
-.sidebar.doctor .user-avatar {
+.sidebar.staff .user-avatar {
   background-color: rgba(0, 64, 48, 0.2);
 }
 
-.sidebar.doctor .sidebar-divider {
+.sidebar.staff .sidebar-divider {
   border-top-color: var(--primary-dark);
 }
 
-.sidebar.doctor .sidebar-footer {
+.sidebar.staff .sidebar-footer {
   border-top-color: var(--primary-dark);
 }
 
-/* Patient theme */
-.sidebar.patient {
-  background-color: var(--patient-bg);
-  border-right-color: var(--patient-text);
-  color: var(--patient-text);
+/* student theme */
+.sidebar.student {
+  background-color: var(--student-bg);
+  border-right-color: var(--student-text);
+  color: var(--student-text);
 }
 
-.sidebar.patient .sidebar-header {
-  border-bottom-color: var(--patient-text);
+.sidebar.student .sidebar-header {
+  border-bottom-color: var(--student-text);
 }
 
-.sidebar.patient .nav-link:hover {
+.sidebar.student .nav-link:hover {
   background-color: rgba(0, 96, 128, 0.1);
-  color: var(--patient-text);
+  color: var(--student-text);
 }
 
-.sidebar.patient .nav-link.active {
+.sidebar.student .nav-link.active {
   background-color: rgba(0, 96, 128, 0.2);
-  color: var(--patient-text);
+  color: var(--student-text);
 }
 
-.sidebar.patient .user-avatar {
+.sidebar.student .user-avatar {
   background-color: rgba(0, 96, 128, 0.2);
 }
 
-.sidebar.patient .sidebar-divider {
-  border-top-color: var(--patient-text);
+.sidebar.student .sidebar-divider {
+  border-top-color: var(--student-text);
 }
 
-.sidebar.patient .sidebar-footer {
-  border-top-color: var(--patient-text);
+.sidebar.student .sidebar-footer {
+  border-top-color: var(--student-text);
 }
 
 /* Admin theme */

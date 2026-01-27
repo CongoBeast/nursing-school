@@ -220,7 +220,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
 
 
   const navItems = {
-    doctor: [
+    staff: [
       { name: "My Patients", icon: <Users size={18} />, href: "/patient-list" , onClick: handleNavClick },
       { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "#attendance" },
       { name: "Schedule", icon: <Calendar size={18} />, href: "/schedule"  },
@@ -229,7 +229,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
       { name: "View Profile", icon: <User size={18} />, href: "/doctor" },
       { name: "Log Out", icon: <LogOut size={18} />, href: "/logout" , onClick: handleLogout}
     ],
-    patient: [
+    student: [
       { name: "My Records", icon: <FileText size={18} />, href: "/patient-records"},
       { name: "My Doctors", icon: <Stethoscope size={18} />, href: "/mydoctors" },
       { name: "Prescriptions", icon: <Pill size={18} />, href: "/prescriptions" },
@@ -260,9 +260,9 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
 
   const getRoleLogo = () => {
     switch(userRole) {
-      case 'doctor':
+      case 'staff':
         return <Stethoscope size={24} />;
-      case 'patient':
+      case 'student':
         return <User size={24} />;
       case 'admin':
         return <Shield size={24} />;
@@ -273,10 +273,10 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
 
   const getPortalTitle = () => {
     switch(userRole) {
-      case 'doctor':
-        return 'Doctor Portal';
-      case 'patient':
-        return 'Patient Portal';
+      case 'staff':
+        return 'Staff Portal';
+      case 'student':
+        return 'Student Portal';
       case 'admin':
         return 'Admin Portal';
       default:
@@ -286,9 +286,9 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
 
   const getUserName = () => {
     switch(userRole) {
-      case 'doctor':
+      case 'staff':
         return 'Dr. Smith';
-      case 'patient':
+      case 'student':
         return 'John Doe';
       case 'admin':
         return 'Admin User';
@@ -314,11 +314,11 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
-        .top-navbar.doctor {
+        .top-navbar.staff {
           background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         }
         
-        .top-navbar.patient {
+        .top-navbar.student {
           background: linear-gradient(135deg, #059669 0%, #047857 100%);
         }
         
@@ -374,11 +374,11 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
           color: white;
         }
         
-        .user-avatar.doctor {
+        .user-avatar.staff {
           background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         }
         
-        .user-avatar.patient {
+        .user-avatar.student {
           background: linear-gradient(135deg, #059669 0%, #047857 100%);
         }
         
