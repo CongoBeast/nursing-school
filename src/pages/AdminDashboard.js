@@ -16,9 +16,35 @@ import {
   MapPin
 } from 'lucide-react';
 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const AdminDashboard = () => {
   const [showNoticeModal, setShowNoticeModal] = React.useState(false);
   const [showEventModal, setShowEventModal] = React.useState(false);
+
+  // Add state for form data
+  const [noticeForm, setNoticeForm] = React.useState({
+    title: '',
+    content: '',
+    priority: 'medium',
+    date: ''
+  });
+
+  const [eventForm, setEventForm] = React.useState({
+    title: '',
+    datetime: '',
+    location: ''
+  });
+
+  const [isSubmittingNotice, setIsSubmittingNotice] = React.useState(false);
+  const [isSubmittingEvent, setIsSubmittingEvent] = React.useState(false);
+
+  // Add state for data fetching
+  const [notices, setNotices] = React.useState([]);
+  const [events, setEvents] = React.useState([]);
+  const [loadingNotices, setLoadingNotices] = React.useState(true);
+  const [loadingEvents, setLoadingEvents] = React.useState(true);
   
   // Sample data
   const stats = {
@@ -28,74 +54,145 @@ const AdminDashboard = () => {
     totalStaff: 45
   };
 
-  const notices = [
-    {
-      id: 1,
-      title: "Final Examination Schedule Released",
-      date: "2025-08-01",
-      priority: "high",
-      content: "Final examinations for Semester 2 will commence on August 15th, 2025. Please check your individual timetables."
-    },
-    {
-      id: 2,
-      title: "Library Extended Hours",
-      date: "2025-07-30",
-      priority: "medium",
-      content: "The library will be open 24/7 during examination period starting August 10th."
-    },
-    {
-      id: 3,
-      title: "Student Health Insurance Renewal",
-      date: "2025-07-28",
-      priority: "medium",
-      content: "All students must renew their health insurance before August 20th, 2025."
-    },
-    {
-      id: 4,
-      title: "Campus WiFi Maintenance",
-      date: "2025-07-25",
-      priority: "low",
-      content: "Network maintenance scheduled for August 5th from 2:00 AM to 6:00 AM."
+  // Fetch notices
+  const fetchNotices = async () => {
+    setLoadingNotices(true);
+    try {
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-notices');
+      const data = await response.json();
+      setNotices(data);
+    } catch (error) {
+      console.error('Error fetching notices:', error);
+      toast.error('Failed to load notices', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoadingNotices(false);
     }
-  ];
+  };
 
-  const events = [
-    {
-      id: 1,
-      title: "Nursing Skills Assessment",
-      date: "2025-08-08",
-      time: "09:00 AM",
-      location: "Clinical Skills Lab"
-    },
-    {
-      id: 2,
-      title: "Guest Lecture: Modern Healthcare Technology",
-      date: "2025-08-12",
-      time: "02:00 PM",
-      location: "Main Auditorium"
-    },
-    {
-      id: 3,
-      title: "Student Council Meeting",
-      date: "2025-08-15",
-      time: "04:00 PM",
-      location: "Conference Room A"
-    },
-    {
-      id: 4,
-      title: "Clinical Placement Orientation",
-      date: "2025-08-20",
-      time: "10:00 AM",
-      location: "Lecture Hall 1"
-    },
-    {
-      id: 5,
-      title: "Annual Nursing Conference",
-      date: "2025-08-25",
-      time: "08:00 AM",
-      location: "Convention Center"
+  // Fetch events
+  const fetchEvents = async () => {
+    setLoadingEvents(true);
+    try {
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-events');
+      const data = await response.json();
+      setEvents(data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      toast.error('Failed to load events', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoadingEvents(false);
     }
-  ];
+  };
+
+  // Handle form submission
+  // Handle notice submission
+  const handleNoticeSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmittingNotice(true);
+    
+    try {
+      const username = localStorage.getItem('user') || 'Unknown';
+      
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-notice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...noticeForm,
+          postedBy: username
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Notice published successfully!', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        setShowNoticeModal(false);
+        setNoticeForm({ title: '', content: '', priority: 'medium', date: '' });
+        // Optionally refresh notices list here
+      } else {
+        toast.error('Failed to publish notice', {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+
+    } catch (error) {
+      console.error(error);
+      toast.error('Error publishing notice', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setIsSubmittingNotice(false);
+    }
+  };
+
+  // Handle event submission
+  const handleEventSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmittingEvent(true);
+    
+    try {
+      const username = localStorage.getItem('user') || 'Unknown';
+      
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...eventForm,
+          postedBy: username
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Event scheduled successfully!', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        setShowEventModal(false);
+        setEventForm({ title: '', datetime: '', location: '' });
+        fetchEvents(); // Refresh events
+      } else {
+        toast.error('Failed to schedule event', {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+
+    } catch (error) {
+      console.error(error);
+      toast.error('Error scheduling event', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setIsSubmittingEvent(false);
+    }
+  };
+
 
   const getPriorityIcon = (priority) => {
     switch(priority) {
@@ -126,6 +223,30 @@ const AdminDashboard = () => {
       year: 'numeric'
     });
   };
+
+  const loadingContainer = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '60px 20px',
+    color: '#2563EB'
+  };
+
+  const emptyStateContainer = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '60px 20px',
+    color: '#6B7280',
+    textAlign: 'center'
+  };
+
+  React.useEffect(() => {
+    fetchNotices();
+    fetchEvents();
+  }, []);
 
   const styles = {
     body: {
@@ -346,77 +467,102 @@ const AdminDashboard = () => {
         {/* Content Cards Row */}
         <div className="row">
           {/* Notices Card */}
-          <div className="col-lg-6 col-md-12 mb-4">
-            <div style={{...styles.card, height: '500px'}}>
-              <div style={{...styles.cardHeader, backgroundColor: '#1E40AF'}}>
-                <Bell size={20} />
-                School Notices
+          <div className="col-lg-4 col-md-12 m-4" style={styles.cardBody}>
+            {loadingNotices ? (
+              <div style={loadingContainer}>
+                <div className="spinner-border" role="status" style={{ width: '3rem', height: '3rem', color: '#2563EB' }}>
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                <p style={{ marginTop: '20px', fontSize: '1.1rem', fontWeight: '500' }}>Loading notices...</p>
               </div>
-              <div style={styles.cardBody}>
-                {notices.map((notice) => (
-                  <div key={notice.id} style={styles.listItem}>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px'}}>
-                      <h6 style={styles.noticeTitle}>
-                        {notice.title}
-                      </h6>
-                      <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                        <span 
-                          style={{
-                            ...styles.badge,
-                            backgroundColor: getPriorityColor(notice.priority),
-                            color: getPriorityTextColor(notice.priority)
-                          }}
-                        >
-                          {getPriorityIcon(notice.priority)}
-                          {notice.priority.toUpperCase()}
-                        </span>
-                        <small style={styles.dateText}>
-                          {formatDate(notice.date)}
-                        </small>
-                      </div>
+            ) : notices.length === 0 ? (
+              <div style={emptyStateContainer}>
+                <Bell size={48} color="#93C5FD" style={{ marginBottom: '15px' }} />
+                <h5 style={{ color: '#1E40AF', marginBottom: '10px' }}>No Notices Yet</h5>
+                <p style={{ color: '#6B7280', margin: 0 }}>
+                  There are currently no school notices. Check back later for updates!
+                </p>
+              </div>
+            ) : (
+              notices.map((notice) => (
+                <div key={notice._id} style={styles.listItem}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px'}}>
+                    <h6 style={styles.noticeTitle}>
+                      {notice.title}
+                    </h6>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                      <span 
+                        style={{
+                          ...styles.badge,
+                          backgroundColor: getPriorityColor(notice.priority),
+                          color: getPriorityTextColor(notice.priority)
+                        }}
+                      >
+                        {getPriorityIcon(notice.priority)}
+                        {notice.priority.toUpperCase()}
+                      </span>
+                      <small style={styles.dateText}>
+                        {formatDate(notice.date)}
+                      </small>
                     </div>
-                    <p style={styles.noticeContent}>
-                      {notice.content}
-                    </p>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <p style={styles.noticeContent}>
+                    {notice.content}
+                  </p>
+                  <small style={{ color: '#9CA3AF', fontSize: '0.75rem', fontStyle: 'italic' }}>
+                    Posted by {notice.postedBy}
+                  </small>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Calendar Events Card */}
-          <div className="col-lg-6 col-md-12 mb-4">
-            <div style={{...styles.card, height: '500px'}}>
-              <div style={{...styles.cardHeader, backgroundColor: '#2563EB'}}>
-                <Calendar size={20} />
-                Upcoming Events
+          <div className="col-lg-4 col-md-12 m-4" style={styles.cardBody}>
+            {loadingEvents ? (
+              <div style={loadingContainer}>
+                <div className="spinner-border" role="status" style={{ width: '3rem', height: '3rem', color: '#2563EB' }}>
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                <p style={{ marginTop: '20px', fontSize: '1.1rem', fontWeight: '500' }}>Loading events...</p>
               </div>
-              <div style={styles.cardBody}>
-                {events.map((event) => (
-                  <div key={event.id} style={styles.listItem}>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px'}}>
-                      <h6 style={styles.eventTitle}>
-                        {event.title}
-                      </h6>
-                      <span style={{...styles.badge, backgroundColor: '#BFDBFE', color: '#1E3A8A'}}>
-                        {formatDate(event.date)}
-                      </span>
-                    </div>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                      <span style={styles.eventDetail}>
-                        <Clock size={16} />
-                        {event.time}
-                      </span>
-                      <span style={styles.eventDetail}>
-                        <MapPin size={16} />
-                        {event.location}
-                      </span>
-                    </div>
+            ) : events.length === 0 ? (
+              <div style={emptyStateContainer}>
+                <Calendar size={48} color="#93C5FD" style={{ marginBottom: '15px' }} />
+                <h5 style={{ color: '#1E40AF', marginBottom: '10px' }}>No Upcoming Events</h5>
+                <p style={{ color: '#6B7280', margin: 0 }}>
+                  There are no scheduled events at the moment. Stay tuned for announcements!
+                </p>
+              </div>
+            ) : (
+              events.map((event) => (
+                <div key={event._id} style={styles.listItem}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px'}}>
+                    <h6 style={styles.eventTitle}>
+                      {event.title}
+                    </h6>
+                    <span style={{...styles.badge, backgroundColor: '#BFDBFE', color: '#1E3A8A'}}>
+                      {formatDate(event.date)}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                    <span style={styles.eventDetail}>
+                      <Clock size={16} />
+                      {event.time}
+                    </span>
+                    <span style={styles.eventDetail}>
+                      <MapPin size={16} />
+                      {event.location}
+                    </span>
+                  </div>
+                  <small style={{ color: '#9CA3AF', fontSize: '0.75rem', fontStyle: 'italic' }}>
+                    Posted by {event.postedBy}
+                  </small>
+                </div>
+              ))
+            )}
           </div>
+
         </div>
       </div>
 
@@ -431,48 +577,104 @@ const AdminDashboard = () => {
                 <button type="button" className="btn-close btn-close-white" onClick={() => setShowNoticeModal(false)}></button>
               </div>
               <div className="modal-body" style={{ backgroundColor: 'white' }}>
-                <form>
+                <form onSubmit={handleNoticeSubmit}>
                   <div className="mb-3">
                     <label className="form-label" style={{ color: '#1E3A8A', fontWeight: 'bold' }}>Notice Title</label>
-                    <input type="text" className="form-control" placeholder="e.g. Exam Results" required />
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="e.g. Exam Results" 
+                      value={noticeForm.title}
+                      onChange={(e) => setNoticeForm({...noticeForm, title: e.target.value})}
+                      required 
+                    />
                   </div>
                   
                   <div className="mb-3">
                     <label className="form-label" style={{ color: '#1E3A8A', fontWeight: 'bold' }}>Description</label>
-                    <textarea className="form-control" rows="3" placeholder="Enter notice details..." required></textarea>
+                    <textarea 
+                      className="form-control" 
+                      rows="3" 
+                      placeholder="Enter notice details..."
+                      value={noticeForm.content}
+                      onChange={(e) => setNoticeForm({...noticeForm, content: e.target.value})}
+                      required
+                    ></textarea>
                   </div>
 
                   <div className="mb-3">
                     <label className="form-label d-block" style={{ color: '#1E3A8A', fontWeight: 'bold' }}>Priority</label>
                     <div className="form-check form-check-inline">
-                      <input className="form-check-input" type="radio" name="priority" id="high" value="high" />
-                      <label className="form-check-label" htmlFor="high" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <AlertTriangle size={16} /> High
-                      </label>
+                      <input 
+                        className="form-check-input" 
+                        type="radio" 
+                        name="priority" 
+                        value="high"
+                        checked={noticeForm.priority === 'high'}
+                        onChange={(e) => setNoticeForm({...noticeForm, priority: e.target.value})}
+                      />
+                      <label className="form-check-label" htmlFor="high">High</label>
                     </div>
                     <div className="form-check form-check-inline">
-                      <input className="form-check-input" type="radio" name="priority" id="medium" value="medium" defaultChecked />
-                      <label className="form-check-label" htmlFor="medium" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <AlertCircle size={16} /> Medium
-                      </label>
+                      <input 
+                        className="form-check-input" 
+                        type="radio" 
+                        name="priority" 
+                        value="medium"
+                        checked={noticeForm.priority === 'medium'}
+                        onChange={(e) => setNoticeForm({...noticeForm, priority: e.target.value})}
+                      />
+                      <label className="form-check-label" htmlFor="medium">Medium</label>
                     </div>
                     <div className="form-check form-check-inline">
-                      <input className="form-check-input" type="radio" name="priority" id="low" value="low" />
-                      <label className="form-check-label" htmlFor="low" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <Info size={16} /> Low
-                      </label>
+                      <input 
+                        className="form-check-input" 
+                        type="radio" 
+                        name="priority" 
+                        value="low"
+                        checked={noticeForm.priority === 'low'}
+                        onChange={(e) => setNoticeForm({...noticeForm, priority: e.target.value})}
+                      />
+                      <label className="form-check-label" htmlFor="low">Low</label>
                     </div>
                   </div>
 
                   <div className="mb-3">
                     <label className="form-label" style={{ color: '#1E3A8A', fontWeight: 'bold' }}>Schedule Date</label>
-                    <input type="date" className="form-control" required />
+                    <input 
+                      type="date" 
+                      className="form-control"
+                      value={noticeForm.date}
+                      onChange={(e) => setNoticeForm({...noticeForm, date: e.target.value})}
+                      required 
+                    />
                   </div>
 
-                  <button type="submit" className="btn w-100" style={{ backgroundColor: '#1E40AF', color: 'white', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <Megaphone size={20} />
-                    Publish Notice
+                 <button type="submit" className="btn w-100" 
+                    style={{ 
+                      backgroundColor: isSubmittingNotice ? '#93C5FD' : '#1E40AF', 
+                      color: 'white', 
+                      fontWeight: 'bold', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      gap: '8px' 
+                    }}
+                    disabled={isSubmittingNotice}
+                  >
+                    {isSubmittingNotice ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Publishing...
+                      </>
+                    ) : (
+                      <>
+                        <Megaphone size={20} />
+                        Publish Notice
+                      </>
+                    )}
                   </button>
+
                 </form>
               </div>
             </div>
@@ -491,34 +693,79 @@ const AdminDashboard = () => {
                 <button type="button" className="btn-close btn-close-white" onClick={() => setShowEventModal(false)}></button>
               </div>
               <div className="modal-body" style={{ backgroundColor: 'white' }}>
-                <form>
+                <form onSubmit={handleEventSubmit}>
                   <div className="mb-3">
                     <label className="form-label" style={{ color: '#1E3A8A', fontWeight: 'bold' }}>Event Name</label>
-                    <input type="text" className="form-control" placeholder="e.g. Clinical Placement" required />
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="e.g. Clinical Placement"
+                      value={eventForm.title}
+                      onChange={(e) => setEventForm({...eventForm, title: e.target.value})}
+                      required 
+                    />
                   </div>
                   
                   <div className="row">
                     <div className="col-md-12 mb-3">
                       <label className="form-label" style={{ color: '#1E3A8A', fontWeight: 'bold' }}>Date and Time</label>
-                      <input type="datetime-local" className="form-control" required />
+                      <input 
+                        type="datetime-local" 
+                        className="form-control"
+                        value={eventForm.datetime}
+                        onChange={(e) => setEventForm({...eventForm, datetime: e.target.value})}
+                        required 
+                      />
                     </div>
                   </div>
 
                   <div className="mb-4">
                     <label className="form-label" style={{ color: '#1E3A8A', fontWeight: 'bold' }}>Location</label>
-                    <input type="text" className="form-control" placeholder="e.g. Ward B or Zoom" required />
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="e.g. Ward B or Zoom"
+                      value={eventForm.location}
+                      onChange={(e) => setEventForm({...eventForm, location: e.target.value})}
+                      required 
+                    />
                   </div>
 
-                  <button type="submit" className="btn w-100" style={{ backgroundColor: '#2563EB', color: 'white', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <CalendarPlus size={20} />
-                    Confirm Event
+                  <button 
+                    type="submit" 
+                    className="btn w-100" 
+                    style={{ 
+                      backgroundColor: isSubmittingEvent ? '#93C5FD' : '#2563EB', 
+                      color: 'white', 
+                      fontWeight: 'bold', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      gap: '8px' 
+                    }}
+                    disabled={isSubmittingEvent}
+                  >
+                    {isSubmittingEvent ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Scheduling...
+                      </>
+                    ) : (
+                      <>
+                        <CalendarPlus size={20} />
+                        Confirm Event
+                      </>
+                    )}
                   </button>
                 </form>
+
               </div>
             </div>
           </div>
         </div>
       )}
+
+      <ToastContainer />
 
       <style>{`
         .container-fluid {

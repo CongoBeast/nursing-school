@@ -4,10 +4,10 @@ import { Search, Download, Edit2, Trash2, Users, User, UserCheck, Bed, Home, Fil
 const AccomodationManagement = () => {
   // Color palette
   const colors = {
-    primary: '#FFEDFA',
-    secondary: '#FFB8E0', 
-    tertiary: '#EC7FA9',
-    accent: '#BE5985'
+    primary: '#E3F2FD',
+    secondary: '#90CAF9', 
+    tertiary: '#42A5F5',
+    accent: '#1565C0'
   };
 
   // Sample student data with accommodation details
@@ -338,7 +338,7 @@ const AccomodationManagement = () => {
     card: {
       border: 'none',
       borderRadius: '12px',
-      boxShadow: `0 4px 6px rgba(190, 89, 133, 0.1)`,
+      boxShadow: `0 4px 6px rgba(21, 101, 192, 0.1)`,
       marginBottom: '20px',
       overflow: 'hidden',
       backgroundColor: 'white'
@@ -361,13 +361,13 @@ const AccomodationManagement = () => {
       backgroundColor: 'white',
       padding: '20px',
       borderRadius: '12px',
-      boxShadow: `0 4px 6px rgba(190, 89, 133, 0.1)`,
+      boxShadow: `0 4px 6px rgba(21, 101, 192, 0.1)`,
       marginBottom: '20px'
     },
     tableContainer: {
       backgroundColor: 'white',
       borderRadius: '12px',
-      boxShadow: `0 4px 6px rgba(190, 89, 133, 0.1)`,
+      boxShadow: `0 4px 6px rgba(21, 101, 192, 0.1)`,
       overflow: 'hidden'
     },
     tableHeader: {
@@ -790,7 +790,7 @@ const AccomodationManagement = () => {
                             alt={student.name}
                             style={styles.avatar}
                             onError={(e) => {
-                              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&size=40&background=FFB8E0&color=BE5985`;
+                              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&size=40&background=90CAF9&color=1565C0`;
                             }}
                           />
                           <div>
@@ -881,7 +881,7 @@ const AccomodationManagement = () => {
                 backgroundColor: 'white',
                 borderRadius: '12px',
                 padding: '20px',
-                boxShadow: `0 4px 6px rgba(190, 89, 133, 0.1)`,
+                boxShadow: `0 4px 6px rgba(21, 101, 192, 0.1)`,
                 textAlign: 'center',
                 color: colors.tertiary
               }}>

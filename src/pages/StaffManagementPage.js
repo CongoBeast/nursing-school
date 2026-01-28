@@ -352,7 +352,7 @@ const StaffManagementPage = () => {
 
   const styles = {
     body: {
-      backgroundColor: '#FFEDFA',
+      backgroundColor: '#E3F2FD',
       minHeight: '100vh',
       padding: '20px',
       fontFamily: 'Arial, sans-serif'
@@ -361,14 +361,14 @@ const StaffManagementPage = () => {
       backgroundColor: 'white',
       padding: '15px 20px',
       borderRadius: '12px',
-      boxShadow: '0 4px 6px rgba(190, 89, 133, 0.1)',
+      boxShadow: '0 4px 6px rgba(21, 101, 192, 0.1)',
       marginBottom: '20px',
       display: 'flex',
       alignItems: 'center',
       gap: '10px'
     },
     breadcrumbLink: {
-      color: '#BE5985',
+      color: '#1565C0',
       textDecoration: 'none',
       fontWeight: 'bold',
       cursor: 'pointer',
@@ -377,17 +377,17 @@ const StaffManagementPage = () => {
       gap: '5px'
     },
     breadcrumbSeparator: {
-      color: '#EC7FA9'
+      color: '#42A5F5'
     },
     breadcrumbCurrent: {
-      color: '#EC7FA9',
+      color: '#42A5F5',
       fontWeight: 'bold',
       display: 'flex',
       alignItems: 'center',
       gap: '5px'
     },
     header: {
-      color: '#BE5985',
+      color: '#1565C0',
       fontWeight: 'bold',
       textAlign: 'center',
       marginBottom: '30px',
@@ -396,7 +396,7 @@ const StaffManagementPage = () => {
     card: {
       border: 'none',
       borderRadius: '12px',
-      boxShadow: '0 4px 6px rgba(190, 89, 133, 0.1)',
+      boxShadow: '0 4px 6px rgba(21, 101, 192, 0.1)',
       marginBottom: '20px',
       overflow: 'hidden',
       backgroundColor: 'white'
@@ -419,17 +419,17 @@ const StaffManagementPage = () => {
       backgroundColor: 'white',
       padding: '20px',
       borderRadius: '12px',
-      boxShadow: '0 4px 6px rgba(190, 89, 133, 0.1)',
+      boxShadow: '0 4px 6px rgba(21, 101, 192, 0.1)',
       marginBottom: '20px'
     },
     tableContainer: {
       backgroundColor: 'white',
       borderRadius: '12px',
-      boxShadow: '0 4px 6px rgba(190, 89, 133, 0.1)',
+      boxShadow: '0 4px 6px rgba(21, 101, 192, 0.1)',
       overflow: 'hidden'
     },
     tableHeader: {
-      backgroundColor: '#BE5985',
+      backgroundColor: '#1565C0',
       color: 'white',
       padding: '20px',
       display: 'flex',
@@ -441,7 +441,7 @@ const StaffManagementPage = () => {
       borderCollapse: 'collapse'
     },
     th: {
-      backgroundColor: '#EC7FA9',
+      backgroundColor: '#42A5F5',
       color: 'white',
       padding: '15px 12px',
       textAlign: 'left',
@@ -450,7 +450,7 @@ const StaffManagementPage = () => {
     },
     td: {
       padding: '15px 12px',
-      borderBottom: '1px solid #FFEDFA',
+      borderBottom: '1px solid #E3F2FD',
       fontSize: '0.9rem',
       verticalAlign: 'top'
     },
@@ -483,7 +483,7 @@ const StaffManagementPage = () => {
       transition: 'background-color 0.2s'
     },
     input: {
-      border: '2px solid #FFB8E0',
+      border: '2px solid #90CAF9',
       borderRadius: '8px',
       padding: '10px 12px',
       fontSize: '0.9rem',
@@ -491,7 +491,7 @@ const StaffManagementPage = () => {
       transition: 'border-color 0.2s'
     },
     select: {
-      border: '2px solid #FFB8E0',
+      border: '2px solid #90CAF9',
       borderRadius: '8px',
       padding: '10px 12px',
       fontSize: '0.9rem',
@@ -500,7 +500,7 @@ const StaffManagementPage = () => {
       cursor: 'pointer'
     },
     button: {
-      backgroundColor: '#BE5985',
+      backgroundColor: '#1565C0',
       color: 'white',
       border: 'none',
       padding: '10px 16px',
@@ -515,7 +515,7 @@ const StaffManagementPage = () => {
     },
     contactInfo: {
       fontSize: '0.8rem',
-      color: '#EC7FA9',
+      color: '#42A5F5',
       display: 'flex',
       alignItems: 'center',
       gap: '4px',
@@ -565,7 +565,7 @@ const StaffManagementPage = () => {
         {/* Stats Cards Row */}
         <div className="row mb-4">
           <div className="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div style={{...styles.card, background: 'linear-gradient(135deg, #BE5985, #EC7FA9)'}}>
+            <div style={{...styles.card, background: 'linear-gradient(135deg, #1565C0, #42A5F5)'}}>
               <div style={styles.statCard}>
                 <div style={styles.statNumber}>{stats.total}</div>
                 <div style={styles.statLabel}>Active Staff</div>
@@ -574,7 +574,7 @@ const StaffManagementPage = () => {
           </div>
 
           <div className="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div style={{...styles.card, background: 'linear-gradient(135deg, #EC7FA9, #FFB8E0)'}}>
+            <div style={{...styles.card, background: 'linear-gradient(135deg, #42A5F5, #90CAF9)'}}>
               <div style={styles.statCard}>
                 <div style={styles.statNumber}>{stats.permanent}</div>
                 <div style={styles.statLabel}>Permanent</div>
@@ -583,8 +583,8 @@ const StaffManagementPage = () => {
           </div>
 
           <div className="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div style={{...styles.card, background: 'linear-gradient(135deg, #FFB8E0, #FFEDFA)', color: '#BE5985'}}>
-              <div style={{...styles.statCard, color: '#BE5985'}}>
+            <div style={{...styles.card, background: 'linear-gradient(135deg, #90CAF9, #E3F2FD)', color: '#1565C0'}}>
+              <div style={{...styles.statCard, color: '#1565C0'}}>
                 <div style={styles.statNumber}>{stats.contract}</div>
                 <div style={{...styles.statLabel, opacity: 0.8}}>Contract</div>
               </div>
@@ -592,7 +592,7 @@ const StaffManagementPage = () => {
           </div>
 
           <div className="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div style={{...styles.card, background: 'linear-gradient(135deg, #BE5985, #EC7FA9)'}}>
+            <div style={{...styles.card, background: 'linear-gradient(135deg, #1565C0, #42A5F5)'}}>
               <div style={styles.statCard}>
                 <div style={styles.statNumber}>{stats.partTime}</div>
                 <div style={styles.statLabel}>Part-time</div>
@@ -601,7 +601,7 @@ const StaffManagementPage = () => {
           </div>
 
           <div className="col-lg-4 col-md-8 col-sm-12 mb-3">
-            <div style={{...styles.card, background: 'linear-gradient(135deg, #EC7FA9, #FFB8E0)'}}>
+            <div style={{...styles.card, background: 'linear-gradient(135deg, #42A5F5, #90CAF9)'}}>
               <div style={styles.statCard}>
                 <div style={styles.statNumber}>{formatSalary(stats.totalSalary)}</div>
                 <div style={styles.statLabel}>Total Monthly Salary</div>
@@ -614,11 +614,11 @@ const StaffManagementPage = () => {
         <div style={styles.filterBar}>
           <div className="row align-items-end">
             <div className="col-lg-3 col-md-6 mb-3">
-              <label style={{color: '#BE5985', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
+              <label style={{color: '#1565C0', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
                 Search Staff
               </label>
               <div style={{position: 'relative'}}>
-                <Search size={18} style={{position: 'absolute', left: '12px', top: '12px', color: '#EC7FA9'}} />
+                <Search size={18} style={{position: 'absolute', left: '12px', top: '12px', color: '#42A5F5'}} />
                 <input
                   type="text"
                   placeholder="Name, ID, or Email..."
@@ -630,7 +630,7 @@ const StaffManagementPage = () => {
             </div>
 
             <div className="col-lg-2 col-md-6 mb-3">
-              <label style={{color: '#BE5985', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
+              <label style={{color: '#1565C0', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
                 Department
               </label>
               <select
@@ -646,7 +646,7 @@ const StaffManagementPage = () => {
             </div>
 
             <div className="col-lg-2 col-md-6 mb-3">
-              <label style={{color: '#BE5985', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
+              <label style={{color: '#1565C0', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
                 Position
               </label>
               <select
@@ -662,7 +662,7 @@ const StaffManagementPage = () => {
             </div>
 
             <div className="col-lg-2 col-md-6 mb-3">
-              <label style={{color: '#BE5985', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
+              <label style={{color: '#1565C0', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
                 Employment
               </label>
               <select
@@ -678,7 +678,7 @@ const StaffManagementPage = () => {
             </div>
 
             <div className="col-lg-2 col-md-6 mb-3">
-              <label style={{color: '#BE5985', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
+              <label style={{color: '#1565C0', fontWeight: 'bold', marginBottom: '8px', display: 'block'}}>
                 Status
               </label>
               <select
@@ -741,7 +741,7 @@ const StaffManagementPage = () => {
               </thead>
               <tbody>
                 {filteredStaff.map((member) => (
-                  <tr key={member.id} style={{backgroundColor: selectedStaff.includes(member.id) ? '#FFEDFA' : 'white'}}>
+                  <tr key={member.id} style={{backgroundColor: selectedStaff.includes(member.id) ? '#E3F2FD' : 'white'}}>
                     <td style={styles.td}>
                       <input
                         type="checkbox"
@@ -756,20 +756,20 @@ const StaffManagementPage = () => {
                           alt={member.name}
                           style={styles.avatar}
                           onError={(e) => {
-                            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&size=40&background=FFB8E0&color=BE5985`;
+                            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&size=40&background=90CAF9&color=1565C0`;
                           }}
                         />
                         <div>
-                          <div style={{fontWeight: 'bold', color: '#BE5985'}}>{member.name}</div>
-                          <div style={{fontSize: '0.8rem', color: '#EC7FA9'}}>{member.qualification}</div>
+                          <div style={{fontWeight: 'bold', color: '#1565C0'}}>{member.name}</div>
+                          <div style={{fontSize: '0.8rem', color: '#42A5F5'}}>{member.qualification}</div>
                           <div style={{fontSize: '0.8rem', color: '#999'}}>Age: {calculateAge(member.dateOfBirth)}</div>
                         </div>
                       </div>
                     </td>
-                    <td style={{...styles.td, fontWeight: 'bold', color: '#BE5985'}}>{member.staffId}</td>
+                    <td style={{...styles.td, fontWeight: 'bold', color: '#1565C0'}}>{member.staffId}</td>
                     <td style={styles.td}>
-                      <div style={{fontWeight: 'bold', color: '#BE5985', marginBottom: '4px'}}>{member.position}</div>
-                      <div style={{fontSize: '0.85rem', color: '#EC7FA9'}}>{member.department}</div>
+                      <div style={{fontWeight: 'bold', color: '#1565C0', marginBottom: '4px'}}>{member.position}</div>
+                      <div style={{fontSize: '0.85rem', color: '#42A5F5'}}>{member.department}</div>
                       <div style={{fontSize: '0.8rem', color: '#999', marginTop: '4px'}}>{member.workLocation}</div>
                     </td>
                     <td style={styles.td}>
@@ -805,22 +805,22 @@ const StaffManagementPage = () => {
                         {member.status}
                       </span>
                     </td>
-                    <td style={{...styles.td, fontWeight: 'bold', color: '#BE5985'}}>
+                    <td style={{...styles.td, fontWeight: 'bold', color: '#1565C0'}}>
                       {formatSalary(member.salary)}
                     </td>
                     <td style={styles.td}>
                       <button
-                        style={{...styles.actionButton, color: '#EC7FA9'}}
+                        style={{...styles.actionButton, color: '#42A5F5'}}
                         title="Edit Staff Member"
-                        onMouseOver={(e) => e.target.style.backgroundColor = '#FFEDFA'}
+                        onMouseOver={(e) => e.target.style.backgroundColor = '#E3F2FD'}
                         onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
                       >
                         <Edit2 size={16} />
                       </button>
                       <button
-                        style={{...styles.actionButton, color: '#BE5985'}}
+                        style={{...styles.actionButton, color: '#1565C0'}}
                         title="Delete Staff Member"
-                        onMouseOver={(e) => e.target.style.backgroundColor = '#FFEDFA'}
+                        onMouseOver={(e) => e.target.style.backgroundColor = '#E3F2FD'}
                         onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
                       >
                         <Trash2 size={16} />
@@ -853,16 +853,16 @@ const StaffManagementPage = () => {
           box-sizing: border-box;
         }
         input:focus, select:focus {
-          border-color: #BE5985 !important;
+          border-color: #1565C0 !important;
         }
         button:hover {
-          background-color: #a04a73 !important;
+          background-color: #0d47a1 !important;
         }
         tr:hover {
-          background-color: #FFEDFA !important;
+          background-color: #E3F2FD !important;
         }
         a:hover {
-          color: #a04a73 !important;
+          color: #0d47a1 !important;
           text-decoration: underline !important;
         }
         
@@ -906,16 +906,16 @@ const StaffManagementPage = () => {
         }
         
         .table-container::-webkit-scrollbar-track {
-          background: #FFEDFA;
+          background: #E3F2FD;
         }
         
         .table-container::-webkit-scrollbar-thumb {
-          background: #FFB8E0;
+          background: #90CAF9;
           border-radius: 4px;
         }
         
         .table-container::-webkit-scrollbar-thumb:hover {
-          background: #EC7FA9;
+          background: #42A5F5;
         }
       `}</style>
     </div>

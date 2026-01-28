@@ -51,13 +51,14 @@ const AuthPage = () => {
     'Pediatric Nursing'
   ];
 
-  const departments = [
-    'Nursing Sciences',
-    'Clinical Practice',
-    'Community Health',
-    'Administration',
-    'Research & Development',
-    'Student Affairs'
+  const staffPositions = [
+    'Warden'
+  ];
+
+  const adminPositions = [
+    'Allocation Officer',
+    'Principal Tutor',
+    'Chairperson of School Improvement Committee'
   ];
 
   const countryCodes = [
@@ -83,7 +84,7 @@ const AuthPage = () => {
         course: '',
         studentId: '',
         staffId: '',
-        department: '',
+        position: '',
         nationalId: '',
         address: '',
         emergencyContact: { name: '', phone: '' }
@@ -179,7 +180,7 @@ const AuthPage = () => {
         const formDataImage = new FormData();
         formDataImage.append('image', avatarFile);
 
-        const uploadRes = await fetch('https://nursing-school-backend-vu0d.onrender.com/upload', {
+        const uploadRes = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/upload', {
           method: 'POST',
           body: formDataImage,
         });
@@ -675,7 +676,7 @@ const AuthPage = () => {
                       {/* Student-specific fields */}
                       {formData.userType === 'student' && (
                         <Row className="mb-3">
-                          <Col md={6}>
+                          {/* <Col md={6}>
                             <Form.Group className="position-relative">
                               <GraduationCap style={customStyles.inputIcon} size={18} />
                               <Form.Select
@@ -693,7 +694,7 @@ const AuthPage = () => {
                                 ))}
                               </Form.Select>
                             </Form.Group>
-                          </Col>
+                          </Col> */}
                           <Col md={6}>
                             <Form.Group>
                               <Form.Control
@@ -717,16 +718,54 @@ const AuthPage = () => {
                             <Form.Group className="position-relative">
                               <Users style={customStyles.inputIcon} size={18} />
                               <Form.Select
-                                name="department"
-                                value={formData.department}
+                                name="position"
+                                value={formData.position}
                                 onChange={handleChange}
                                 style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                                 required
                               >
                                 <option value="">Select Department</option>
-                                {departments.map((dept) => (
-                                  <option key={dept} value={dept}>
-                                    {dept}
+                                {staffPositions.map((pos) => (
+                                  <option key={pos} value={pos}>
+                                    {pos}
+                                  </option>
+                                ))}
+                              </Form.Select>
+                            </Form.Group>
+                          </Col>
+                          <Col md={6}>
+                            <Form.Group>
+                              <Form.Control
+                                type="text"
+                                placeholder="Staff ID"
+                                name="staffId"
+                                value={formData.staffId}
+                                onChange={handleChange}
+                                style={customStyles.formControl}
+                                required
+                              />
+                            </Form.Group>
+                          </Col>
+                        </Row>
+                      )}
+
+                      {/* Staff-specific fields */}
+                      {formData.userType === 'admin' && (
+                        <Row className="mb-3">
+                          <Col md={6}>
+                            <Form.Group className="position-relative">
+                              <Users style={customStyles.inputIcon} size={18} />
+                              <Form.Select
+                                name="position"
+                                value={formData.position}
+                                onChange={handleChange}
+                                style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
+                                required
+                              >
+                                <option value="">Select Department</option>
+                                {adminPositions.map((pos) => (
+                                  <option key={pos} value={pos}>
+                                    {pos}
                                   </option>
                                 ))}
                               </Form.Select>

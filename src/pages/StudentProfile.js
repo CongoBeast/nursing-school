@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { ChevronRight, Home, Users, User, Mail, Phone, MapPin, Calendar, GraduationCap, DollarSign, CheckCircle, XCircle, TrendingUp, Clock } from 'lucide-react';
-import { Link, useLocation, useNavigate } from "react-router-dom";
-
+import { 
+  ChevronRight, Home, Users, User, Mail, Phone, MapPin, 
+  Calendar, ShieldCheck, DollarSign, CheckCircle, Clock, 
+  Wrench, AlertTriangle, Bed, Hash
+} from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const StudentProfile = () => {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate()
-  // Sample student data
+  // Updated Student Data for Dormitory Focus
   const studentData = {
     id: 'ZNS001',
     name: 'Tendai Mukamuri',
@@ -15,258 +18,70 @@ const StudentProfile = () => {
     phone: '+263 77 123 4567',
     address: '15 Josiah Tongogara Avenue, Harare, Zimbabwe',
     age: 21,
-    program: 'Bachelor of Science in Nursing',
-    yearOfStudy: 2,
+    dormHouse: 'Nurse Home',
+    roomNumber: 'A12',
     studentStatus: 'Active',
-    feeStatus: 'Paid',
+    rentStatus: 'Paid',
     dateStarted: '2023-02-15',
-    residence: 'On Campus'
+    gender: 'Female'
   };
 
-  // Academic results data
-  const academicResults = [
+  // Maintenance/Breakage Records
+  const breakageRecords = [
     {
-      year: 1,
-      semester: 'Semester 1',
-      subjects: [
-        { name: 'Anatomy & Physiology I', grade: 'A', points: 85, credits: 3 },
-        { name: 'Fundamentals of Nursing', grade: 'B+', points: 78, credits: 4 },
-        { name: 'Medical Terminology', grade: 'A-', points: 82, credits: 2 },
-        { name: 'Health Psychology', grade: 'B', points: 75, credits: 3 }
-      ],
-      gpa: 3.5,
-      totalCredits: 12
+      id: 1,
+      item: 'Window Latch',
+      dateReported: '2026-01-10',
+      status: 'Fixed',
+      priority: 'Low',
+      description: 'Latch was loose and wouldn’t lock properly.'
     },
     {
-      year: 1,
-      semester: 'Semester 2',
-      subjects: [
-        { name: 'Anatomy & Physiology II', grade: 'A', points: 88, credits: 3 },
-        { name: 'Nursing Skills Lab', grade: 'A-', points: 83, credits: 4 },
-        { name: 'Pharmacology Basics', grade: 'B+', points: 79, credits: 3 },
-        { name: 'Community Health', grade: 'A', points: 86, credits: 3 }
-      ],
-      gpa: 3.7,
-      totalCredits: 13
+      id: 2,
+      item: 'Shower Head',
+      dateReported: '2026-01-22',
+      status: 'Pending',
+      priority: 'Medium',
+      description: 'Low water pressure due to calcium buildup.'
     },
     {
-      year: 2,
-      semester: 'Semester 1',
-      subjects: [
-        { name: 'Pathophysiology', grade: 'A-', points: 81, credits: 4 },
-        { name: 'Clinical Nursing I', grade: 'B+', points: 77, credits: 5 },
-        { name: 'Pharmacology Advanced', grade: 'B', points: 74, credits: 3 },
-        { name: 'Health Assessment', grade: 'A', points: 87, credits: 3 }
-      ],
-      gpa: 3.4,
-      totalCredits: 15
+      id: 3,
+      item: 'Study Desk Light',
+      dateReported: '2026-01-27',
+      status: 'In Progress',
+      priority: 'High',
+      description: 'Electrical flickering; needs wiring check.'
     }
   ];
 
   // Attendance data
   const attendanceData = {
-    currentSemester: {
-      totalDays: 120,
-      attendedDays: 108,
-      absentDays: 12,
-      percentage: 90
-    },
-    monthlyAttendance: [
-      { month: 'January', attended: 18, total: 20, percentage: 90 },
-      { month: 'February', attended: 19, total: 20, percentage: 95 },
-      { month: 'March', attended: 17, total: 20, percentage: 85 },
-      { month: 'April', attended: 18, total: 20, percentage: 90 },
-      { month: 'May', attended: 16, total: 20, percentage: 80 },
-      { month: 'June', attended: 20, total: 20, percentage: 100 }
-    ]
+    percentage: 92,
+    attendedDays: 110,
+    totalDays: 120,
+    status: 'Excellent'
   };
 
-  const [activeTab, setActiveTab] = useState('year1');
-
-  const getGradeColor = (grade) => {
-    if (grade.startsWith('A')) return '#28a745';
-    if (grade.startsWith('B')) return '#17a2b8';
-    if (grade.startsWith('C')) return '#ffc107';
-    return '#dc3545';
-  };
-
-  const getAttendanceColor = (percentage) => {
-    if (percentage >= 90) return '#28a745';
-    if (percentage >= 80) return '#ffc107';
-    return '#dc3545';
-  };
-
-  const calculateOverallGPA = () => {
-    const totalGPA = academicResults.reduce((sum, result) => sum + result.gpa, 0);
-    return (totalGPA / academicResults.length).toFixed(2);
+  const colors = {
+    primary: '#1E3A8A',    // Navy Blue
+    secondary: '#3B82F6',  // Royal Blue
+    tertiary: '#DBEAFE',   // Sky Blue
+    background: '#F0F7FF', // Light Blue Tint
+    accent: '#10B981'      // Success Green
   };
 
   const styles = {
-    body: {
-      backgroundColor: '#FFEDFA',
-      minHeight: '100vh',
-      padding: '20px',
-      fontFamily: 'Arial, sans-serif'
-    },
-    breadcrumb: {
-      backgroundColor: 'white',
-      padding: '15px 20px',
-      borderRadius: '8px',
-      marginBottom: '20px',
-      boxShadow: '0 2px 4px rgba(190, 89, 133, 0.1)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px'
-    },
-    breadcrumbLink: {
-      color: '#BE5985',
-      textDecoration: 'none',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '5px',
-      cursor: 'pointer',
-      fontSize: '0.9rem'
-    },
-    breadcrumbCurrent: {
-      color: '#666',
-      fontSize: '0.9rem'
-    },
-    card: {
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      boxShadow: '0 4px 6px rgba(190, 89, 133, 0.1)',
-      marginBottom: '20px',
-      overflow: 'hidden'
-    },
-    cardHeader: {
-      backgroundColor: '#BE5985',
-      color: 'white',
-      padding: '20px',
-      fontWeight: 'bold',
-      fontSize: '1.2rem',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px'
-    },
-    cardBody: {
-      padding: '20px'
-    },
-    profileSection: {
-      display: 'flex',
-      gap: '30px',
-      alignItems: 'start',
-      flexWrap: 'wrap'
-    },
-    avatarSection: {
-      textAlign: 'center',
-      minWidth: '200px'
-    },
-    avatar: {
-      width: '150px',
-      height: '150px',
-      borderRadius: '50%',
-      objectFit: 'cover',
-      border: '4px solid #FFB8E0',
-      marginBottom: '15px'
-    },
-    infoGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-      gap: '20px',
-      flex: 1
-    },
-    infoItem: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      padding: '12px',
-      backgroundColor: '#FFEDFA',
-      borderRadius: '8px'
-    },
-    infoLabel: {
-      fontWeight: 'bold',
-      color: '#BE5985',
-      minWidth: '100px'
-    },
-    infoValue: {
-      color: '#333',
-      flex: 1
-    },
-    statusBadge: {
-      padding: '4px 12px',
-      borderRadius: '20px',
-      fontSize: '0.8rem',
-      fontWeight: 'bold'
-    },
-    tabNav: {
-      display: 'flex',
-      borderBottom: '2px solid #FFEDFA',
-      marginBottom: '20px',
-      gap: '5px'
-    },
-    tabButton: {
-      padding: '12px 20px',
-      border: 'none',
-      backgroundColor: 'transparent',
-      color: '#BE5985',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-      borderBottom: '3px solid transparent',
-      transition: 'all 0.2s'
-    },
-    activeTabButton: {
-      borderBottomColor: '#BE5985',
-      backgroundColor: '#FFEDFA'
-    },
-    subjectGrid: {
-      display: 'grid',
-      gap: '15px'
-    },
-    subjectCard: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '15px',
-      backgroundColor: '#FFEDFA',
-      borderRadius: '8px',
-      border: '1px solid #FFB8E0'
-    },
-    gradeInfo: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '15px'
-    },
-    grade: {
-      padding: '5px 10px',
-      borderRadius: '20px',
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: '0.9rem'
-    },
-    gpaCard: {
-      textAlign: 'center',
-      padding: '20px',
-      backgroundColor: '#BE5985',
-      color: 'white',
-      borderRadius: '12px',
-      marginBottom: '20px'
-    },
-    attendanceGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '15px'
-    },
-    attendanceCard: {
-      padding: '15px',
-      backgroundColor: '#FFEDFA',
-      borderRadius: '8px',
-      textAlign: 'center'
-    },
-    attendancePercentage: {
-      fontSize: '2rem',
-      fontWeight: 'bold',
-      marginBottom: '5px'
-    }
+    body: { backgroundColor: colors.background, minHeight: '100vh', padding: '20px', fontFamily: 'Arial, sans-serif' },
+    breadcrumb: { backgroundColor: 'white', padding: '15px 20px', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 2px 4px rgba(30, 58, 138, 0.05)', display: 'flex', alignItems: 'center', gap: '8px' },
+    breadcrumbLink: { color: colors.secondary, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.9rem' },
+    card: { backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px rgba(30, 58, 138, 0.1)', marginBottom: '20px', overflow: 'hidden' },
+    cardHeader: { backgroundColor: colors.primary, color: 'white', padding: '15px 20px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' },
+    profileSection: { display: 'flex', gap: '30px', alignItems: 'start', flexWrap: 'wrap', padding: '25px' },
+    avatar: { width: '130px', height: '130px', borderRadius: '50%', objectFit: 'cover', border: `4px solid ${colors.tertiary}`, marginBottom: '15px' },
+    infoGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '15px', flex: 1 },
+    infoItem: { display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 15px', backgroundColor: colors.tertiary, borderRadius: '8px' },
+    statusBadge: { padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold' },
+    breakageCard: { padding: '15px', backgroundColor: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0', marginBottom: '10px' }
   };
 
   return (
@@ -274,277 +89,115 @@ const StudentProfile = () => {
       <div className="container-fluid">
         {/* Breadcrumbs */}
         <nav style={styles.breadcrumb}>
-          <a href="/" style={styles.breadcrumbLink}>
-
-            <Home size={16} />
-            Dashboard
-          </a>
+          <div style={styles.breadcrumbLink} onClick={() => navigate("/")} className="cursor-pointer">
+            <Home size={16} /> Dashboard
+          </div>
           <ChevronRight size={16} color="#ccc" />
-          <a href="/#/students" style={styles.breadcrumbLink}>
-            <Users size={16} />
-            Students
-          </a>
+          <div style={styles.breadcrumbLink} onClick={() => navigate("/students")} className="cursor-pointer">
+            <Users size={16} /> Students
+          </div>
           <ChevronRight size={16} color="#ccc" />
-          <span style={styles.breadcrumbCurrent}>Student Profile</span>
+          <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Student Profile</span>
         </nav>
 
-        {/* Student Basic Information */}
+        {/* Student Profile Overview */}
         <div style={styles.card}>
           <div style={styles.cardHeader}>
-            <User size={24} />
-            Student Information
+            <User size={20} /> Resident Overview
           </div>
-          <div style={styles.cardBody}>
-            <div style={styles.profileSection}>
-              <div style={styles.avatarSection}>
-                <img
-                  src={studentData.avatar}
-                  alt={studentData.name}
-                  style={styles.avatar}
-                  onError={(e) => {
-                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentData.name)}&size=150&background=FFB8E0&color=BE5985`;
-                  }}
-                />
-                <h3 style={{ color: '#BE5985', margin: '0 0 10px 0' }}>{studentData.name}</h3>
-                <p style={{ color: '#EC7FA9', margin: 0 }}>Student ID: {studentData.id}</p>
+          <div style={styles.profileSection}>
+            <div className="text-center" style={{ minWidth: '180px' }}>
+              <img src={studentData.avatar} alt={studentData.name} style={styles.avatar} />
+              <h4 style={{ color: colors.primary, marginBottom: '5px' }}>{studentData.name}</h4>
+              <p className="text-muted small">ID: {studentData.id}</p>
+            </div>
+            
+            <div style={styles.infoGrid}>
+              <div style={styles.infoItem}><Mail size={18} color={colors.secondary} /><span className="small">{studentData.email}</span></div>
+              <div style={styles.infoItem}><Phone size={18} color={colors.secondary} /><span className="small">{studentData.phone}</span></div>
+              <div style={styles.infoItem}><Bed size={18} color={colors.secondary} /><span className="small">{studentData.dormHouse}</span></div>
+              <div style={styles.infoItem}><Hash size={18} color={colors.secondary} /><span className="small">Room: {studentData.roomNumber}</span></div>
+              <div style={styles.infoItem}>
+                <ShieldCheck size={18} color={colors.secondary} />
+                <span style={{
+                  ...styles.statusBadge,
+                  backgroundColor: studentData.studentStatus === 'Active' ? '#D1FAE5' : '#FEE2E2',
+                  color: studentData.studentStatus === 'Active' ? '#065F46' : '#991B1B'
+                }}> {studentData.studentStatus} </span>
               </div>
-              
-              <div style={styles.infoGrid}>
-                <div style={styles.infoItem}>
-                  <Mail size={20} color="#EC7FA9" />
-                  <span style={styles.infoLabel}>Email:</span>
-                  <span style={styles.infoValue}>{studentData.email}</span>
-                </div>
-                
-                <div style={styles.infoItem}>
-                  <Phone size={20} color="#EC7FA9" />
-                  <span style={styles.infoLabel}>Phone:</span>
-                  <span style={styles.infoValue}>{studentData.phone}</span>
-                </div>
-                
-                <div style={styles.infoItem}>
-                  <MapPin size={20} color="#EC7FA9" />
-                  <span style={styles.infoLabel}>Address:</span>
-                  <span style={styles.infoValue}>{studentData.address}</span>
-                </div>
-                
-                <div style={styles.infoItem}>
-                  <Calendar size={20} color="#EC7FA9" />
-                  <span style={styles.infoLabel}>Age:</span>
-                  <span style={styles.infoValue}>{studentData.age} years old</span>
-                </div>
-                
-                <div style={styles.infoItem}>
-                  <GraduationCap size={20} color="#EC7FA9" />
-                  <span style={styles.infoLabel}>Program:</span>
-                  <span style={styles.infoValue}>{studentData.program}</span>
-                </div>
-                
-                <div style={styles.infoItem}>
-                  <TrendingUp size={20} color="#EC7FA9" />
-                  <span style={styles.infoLabel}>Year of Study:</span>
-                  <span style={styles.infoValue}>Year {studentData.yearOfStudy}</span>
-                </div>
-                
-                <div style={styles.infoItem}>
-                  <CheckCircle size={20} color="#EC7FA9" />
-                  <span style={styles.infoLabel}>Status:</span>
-                  <span style={{
-                    ...styles.statusBadge,
-                    backgroundColor: studentData.studentStatus === 'Active' ? '#d4edda' : '#f8d7da',
-                    color: studentData.studentStatus === 'Active' ? '#155724' : '#721c24'
-                  }}>
-                    {studentData.studentStatus}
-                  </span>
-                </div>
-                
-                <div style={styles.infoItem}>
-                  <DollarSign size={20} color="#EC7FA9" />
-                  <span style={styles.infoLabel}>Fee Status:</span>
-                  <span style={{
-                    ...styles.statusBadge,
-                    backgroundColor: studentData.feeStatus === 'Paid' ? '#d4edda' : '#f8d7da',
-                    color: studentData.feeStatus === 'Paid' ? '#155724' : '#721c24'
-                  }}>
-                    {studentData.feeStatus}
-                  </span>
-                </div>
+              <div style={styles.infoItem}>
+                <DollarSign size={18} color={colors.secondary} />
+                <span style={{
+                  ...styles.statusBadge,
+                  backgroundColor: studentData.rentStatus === 'Paid' ? '#D1FAE5' : '#FEF3C7',
+                  color: studentData.rentStatus === 'Paid' ? '#065F46' : '#92400E'
+                }}> Rent: {studentData.rentStatus} </span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="row">
-          {/* Academic Results */}
-          <div className="col-lg-8 col-md-12 mb-4">
+          {/* Room Breakage Records */}
+          <div className="col-lg-8">
             <div style={styles.card}>
-              <div style={{...styles.cardHeader, backgroundColor: '#EC7FA9'}}>
-                <GraduationCap size={24} />
-                Academic Results
+              <div style={{...styles.cardHeader, backgroundColor: colors.secondary}}>
+                <Wrench size={20} /> Room Breakage & Maintenance Logs
               </div>
-              <div style={styles.cardBody}>
-                {/* Overall GPA Card */}
-                <div style={styles.gpaCard}>
-                  <h4 style={{ margin: '0 0 10px 0' }}>Overall GPA</h4>
-                  <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>{calculateOverallGPA()}</div>
-                  <div style={{ opacity: 0.9 }}>Cumulative Grade Point Average</div>
-                </div>
-
-                {/* Tab Navigation */}
-                <div style={styles.tabNav}>
-                  <button
-                    style={{
-                      ...styles.tabButton,
-                      ...(activeTab === 'year1' ? styles.activeTabButton : {})
-                    }}
-                    onClick={() => setActiveTab('year1')}
-                  >
-                    Year 1
-                  </button>
-                  <button
-                    style={{
-                      ...styles.tabButton,
-                      ...(activeTab === 'year2' ? styles.activeTabButton : {})
-                    }}
-                    onClick={() => setActiveTab('year2')}
-                  >
-                    Year 2
-                  </button>
-                </div>
-
-                {/* Academic Results Content */}
-                <div>
-                  {academicResults
-                    .filter(result => 
-                      (activeTab === 'year1' && result.year === 1) || 
-                      (activeTab === 'year2' && result.year === 2)
-                    )
-                    .map((result, index) => (
-                      <div key={index} style={{ marginBottom: '30px' }}>
-                        <h5 style={{ color: '#BE5985', marginBottom: '15px' }}>
-                          {result.semester} - GPA: {result.gpa} ({result.totalCredits} Credits)
-                        </h5>
-                        <div style={styles.subjectGrid}>
-                          {result.subjects.map((subject, subIndex) => (
-                            <div key={subIndex} style={styles.subjectCard}>
-                              <div>
-                                <div style={{ fontWeight: 'bold', color: '#BE5985', marginBottom: '5px' }}>
-                                  {subject.name}
-                                </div>
-                                <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                                  {subject.credits} Credits • {subject.points} Points
-                                </div>
-                              </div>
-                              <div style={styles.gradeInfo}>
-                                <span 
-                                  style={{
-                                    ...styles.grade,
-                                    backgroundColor: getGradeColor(subject.grade)
-                                  }}
-                                >
-                                  {subject.grade}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                </div>
+              <div style={{ padding: '20px' }}>
+                {breakageRecords.map((record) => (
+                  <div key={record.id} style={styles.breakageCard}>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <h6 className="fw-bold m-0" style={{ color: colors.primary }}>{record.item}</h6>
+                      <span className={`badge ${record.status === 'Fixed' ? 'bg-success' : record.status === 'In Progress' ? 'bg-primary' : 'bg-warning text-dark'}`}>
+                        {record.status}
+                      </span>
+                    </div>
+                    <p className="small text-muted mb-2">{record.description}</p>
+                    <div className="d-flex gap-3 small text-muted">
+                      <span className="d-flex align-items-center"><Calendar size={14} className="me-1" /> {record.dateReported}</span>
+                      <span className="d-flex align-items-center"><AlertTriangle size={14} className="me-1" /> Priority: {record.priority}</span>
+                    </div>
+                  </div>
+                ))}
+                <button className="btn btn-primary w-100 mt-2 py-2 fw-bold" style={{ backgroundColor: colors.primary }}>
+                  Report New Issue
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Attendance Report */}
-          <div className="col-lg-4 col-md-12 mb-4">
+          {/* Attendance & Curfew Card */}
+          <div className="col-lg-4">
             <div style={styles.card}>
-              <div style={{...styles.cardHeader, backgroundColor: '#FFB8E0', color: '#BE5985'}}>
-                <Clock size={24} />
-                Attendance Report
+              <div style={{...styles.cardHeader, backgroundColor: '#64748b'}}>
+                <Clock size={20} /> Resident Attendance
               </div>
-              <div style={styles.cardBody}>
-                {/* Overall Attendance */}
-                <div style={{
-                  ...styles.attendanceCard,
-                  backgroundColor: '#BE5985',
-                  color: 'white',
-                  marginBottom: '20px'
+              <div style={{ padding: '25px', textAlign: 'center' }}>
+                <div style={{ 
+                  width: '120px', height: '120px', borderRadius: '50%', 
+                  border: `8px solid ${colors.accent}`, display: 'flex', 
+                  alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px'
                 }}>
-                  <div style={styles.attendancePercentage}>
-                    {attendanceData.currentSemester.percentage}%
-                  </div>
-                  <div style={{ marginBottom: '10px' }}>Overall Attendance</div>
-                  <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
-                    {attendanceData.currentSemester.attendedDays} of {attendanceData.currentSemester.totalDays} days
-                  </div>
+                  <div className="h3 fw-bold m-0" style={{ color: colors.accent }}>{attendanceData.percentage}%</div>
                 </div>
-
-                {/* Monthly Breakdown */}
-                <h6 style={{ color: '#BE5985', marginBottom: '15px' }}>Monthly Breakdown</h6>
-                <div style={styles.attendanceGrid}>
-                  {attendanceData.monthlyAttendance.map((month, index) => (
-                    <div key={index} style={styles.attendanceCard}>
-                      <div style={{ fontWeight: 'bold', color: '#BE5985', marginBottom: '8px' }}>
-                        {month.month}
-                      </div>
-                      <div 
-                        style={{
-                          ...styles.attendancePercentage,
-                          fontSize: '1.5rem',
-                          color: getAttendanceColor(month.percentage)
-                        }}
-                      >
-                        {month.percentage}%
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                        {month.attended}/{month.total} days
-                      </div>
-                    </div>
-                  ))}
+                <h5 className="fw-bold" style={{ color: colors.primary }}>{attendanceData.status}</h5>
+                <p className="text-muted small">Overall Attendance Record</p>
+                <div className="mt-3 p-3 rounded" style={{ backgroundColor: colors.tertiary }}>
+                  <div className="d-flex justify-content-between small mb-1">
+                    <span>Days Attended:</span>
+                    <span className="fw-bold">{attendanceData.attendedDays}</span>
+                  </div>
+                  <div className="d-flex justify-content-between small">
+                    <span>Total Days:</span>
+                    <span className="fw-bold">{attendanceData.totalDays}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <style>{`
-        .container-fluid {
-          max-width: 1400px;
-          margin: 0 auto;
-        }
-        .row {
-          margin: 0 -10px;
-        }
-        .col-lg-8, .col-lg-4, .col-md-12, .mb-4 {
-          padding: 0 10px;
-        }
-        body {
-          margin: 0;
-          padding: 0;
-        }
-        * {
-          box-sizing: border-box;
-        }
-        @media (max-width: 768px) {
-          .profileSection {
-            flex-direction: column;
-            text-align: center;
-          }
-          .infoGrid {
-            grid-template-columns: 1fr;
-          }
-          .tabNav {
-            flex-wrap: wrap;
-          }
-        }
-        button:hover {
-          opacity: 0.8;
-        }
-        a:hover {
-          opacity: 0.8;
-        }
-      `}</style>
     </div>
   );
 };

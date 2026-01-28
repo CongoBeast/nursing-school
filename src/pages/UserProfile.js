@@ -1,33 +1,165 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Fingerprint, MapPin, Edit3, Camera, ShieldCheck } from 'lucide-react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+  const [editForm, setEditForm] = useState({
+    email: '',
+    phone: '',
+    address: ''
+  });
 
-  // Load user data based on type
+  // Fetch user data from database
   useEffect(() => {
-    const type = localStorage.getItem('userType') || 'student'; // Default to student
-    const mockData = {
-      name: "Tariro Moyo",
-      role: type.charAt(0).toUpperCase() + type.slice(1),
-      id: type === 'admin' ? 'ADM-9920' : type === 'staff' ? 'STF-4412' : 'STD-2024-088',
-      email: "t.moyo@zimnursing.ac.zw",
-      phone: "+263 77 123 4567",
-      gender: "Female",
-      nationalId: "63-228491-X-45",
-      photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tariro"
-    };
-    setUser(mockData);
+    fetchUserData();
   }, []);
 
-  if (!user) return null;
+  const fetchUserData = async () => {
+    setLoading(true);
+    try {
+      const username = localStorage.getItem('user');
+      
+      if (!username) {
+        toast.error('No user logged in');
+        return;
+      }
+
+      const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/get-user/${username}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+
+      const data = await response.json();
+      setUser(data);
+      
+      // Populate edit form with current data
+      setEditForm({
+        email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || ''
+      });
+
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      toast.error('Failed to load user profile', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setIsUpdating(true);
+
+    try {
+      const username = localStorage.getItem('user');
+
+      console.log(username)
+
+      const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/update-user/${username}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editForm)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Profile updated successfully!', {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        setShowEditModal(false);
+        fetchUserData(); // Refresh user data
+      } else {
+        toast.error('Failed to update profile', {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Error updating profile', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const colors = {
-    primary: '#1E3A8A', // Navy Blue
-    secondary: '#3B82F6', // Royal Blue
-    accent: '#DBEAFE', // Sky Blue
+    primary: '#1E3A8A',
+    secondary: '#3B82F6',
+    accent: '#DBEAFE',
     text: '#1E293B'
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div style={{ 
+        backgroundColor: '#F0F7FF', 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        flexDirection: 'column'
+      }}>
+        <div className="spinner-border" role="status" style={{ width: '3rem', height: '3rem', color: colors.primary }}>
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p style={{ marginTop: '20px', fontSize: '1.1rem', fontWeight: '500', color: colors.primary }}>
+          Loading profile...
+        </p>
+      </div>
+    );
+  }
+
+  // No user found state
+  if (!user) {
+    return (
+      <div style={{ 
+        backgroundColor: '#F0F7FF', 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        flexDirection: 'column',
+        padding: '20px'
+      }}>
+        <User size={64} color="#93C5FD" style={{ marginBottom: '20px' }} />
+        <h4 style={{ color: colors.primary, marginBottom: '10px' }}>User Not Found</h4>
+        <p style={{ color: '#6B7280' }}>Unable to load user profile. Please try logging in again.</p>
+      </div>
+    );
+  }
+
+  // Helper to get user role display
+  const getUserRole = () => {
+    const userType = localStorage.getItem('userType') || 'student';
+    return userType.charAt(0).toUpperCase() + userType.slice(1);
+  };
+
+  // Helper to get user ID format
+  const getUserIdFormat = () => {
+    const userType = localStorage.getItem('userType') || 'student';
+    if (userType === 'admin') return user.adminId || user._id;
+    if (userType === 'staff') return user.staffId || user._id;
+    return user.studentId || user._id;
   };
 
   return (
@@ -40,7 +172,7 @@ const UserProfile = () => {
           <div className="card-body text-center position-relative" style={{ marginTop: '-60px' }}>
             <div className="position-relative d-inline-block">
               <img 
-                src={user.photo} 
+                src={user.photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} 
                 alt="Profile" 
                 className="rounded-circle border border-4 border-white shadow-sm" 
                 style={{ width: '120px', height: '120px', backgroundColor: 'white' }} 
@@ -49,9 +181,11 @@ const UserProfile = () => {
                 <Camera size={16} />
               </button>
             </div>
-            <h3 className="mt-3 fw-bold" style={{ color: colors.primary }}>{user.name}</h3>
+            <h3 className="mt-3 fw-bold" style={{ color: colors.primary }}>
+              {user.fullName || user.username}
+            </h3>
             <span className="badge px-3 py-2" style={{ backgroundColor: colors.accent, color: colors.primary, borderRadius: '20px' }}>
-              <ShieldCheck size={14} className="me-1" /> {user.role}
+              <ShieldCheck size={14} className="me-1" /> {getUserRole()}
             </span>
           </div>
         </div>
@@ -72,11 +206,36 @@ const UserProfile = () => {
               </div>
 
               <div className="row">
-                <InfoItem icon={<Fingerprint size={20} />} label="ID Number" value={user.id} />
-                <InfoItem icon={<Mail size={20} />} label="Email Address" value={user.email} />
-                <InfoItem icon={<Phone size={20} />} label="Phone Number" value={user.phone} />
-                <InfoItem icon={<User size={20} />} label="Gender" value={user.gender} />
-                <InfoItem icon={<MapPin size={20} />} label="National ID" value={user.nationalId} />
+                <InfoItem 
+                  icon={<User size={20} />} 
+                  label="Username" 
+                  value={user.username} 
+                />
+                <InfoItem 
+                  icon={<Fingerprint size={20} />} 
+                  label="ID Number" 
+                  value={getUserIdFormat()} 
+                />
+                <InfoItem 
+                  icon={<Mail size={20} />} 
+                  label="Email Address" 
+                  value={user.email || 'Not provided'} 
+                />
+                <InfoItem 
+                  icon={<Phone size={20} />} 
+                  label="Phone Number" 
+                  value={user.phone || 'Not provided'} 
+                />
+                <InfoItem 
+                  icon={<User size={20} />} 
+                  label="Gender" 
+                  value={user.gender || 'Not specified'} 
+                />
+                <InfoItem 
+                  icon={<MapPin size={20} />} 
+                  label="Address" 
+                  value={user.address || 'Not provided'} 
+                />
               </div>
             </div>
           </div>
@@ -88,7 +247,9 @@ const UserProfile = () => {
               <hr className="opacity-25" />
               <div className="d-flex justify-content-between align-items-center">
                 <span>Portal Access</span>
-                <span className="badge bg-success">Full Access</span>
+                <span className="badge bg-success">
+                  {user.isLoggedOn ? 'Active' : 'Full Access'}
+                </span>
               </div>
             </div>
           </div>
@@ -104,21 +265,51 @@ const UserProfile = () => {
                   <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
                 </div>
                 <div className="modal-body p-4">
-                  <form>
+                  <form onSubmit={handleUpdateProfile}>
                     <div className="mb-3">
                       <label className="form-label small fw-bold">Email Address</label>
-                      <input type="email" className="form-control" defaultValue={user.email} />
+                      <input 
+                        type="email" 
+                        className="form-control" 
+                        value={editForm.email}
+                        onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                      />
                     </div>
                     <div className="mb-3">
                       <label className="form-label small fw-bold">Phone Number</label>
-                      <input type="text" className="form-control" defaultValue={user.phone} />
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        value={editForm.phone}
+                        onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                      />
                     </div>
                     <div className="mb-4">
                       <label className="form-label small fw-bold">Current Address (Optional)</label>
-                      <textarea className="form-control" rows="2"></textarea>
+                      <textarea 
+                        className="form-control" 
+                        rows="2"
+                        value={editForm.address}
+                        onChange={(e) => setEditForm({...editForm, address: e.target.value})}
+                      ></textarea>
                     </div>
-                    <button type="button" className="btn w-100 py-2 fw-bold" style={{ backgroundColor: colors.primary, color: 'white' }}>
-                      Save Changes
+                    <button 
+                      type="submit" 
+                      className="btn w-100 py-2 fw-bold" 
+                      style={{ 
+                        backgroundColor: isUpdating ? '#93C5FD' : colors.primary, 
+                        color: 'white' 
+                      }}
+                      disabled={isUpdating}
+                    >
+                      {isUpdating ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          Saving...
+                        </>
+                      ) : (
+                        'Save Changes'
+                      )}
                     </button>
                   </form>
                 </div>
@@ -127,6 +318,8 @@ const UserProfile = () => {
           </div>
         )}
       </div>
+      
+      <ToastContainer />
     </div>
   );
 };
