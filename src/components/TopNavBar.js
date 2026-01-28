@@ -170,7 +170,7 @@ import {
   Users, ClipboardList, Calendar, Activity, 
   FileText, User, LogOut, Stethoscope,
   ClipboardCheck, Pill, BookOpen, Settings,
-  BarChart2, Megaphone, Building, Shield,
+  BarChart2, Megaphone, Building, Shield, ShieldX ,
   Menu, X
 } from 'lucide-react';
 // import './topnavbar.css';
@@ -221,20 +221,19 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
 
   const navItems = {
     staff: [
-      { name: "My Patients", icon: <Users size={18} />, href: "/patient-list" , onClick: handleNavClick },
-      { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "#attendance" },
-      { name: "Schedule", icon: <Calendar size={18} />, href: "/schedule"  },
-      { name: "Lab Records", icon: <Activity size={18} />, href: "/lab-results" },
-      { name: "Prescriptions", icon: <Pill size={18} />, href: "/prescriptions" },
-      { name: "View Profile", icon: <User size={18} />, href: "/doctor" },
-      { name: "Log Out", icon: <LogOut size={18} />, href: "/logout" , onClick: handleLogout}
+      { name: "Home", icon: <Users size={18} />, href: "/#/" , onClick: handleNavClick },
+      { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "/#/staff-attendance" },
+      { name: "Schedule", icon: <Calendar size={18} />, href: "/#/my-schedule" , onClick: handleNavClick},
+      { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
+      { divider: true },
+      { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" , onClick: handleNavClick},
+      { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout ,  }
     ],
     student: [
-      { name: "My Records", icon: <FileText size={18} />, href: "/patient-records"},
-      { name: "My Doctors", icon: <Stethoscope size={18} />, href: "/mydoctors" },
-      { name: "Prescriptions", icon: <Pill size={18} />, href: "/prescriptions" },
-      { name: "Bookings", icon: <BookOpen size={18} />, href: "/mybookings" },
-      { name: "View Profile", icon: <User size={18} />, href: "/patient" },
+      { name: "Home", icon: <FileText size={18} />, href: "/#/" , onClick: handleNavClick },
+      { name: "My Doctors", icon: <Stethoscope size={18} />, href: "/#/mydoctors" , onClick: handleNavClick },
+      { divider: true },
+      { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile"  , onClick: handleNavClick },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
     ],
     // admin: [
@@ -247,13 +246,15 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
     //   { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
     // ]
     admin: [
-          { name: "Home", icon: <Building size={18} />, href: "/" , onClick: handleNavClick},
-          { name: "Student Management", icon: <ClipboardList size={18} />, href: "/students" , onClick: handleNavClick},
-          { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/staff" },
-          { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/facilities-management" , onClick: handleNavClick},
-          { name: "Accomodation Management", icon: <Settings size={18} />, href: "/accomodation" },
+          { name: "Home", icon: <Building size={18} />, href: "/#/" , onClick: handleNavClick},
+          { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
+          { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff" },
+          { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
+          { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },
+          { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
+          { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
           { divider: true },
-          { name: "View Profile", icon: <User size={18} />, href: "#profile" },
+          { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" },
           { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
         ]
   };
@@ -319,11 +320,11 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         }
         
         .top-navbar.student {
-          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          background: linear-gradient(135deg, #053f96ff 0%, #000443ff 100%);
         }
         
         .top-navbar.admin {
-          background: linear-gradient(135deg, #6e0018ff 0%, #1a0043ff 100%);
+          background: linear-gradient(135deg, #16006eff 0%, #1a0043ff 100%);
         }
         
         .navbar-brand {
