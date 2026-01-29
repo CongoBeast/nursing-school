@@ -81,7 +81,6 @@ const AuthPage = () => {
         firstName: '',
         lastName: '',
         dateOfBirth: '',
-        course: '',
         studentId: '',
         staffId: '',
         position: '',
@@ -151,8 +150,8 @@ const AuthPage = () => {
         setError('First name and last name are required');
         return false;
       }
-      if (formData.userType === 'student' && (!formData.course || !formData.studentId)) {
-        setError('Course and student ID are required for students');
+      if (formData.userType === 'student' && (!formData.studentId)) {
+        setError('student ID are required for students');
         return false;
       }
       if (formData.userType === 'staff' && (!formData.department || !formData.staffId)) {

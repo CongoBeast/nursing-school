@@ -4,27 +4,43 @@ import {
   Calendar, ShieldCheck, DollarSign, CheckCircle, Clock, 
   Wrench, AlertTriangle, Bed, Hash
 } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate , useLocation } from "react-router-dom";
 
 const StudentProfile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const studentFromState = location.state?.student;
 
   // Updated Student Data for Dormitory Focus
-  const studentData = {
-    id: 'ZNS001',
-    name: 'Tendai Mukamuri',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-    email: 'tendai.mukamuri@student.zns.ac.zw',
-    phone: '+263 77 123 4567',
-    address: '15 Josiah Tongogara Avenue, Harare, Zimbabwe',
-    age: 21,
-    dormHouse: 'Nurse Home',
-    roomNumber: 'A12',
-    studentStatus: 'Active',
-    rentStatus: 'Paid',
-    dateStarted: '2023-02-15',
-    gender: 'Female'
-  };
+  const studentData = studentFromState ? {
+      id: studentFromState.studentId || studentFromState._id?.toString().slice(-6).toUpperCase() || 'N/A',
+      name: studentFromState.name || studentFromState.username || 'N/A',
+      avatar: studentFromState.avatar || studentFromState.photo || 'https://via.placeholder.com/150',
+      email: studentFromState.email || 'N/A',
+      phone: studentFromState.phone || 'N/A',
+      address: studentFromState.address || 'N/A',
+      age: studentFromState.age || 'N/A',
+      dormHouse: studentFromState.dormHouse || 'Not Assigned',
+      roomNumber: studentFromState.dormNumber || 'N/A',
+      studentStatus: studentFromState.accountStatus ? 'Active' : 'Inactive',
+      rentStatus: studentFromState.rentStatus || 'N/A',
+      dateStarted: studentFromState.dateStarted || studentFromState.signupTimestamp || 'N/A',
+      gender: studentFromState.gender || 'N/A'
+    } : {
+      id: 'ZNS001',
+      name: 'Tendai Mukamuri',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      email: 'tendai.mukamuri@student.zns.ac.zw',
+      phone: '+263 77 123 4567',
+      address: '15 Josiah Tongogara Avenue, Harare, Zimbabwe',
+      age: 21,
+      dormHouse: 'Nurse Home',
+      roomNumber: 'A12',
+      studentStatus: 'Active',
+      rentStatus: 'Paid',
+      dateStarted: '2023-02-15',
+      gender: 'Female'
+    };
 
   // Maintenance/Breakage Records
   const breakageRecords = [
