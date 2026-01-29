@@ -58,7 +58,7 @@ const AdminDashboard = () => {
   const fetchNotices = async () => {
     setLoadingNotices(true);
     try {
-      const response = await fetch('http://localhost:3001/get-notices');
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-notices');
       const data = await response.json();
       setNotices(data);
     } catch (error) {
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
   const fetchEvents = async () => {
     setLoadingEvents(true);
     try {
-      const response = await fetch('http://localhost:3001/get-events');
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-events');
       const data = await response.json();
       setEvents(data);
     } catch (error) {
@@ -99,7 +99,7 @@ const AdminDashboard = () => {
     try {
       const username = localStorage.getItem('user') || 'Unknown';
       
-      const response = await fetch('http://localhost:3001/add-notice', {
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-notice', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
