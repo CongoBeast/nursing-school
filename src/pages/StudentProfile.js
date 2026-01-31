@@ -1,23 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ChevronRight, Home, Users, User, Mail, Phone, MapPin, 
   Calendar, ShieldCheck, DollarSign, CheckCircle, Clock, 
-  Wrench, AlertTriangle, Bed, Hash
+  Wrench, AlertTriangle, Bed, Hash,  Loader
 } from 'lucide-react';
 import { useNavigate , useLocation } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const StudentProfile = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const studentFromState = location.state?.student;
 
+  const [housingRecords, setHousingRecords] = useState([]);
+  const [faultReports, setFaultReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rentFormData, setRentFormData] = useState({
+    month: new Date().toISOString().slice(0, 7), // Format: YYYY-MM
+    proofOfPayment: null,
+    proofOfPaymentPreview: null
+  });
+
   // Updated Student Data for Dormitory Focus
   const studentData = studentFromState ? {
       id: studentFromState.studentId || studentFromState._id?.toString().slice(-6).toUpperCase() || 'N/A',
       name: studentFromState.name || studentFromState.username || 'N/A',
+      fullName: studentFromState.firstName || 'N/A',
       avatar: studentFromState.avatar || studentFromState.photo || 'https://via.placeholder.com/150',
       email: studentFromState.email || 'N/A',
-      phone: studentFromState.phone || 'N/A',
+      phone: studentFromState.phoneNumber || 'N/A',
       address: studentFromState.address || 'N/A',
       age: studentFromState.age || 'N/A',
       dormHouse: studentFromState.dormHouse || 'Not Assigned',
@@ -69,6 +83,47 @@ const StudentProfile = () => {
       description: 'Electrical flickering; needs wiring check.'
     }
   ];
+
+  useEffect(() => {
+      const fetchStudentSpecificData = async () => {
+        try {
+          setLoading(true);
+          
+          // 1. Fetch Fault Reports for this specific room ONLY
+          // We encode the house name because it contains spaces (e.g., "Adlam House")
+          const houseEncoded = encodeURIComponent(studentData.dormHouse);
+          const roomEncoded = encodeURIComponent(studentData.roomNumber);
+          
+          const faultRes = await fetch(
+            `https://nursing-school-backend--thomasmethembe4.replit.app/get-room-faults/${houseEncoded}/${roomEncoded}`
+          );
+          const roomFaults = await faultRes.json();
+          setFaultReports(roomFaults);
+
+          // 2. Fetch Housing History (Audit Logs) for this specific student
+          const historyRes = await fetch(
+            `https://nursing-school-backend--thomasmethembe4.replit.app/get-housing-history/${studentData.id}`
+          );
+          
+          if (historyRes.ok) {
+            const historyData = await historyRes.json();
+            setHousingRecords(historyData);
+          }
+
+        } catch (error) {
+          console.error("Error fetching profile details:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      // Only run if the student actually has a room assigned
+      if (studentData.roomNumber && studentData.roomNumber !== 'N/A') {
+        fetchStudentSpecificData();
+      } else {
+        setLoading(false);
+      }
+    }, [studentData.id, studentData.roomNumber, studentData.dormHouse]);
 
   // Attendance data
   const attendanceData = {
@@ -124,7 +179,7 @@ const StudentProfile = () => {
           <div style={styles.profileSection}>
             <div className="text-center" style={{ minWidth: '180px' }}>
               <img src={studentData.avatar} alt={studentData.name} style={styles.avatar} />
-              <h4 style={{ color: colors.primary, marginBottom: '5px' }}>{studentData.name}</h4>
+              <h4 style={{ color: colors.primary, marginBottom: '5px' }}>{studentData.name} {studentData.fullName}</h4>
               <p className="text-muted small">ID: {studentData.id}</p>
             </div>
             
@@ -161,22 +216,36 @@ const StudentProfile = () => {
                 <Wrench size={20} /> Room Breakage & Maintenance Logs
               </div>
               <div style={{ padding: '20px' }}>
-                {breakageRecords.map((record) => (
-                  <div key={record.id} style={styles.breakageCard}>
+                {faultReports.length > 0 ? faultReports.map((record) => (
+                  <div key={record._id} style={styles.breakageCard}>
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h6 className="fw-bold m-0" style={{ color: colors.primary }}>{record.item}</h6>
-                      <span className={`badge ${record.status === 'Fixed' ? 'bg-success' : record.status === 'In Progress' ? 'bg-primary' : 'bg-warning text-dark'}`}>
+                      <span className={`badge ${
+                        record.status === 'Fixed' ? 'bg-success' : 
+                        record.status === 'Pending' ? 'bg-warning text-dark' : 'bg-primary'
+                      }`}>
                         {record.status}
                       </span>
                     </div>
-                    <p className="small text-muted mb-2">{record.description}</p>
+                    <p className="small text-muted mb-2">{record.details}</p>
+                    {record.imageUrl && (
+                      <img src={record.imageUrl} alt="issue" style={{width: '100%', borderRadius: '8px', marginBottom: '10px', maxHeight: '150px', objectFit: 'cover'}} />
+                    )}
                     <div className="d-flex gap-3 small text-muted">
-                      <span className="d-flex align-items-center"><Calendar size={14} className="me-1" /> {record.dateReported}</span>
-                      <span className="d-flex align-items-center"><AlertTriangle size={14} className="me-1" /> Priority: {record.priority}</span>
+                      <span className="d-flex align-items-center"><Calendar size={14} className="me-1" /> Reported: {new Date(record.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
-                ))}
-                <button className="btn btn-primary w-100 mt-2 py-2 fw-bold" style={{ backgroundColor: colors.primary }}>
+                )) : (
+                  <div className="text-center py-5 text-muted">
+                    <CheckCircle size={40} className="mb-2" />
+                    <p>No active issues reported for this room.</p>
+                  </div>
+                )}
+                <button 
+                  className="btn btn-primary w-100 mt-2 py-2 fw-bold" 
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => navigate('/report-fault', { state: { room: studentData.roomNumber, house: studentData.dormHouse } })}
+                >
                   Report New Issue
                 </button>
               </div>
@@ -187,28 +256,20 @@ const StudentProfile = () => {
           <div className="col-lg-4">
             <div style={styles.card}>
               <div style={{...styles.cardHeader, backgroundColor: '#64748b'}}>
-                <Clock size={20} /> Resident Attendance
+                <Clock size={20} /> Housing Residency Records
               </div>
-              <div style={{ padding: '25px', textAlign: 'center' }}>
-                <div style={{ 
-                  width: '120px', height: '120px', borderRadius: '50%', 
-                  border: `8px solid ${colors.accent}`, display: 'flex', 
-                  alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px'
-                }}>
-                  <div className="h3 fw-bold m-0" style={{ color: colors.accent }}>{attendanceData.percentage}%</div>
-                </div>
-                <h5 className="fw-bold" style={{ color: colors.primary }}>{attendanceData.status}</h5>
-                <p className="text-muted small">Overall Attendance Record</p>
-                <div className="mt-3 p-3 rounded" style={{ backgroundColor: colors.tertiary }}>
-                  <div className="d-flex justify-content-between small mb-1">
-                    <span>Days Attended:</span>
-                    <span className="fw-bold">{attendanceData.attendedDays}</span>
+              <div style={{ padding: '20px', maxHeight: '400px', overflowY: 'auto' }}>
+                {housingRecords.length > 0 ? housingRecords.map((log, idx) => (
+                  <div key={idx} style={{...styles.breakageCard, padding: '10px', fontSize: '0.85rem'}}>
+                    <div className="d-flex justify-content-between fw-bold mb-1">
+                      <span className="text-primary">{log.action.toUpperCase()}</span>
+                      <span className="text-muted">{new Date(log.timestamp).toLocaleDateString()}</span>
+                    </div>
+                    <p className="m-0 text-muted">{log.description}</p>
                   </div>
-                  <div className="d-flex justify-content-between small">
-                    <span>Total Days:</span>
-                    <span className="fw-bold">{attendanceData.totalDays}</span>
-                  </div>
-                </div>
+                )) : (
+                  <div className="text-center text-muted py-4">No movement history found.</div>
+                )}
               </div>
             </div>
           </div>
