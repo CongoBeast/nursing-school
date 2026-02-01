@@ -28,7 +28,7 @@ const AuthPage = () => {
     course: '',
     studentId: '',
     staffId: '',
-    department: '',
+    position: '',
     nationalId: '',
     address: '',
     emergencyContact: { name: '', phone: '' },
@@ -151,11 +151,11 @@ const AuthPage = () => {
         return false;
       }
       if (formData.userType === 'student' && (!formData.studentId)) {
-        setError('student ID are required for students');
+        setError('student ID is required for students');
         return false;
       }
-      if (formData.userType === 'staff' && (!formData.department || !formData.staffId)) {
-        setError('Department and staff ID are required for staff members');
+      if (formData.userType === 'staff' && ( !formData.staffId)) {
+        setError('staff ID is required for staff members');
         return false;
       }
     }
@@ -761,7 +761,7 @@ const AuthPage = () => {
                                 style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                                 required
                               >
-                                <option value="">Select Department</option>
+                                <option value="">Select Position</option>
                                 {adminPositions.map((pos) => (
                                   <option key={pos} value={pos}>
                                     {pos}

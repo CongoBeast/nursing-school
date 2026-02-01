@@ -44,7 +44,7 @@ const FaultReporting = () => {
 
   const fetchFaultReports = async () => {
     try {
-      const response = await fetch('http://localhost:3001/get-fault-reports');
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-fault-reports');
       const data = await response.json();
       setFaultRecords(data);
     } catch (error) {
@@ -82,7 +82,7 @@ const FaultReporting = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/add-fault-report', {
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-fault-report', {
         method: 'POST',
         body: formDataToSend
       });
@@ -115,7 +115,7 @@ const FaultReporting = () => {
 
   const handleStatusUpdate = async (reportId, newStatus) => {
     try {
-      const response = await fetch('http://localhost:3001/update-fault-status', {
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/update-fault-status', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

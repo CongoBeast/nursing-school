@@ -172,7 +172,7 @@ const UserProfile = () => {
           <div className="card-body text-center position-relative" style={{ marginTop: '-60px' }}>
             <div className="position-relative d-inline-block">
               <img 
-                src={user.photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} 
+                src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} 
                 alt="Profile" 
                 className="rounded-circle border border-4 border-white shadow-sm" 
                 style={{ width: '120px', height: '120px', backgroundColor: 'white' }} 
@@ -224,7 +224,7 @@ const UserProfile = () => {
                 <InfoItem 
                   icon={<Phone size={20} />} 
                   label="Phone Number" 
-                  value={user.phone || 'Not provided'} 
+                  value={user.phoneNumber || 'Not provided'} 
                 />
                 <InfoItem 
                   icon={<User size={20} />} 

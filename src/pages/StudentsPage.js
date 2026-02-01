@@ -1,63 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Download, Edit2, Trash2, Home, CreditCard, UserCheck ,ArrowRightLeft, UserPlus, UserMinus, X} from 'lucide-react';
+import { Search, Download, Edit2, Trash2, Home, CreditCard, UserCheck ,ArrowRightLeft, UserPlus, UserMinus, X , Upload, Loader } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const StudentsPage = () => {
-  // Restructured student data for Dormitory Management
-  // const [students] = useState([
-  //   {
-  //     id: 1,
-  //     studentId: 'ZNS001',
-  //     name: 'Tendai Mukamuri',
-  //     avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face',
-  //     dateStarted: '2023-02-15',
-  //     dormHouse: '',
-  //     dormNumber: '',
-  //     rentStatus: 'Paid',
-  //     yearOfStudy: 2,
-  //     status: 'Active',
-  //     gender: 'Female'
-  //   },
-  //   {
-  //     id: 2,
-  //     studentId: 'ZNS002',
-  //     name: 'Blessing Chiweshe',
-  //     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face',
-  //     dateStarted: '2023-02-15',
-  //     dormHouse: 'Adlam House',
-  //     dormNumber: 'B05',
-  //     rentStatus: 'Arrears',
-  //     yearOfStudy: 2,
-  //     status: 'Active',
-  //     gender: 'Male'
-  //   },
-  //   {
-  //     id: 3,
-  //     studentId: 'ZNS003',
-  //     name: 'Chipo Nyamayaro',
-  //     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face',
-  //     dateStarted: '2024-02-10',
-  //     dormHouse: 'Nurse Home',
-  //     dormNumber: 'C09',
-  //     rentStatus: 'Paid',
-  //     yearOfStudy: 1,
-  //     status: 'Active',
-  //     gender: 'Female'
-  //   },
-  //   {
-  //     id: 4,
-  //     studentId: 'ZNS004',
-  //     name: 'Tatenda Moyo',
-  //     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
-  //     dateStarted: '2022-02-20',
-  //     dormHouse: 'Adlam House',
-  //     dormNumber: 'D14',
-  //     rentStatus: 'Paid',
-  //     yearOfStudy: 3,
-  //     status: 'Active',
-  //     gender: 'Male'
-  //   }
-  // ]);
+
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -81,12 +29,19 @@ const StudentsPage = () => {
       status: ''
     });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rentFormData, setRentFormData] = useState({
+    month: new Date().toISOString().slice(0, 7), // Format: YYYY-MM
+    proofOfPayment: null,
+    proofOfPaymentPreview: null
+  });
+
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
 
   const fetchOccupancyData = async () => {
     try {
-      const response = await fetch('http://localhost:3001/get-room-occupancy');
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-room-occupancy');
       const data = await response.json();
       setOccupancyData(data);
       setShowOccupancyModal(true);
@@ -98,131 +53,220 @@ const StudentsPage = () => {
 
   // Add these handler functions before the return statement:
   const handleAssignStudent = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/assign-student-housing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentId: selectedStudent.studentId,
-          house: formData.house,
-          roomNumber: formData.dormNumber,
-          performedBy: 'admin'
-        })
-      });
+  try {
+    setIsSubmitting(true);
+    const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/assign-student-housing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId: selectedStudent.studentId,
+        house: formData.house,
+        roomNumber: formData.dormNumber,
+        performedBy: 'admin'
+      })
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        alert(data.message);
-        return;
-      }
-
-      // Update local state immediately without page refresh
-      setStudents(prevStudents => 
-        prevStudents.map(s => 
-          s.studentId === selectedStudent.studentId 
-            ? { ...s, dormHouse: formData.house, dormNumber: formData.dormNumber }
-            : s
-        )
-      );
-
-      alert('Student assigned successfully!');
-      closeModal();
-
-    } catch (error) {
-      console.error('Error assigning student:', error);
-      alert('Failed to assign student');
+    if (!response.ok) {
+      toast.error(data.message);
+      return;
     }
-  };
+
+    setStudents(prevStudents => 
+      prevStudents.map(s => 
+        s.studentId === selectedStudent.studentId 
+          ? { ...s, dormHouse: formData.house, dormNumber: formData.dormNumber }
+          : s
+      )
+    );
+
+    toast.success('Student assigned successfully!');
+    closeModal();
+
+  } catch (error) {
+    console.error('Error assigning student:', error);
+    toast.error('Failed to assign student');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const handleMoveStudent = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/move-student-housing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentId: selectedStudent.studentId,
-          currentHouse: selectedStudent.dormHouse,
-          currentRoom: selectedStudent.dormNumber,
-          newHouse: formData.house,
-          newRoom: formData.dormNumber,
-          performedBy: 'admin'
-        })
-      });
+  try {
+    setIsSubmitting(true);
+    const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/move-student-housing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId: selectedStudent.studentId,
+        currentHouse: selectedStudent.dormHouse,
+        currentRoom: selectedStudent.dormNumber,
+        newHouse: formData.house,
+        newRoom: formData.dormNumber,
+        performedBy: 'admin'
+      })
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        alert(data.message);
-        return;
-      }
-
-      // Update local state immediately
-      setStudents(prevStudents => 
-        prevStudents.map(s => 
-          s.studentId === selectedStudent.studentId 
-            ? { ...s, dormHouse: formData.house, dormNumber: formData.dormNumber }
-            : s
-        )
-      );
-
-      alert('Student moved successfully!');
-      closeModal();
-
-    } catch (error) {
-      console.error('Error moving student:', error);
-      alert('Failed to move student');
+    if (!response.ok) {
+      toast.error(data.message);
+      return;
     }
-  };
+
+    setStudents(prevStudents => 
+      prevStudents.map(s => 
+        s.studentId === selectedStudent.studentId 
+          ? { ...s, dormHouse: formData.house, dormNumber: formData.dormNumber }
+          : s
+      )
+    );
+
+    toast.success('Student moved successfully!');
+    closeModal();
+
+  } catch (error) {
+    console.error('Error moving student:', error);
+    toast.error('Failed to move student');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const handleDeactivateStudent = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/deactivate-student-housing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentId: selectedStudent.studentId,
-          house: selectedStudent.dormHouse,
-          roomNumber: selectedStudent.dormNumber,
-          performedBy: 'admin'
-        })
-      });
+  try {
+    setIsSubmitting(true);
+    const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/deactivate-student-housing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId: selectedStudent.studentId,
+        house: selectedStudent.dormHouse,
+        roomNumber: selectedStudent.dormNumber,
+        performedBy: 'admin'
+      })
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        alert(data.message);
-        return;
-      }
-
-      // Update local state immediately
-      setStudents(prevStudents => 
-        prevStudents.map(s => 
-          s.studentId === selectedStudent.studentId 
-            ? { ...s, dormHouse: '', dormNumber: '' }
-            : s
-        )
-      );
-
-      alert('Student housing deactivated successfully!');
-      closeModal();
-
-    } catch (error) {
-      console.error('Error deactivating student:', error);
-      alert('Failed to deactivate student');
+    if (!response.ok) {
+      toast.error(data.message);
+      return;
     }
-  };
+
+    setStudents(prevStudents => 
+      prevStudents.map(s => 
+        s.studentId === selectedStudent.studentId 
+          ? { ...s, dormHouse: '', dormNumber: '' }
+          : s
+      )
+    );
+
+    toast.success('Student housing deactivated successfully!');
+    closeModal();
+
+  } catch (error) {
+    console.error('Error deactivating student:', error);
+    toast.error('Failed to deactivate student');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+  const handleUpdateRentStatus = async () => {
+  try {
+    setIsSubmitting(true);
+
+    if (!rentFormData.month) {
+      toast.error('Please select a month');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!rentFormData.proofOfPayment) {
+      toast.error('Please upload proof of payment');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Upload image to Cloudinary first
+    const formData = new FormData();
+    formData.append('image', rentFormData.proofOfPayment);
+
+    const uploadResponse = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const uploadData = await uploadResponse.json();
+
+    if (!uploadData.success) {
+      toast.error('Failed to upload proof of payment');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Get current user ID (you'll need to pass this from your auth context)
+    const currentUserId = 'admin'; // Replace with actual user ID from context
+
+    // Submit rental record
+    const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-rental-record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId: selectedStudent.studentId,
+        month: rentFormData.month,
+        proofOfPaymentUrl: uploadData.url,
+        approvedBy: currentUserId,
+        status: 'Paid'
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      toast.error(data.message || 'Failed to update rent status');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Update local state
+    setStudents(prevStudents => 
+      prevStudents.map(s => 
+        s.studentId === selectedStudent.studentId 
+          ? { ...s, rentStatus: 'Paid' }
+          : s
+      )
+    );
+
+    toast.success('Rent status updated successfully!');
+    closeModal();
+
+  } catch (error) {
+    console.error('Error updating rent:', error);
+    toast.error('Failed to update rent status');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const closeModal = () => {
   setActiveModal(null);
   setSelectedStudent(null);
   setFormData({ house: '', dormNumber: '' });
+  setRentFormData({
+    month: new Date().toISOString().slice(0, 7),
+    proofOfPayment: null,
+    proofOfPaymentPreview: null
+  });
+  setIsSubmitting(false);
 };
 
     useEffect(() => {
       const fetchStudents = async () => {
         try {
-          const response = await fetch('http://localhost:3001/get-students-with-housing');
+          const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-students-with-housing');
           const data = await response.json();
           setStudents(data);
         } catch (error) {
@@ -392,8 +436,25 @@ const StudentsPage = () => {
                   <th style={styles.th}>Actions</th>
                 </tr>
               </thead>
+
+
+
               <tbody>
-                {filteredStudents.map((student) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan="7" style={{...styles.td, textAlign: 'center', padding: '40px'}}>
+                      <Loader size={40} className="spinner-border text-primary" />
+                      <p className="mt-3 text-muted">Loading residents...</p>
+                    </td>
+                  </tr>
+                ) : filteredStudents.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{...styles.td, textAlign: 'center', padding: '40px'}}>
+                      <p className="text-muted">No residents found</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredStudents.map((student) => (
                   <tr key={student.id} style={{backgroundColor: 'white'}}>
                     <td style={styles.td}>
                       <div 
@@ -404,7 +465,7 @@ const StudentsPage = () => {
                         <img src={student.avatar || student.photo || 'https://via.placeholder.com/40'} style={styles.avatar} alt="avatar" />
                         <div>
                           <div className="fw-bold" style={{color: '#1E3A8A'}}>{student.username}</div>
-                          <small className="text-muted">{student.gender}</small>
+                          <small className="text-muted">{student.firstName} {student.lastName}</small>
                         </div>
                       </div>
                     </td>
@@ -459,12 +520,25 @@ const StudentsPage = () => {
                             >
                               <UserMinus size={14}/>
                             </button>
+
+                            <button 
+                              title="Update Rent"
+                              className="btn btn-sm btn-outline-success"
+                              onClick={() => { 
+                                setSelectedStudent(student); 
+                                setActiveModal('rent'); 
+                                setFormData({ rentStatus: student.rentStatus || 'Pending' }); 
+                              }}
+                            >
+                              <CreditCard size={14}/>
+                            </button>
                           </>
                         )}
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))
+                )}
               </tbody>
             </table>
           </div>
@@ -488,7 +562,20 @@ const StudentsPage = () => {
                 <div>
                   <p>Are you sure you want to deactivate the residency for <strong>{selectedStudent?.name}</strong>?</p>
                   <div className="d-flex gap-2 mt-4">
-                    <button className="btn btn-danger w-100" onClick={handleDeactivateStudent}> Confirm Deactivation </button>
+                    <button 
+                      className="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2" 
+                      onClick={handleDeactivateStudent}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader size={16} className="spinner-border spinner-border-sm" />
+                          Processing...
+                        </>
+                      ) : (
+                        'Confirm Deactivation'
+                      )}
+                    </button>
                     <button className="btn btn-light w-100" onClick={closeModal}>Cancel</button>
                   </div>
                 </div>
@@ -517,13 +604,94 @@ const StudentsPage = () => {
                     />
                   </div>
                   <button 
-                    className="btn btn-primary w-100 mt-2" 
+                    className="btn btn-primary w-100 mt-2 d-flex align-items-center justify-content-center gap-2" 
                     onClick={activeModal === 'move' ? handleMoveStudent : handleAssignStudent}
+                    disabled={isSubmitting}
                   >
-                    Submit {activeModal === 'move' ? 'Move' : 'Assignment'}
+                    {isSubmitting ? (
+                      <>
+                        <Loader size={16} className="spinner-border spinner-border-sm" />
+                        Processing...
+                      </>
+                    ) : (
+                      `Submit ${activeModal === 'move' ? 'Move' : 'Assignment'}`
+                    )}
                   </button>
                 </div>
               )}
+
+                {activeModal === 'rent' && (
+                  <div style={styles.modalOverlay}>
+                    <div style={styles.modalContent}>
+                      <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h4 className="m-0" style={{color: '#1E3A8A'}}>Update Rent Payment</h4>
+                        <X size={20} style={{cursor: 'pointer'}} onClick={closeModal} />
+                      </div>
+
+                      <div className="mb-4 text-center">
+                        <h6 className="text-muted">Student:</h6>
+                        <h5 style={{color: '#1E3A8A'}}>{selectedStudent?.username}</h5>
+                        <small className="text-muted">{selectedStudent?.studentId}</small>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="fw-bold mb-1">Payment Month</label>
+                        <input 
+                          type="month"
+                          style={styles.input}
+                          value={rentFormData.month}
+                          onChange={(e) => setRentFormData({...rentFormData, month: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="fw-bold mb-1">Proof of Payment</label>
+                        <input 
+                          type="file"
+                          accept="image/*"
+                          style={{...styles.input, cursor: 'pointer'}}
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              setRentFormData({
+                                ...rentFormData, 
+                                proofOfPayment: file,
+                                proofOfPaymentPreview: URL.createObjectURL(file)
+                              });
+                            }
+                          }}
+                        />
+                        {rentFormData.proofOfPaymentPreview && (
+                          <div className="mt-2">
+                            <img 
+                              src={rentFormData.proofOfPaymentPreview} 
+                              alt="Preview" 
+                              style={{width: '100%', maxHeight: '200px', objectFit: 'contain', borderRadius: '8px'}}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <button 
+                        className="btn btn-success w-100 mt-2 d-flex align-items-center justify-content-center gap-2" 
+                        onClick={handleUpdateRentStatus}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader size={16} className="spinner-border spinner-border-sm" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={16} />
+                            Submit Payment Record
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
         )}
@@ -663,6 +831,18 @@ const StudentsPage = () => {
             </div>
           </div>
         )}
+
+        <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
 
     </div>
   );
