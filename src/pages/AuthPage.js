@@ -210,23 +210,33 @@ const AuthPage = () => {
       const data = await response.json();
 
       if (response.ok && data.token) {
-        const authData = {
-          token: data.token,
-          user: formData.username,
-          userType: formData.userType
-        };
+      // ✅ Backend must be the source of truth
 
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', formData.username);
-        localStorage.setItem('userType', formData.userType);
-        
-        setMessage('Authentication successful! Redirecting...');
-        
-        setTimeout(() => {
-          console.log('Redirecting based on user type:', authData.userType);
-          navigate("/");
-        }, 1500);
-      } else {
+      console.log(response)
+
+      const backendUserType = data.userType;
+
+      // ❌ Account type mismatch
+      if (backendUserType !== formData.userType) {
+        setError(
+          `This account is registered as a different type. 
+    Please select the correct account type.`
+        );
+        return;
+      }
+
+      // ✅ Correct account type
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", data.username || formData.username);
+      localStorage.setItem("userType", backendUserType);
+
+      setMessage("Authentication successful! Redirecting...");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1200);
+    }
+    else {
         setError(data.message || 'Authentication failed');
       }
     } catch (error) {

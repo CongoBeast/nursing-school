@@ -40,8 +40,8 @@ const StaffManagementPage = () => {
   useEffect(() => {
     const fetchStaff = async () => {
       try {
-        // const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-all-employees');
-        const response = await fetch('http://localhost:4000/get-all-employees');
+        const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-all-employees');
+        // const response = await fetch('http://localhost:4000/get-all-employees');
 
         const data = await response.json();
         

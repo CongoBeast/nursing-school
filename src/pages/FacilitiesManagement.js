@@ -1,25 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Home, 
-  ClipboardCheck, 
-  AlertCircle, 
-  Info, 
-  Bed, 
-  Trash2, 
-  WashingMachine, 
-  Zap, 
-  Coffee, 
-  BookOpen, 
-  Wind,
-  Warehouse,
-  Phone,
-  ShieldAlert,
-  ArrowRight
+  Home, ClipboardCheck, AlertCircle, Info, Bed, Trash2, WashingMachine, Zap, Coffee, BookOpen, Wind, Warehouse, Phone, ShieldAlert, ArrowRight
 } from 'lucide-react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const FacilitiesManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState(null);
+
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reportFormData, setReportFormData] = useState({
+    dorm: '',
+    facilityType: '',
+    title: '',
+    description: '',
+    discoveryDate: new Date().toISOString().split('T')[0],
+    status: 'Pending',
+    image: null,
+    imagePreview: null
+  });
+
+  const [facilityReports, setFacilityReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(true);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [showReportDetailModal, setShowReportDetailModal] = useState(false);
 
   const colors = {
     primary: '#F0F7FF',    // Very light blue
@@ -123,6 +129,129 @@ const FacilitiesManagement = () => {
     })
   };
 
+  const fetchFacilityReports = async () => {
+    try {
+      setLoadingReports(true);
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-facility-reports');
+      const data = await response.json();
+      setFacilityReports(data);
+    } catch (error) {
+      console.error('Error fetching facility reports:', error);
+      toast.error('Failed to load facility reports');
+    } finally {
+      setLoadingReports(false);
+    }
+  };
+
+  // Add this function to handle report submission
+  const handleSubmitFacilityReport = async () => {
+    try {
+      setIsSubmitting(true);
+
+      if (!reportFormData.dorm || !reportFormData.facilityType || !reportFormData.title || !reportFormData.discoveryDate) {
+        toast.error('Please fill in all required fields');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Get user from localStorage - handle both JSON and direct string
+      let username;
+      try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+          toast.error('User not found. Please log in again.');
+          setIsSubmitting(false);
+          return;
+        }
+        
+        try {
+          const userObj = JSON.parse(userStr);
+          username = userObj.username || userStr;
+        } catch {
+          username = userStr;
+        }
+      } catch (error) {
+        console.error('Error getting user from localStorage:', error);
+        toast.error('User not found. Please log in again.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('dorm', reportFormData.dorm);
+      formData.append('facilityType', reportFormData.facilityType);
+      formData.append('title', reportFormData.title);
+      formData.append('description', reportFormData.description);
+      formData.append('discoveryDate', reportFormData.discoveryDate);
+      formData.append('status', reportFormData.status);
+      formData.append('reportedBy', username);
+      
+      if (reportFormData.image) {
+        formData.append('image', reportFormData.image);
+      }
+
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-facility-report', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.message || 'Failed to submit facility report');
+        setIsSubmitting(false);
+        return;
+      }
+
+      toast.success('Facility report submitted successfully!');
+      closeReportModal();
+      
+      // Refresh the reports list
+      fetchFacilityReports();
+
+    } catch (error) {
+      console.error('Error submitting facility report:', error);
+      toast.error('Failed to submit facility report');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Add this function to close modal and reset form
+    const closeReportModal = () => {
+      setShowReportModal(false);
+      setReportFormData({
+        dorm: '',
+        facilityType: '',
+        title: '',
+        description: '',
+        discoveryDate: new Date().toISOString().split('T')[0],
+        status: 'Pending',
+        image: null,
+        imagePreview: null
+      });
+      setIsSubmitting(false);
+    };
+
+    // Add facility types array
+    const facilityTypes = [
+      'Toilet/Bathroom',
+      'Laundry Room',
+      'Kitchen',
+      'Study Room',
+      'Dining Room',
+      'Store Room',
+      'Electrical Room',
+      'Elevator',
+      'Security',
+      'Common Area',
+      'Other'
+    ];
+
+    useEffect(() => {
+      fetchFacilityReports();
+    }, []);
+
   return (
     <div style={styles.pageContainer}>
       {/* Bootstrap CSS */}
@@ -130,10 +259,19 @@ const FacilitiesManagement = () => {
       
       <div className="container">
         {/* Header */}
+
         <div className="row mb-5 text-center">
           <div className="col">
             <h1 style={styles.titleAccent} className="display-5">Dormitory Facilities Management</h1>
             <p className="text-muted">Tracking inventory and maintenance for Adlam House and Nurses Home</p>
+            <button 
+              className="btn btn-lg mt-3"
+              style={styles.btnCustom}
+              onClick={() => setShowReportModal(true)}
+            >
+              <AlertCircle size={20} className="me-2" />
+              Report Facility Damage
+            </button>
           </div>
         </div>
 
@@ -199,6 +337,92 @@ const FacilitiesManagement = () => {
             </div>
           </div>
         </div>
+
+        {/* Facility Damage Reports Section */}
+        <div className="row mt-5">
+          <div className="col-12">
+            <div className="card border-0 shadow-sm" style={{ borderRadius: '15px' }}>
+              <div className="card-header border-0 p-4" style={{ backgroundColor: colors.accent, color: 'white' }}>
+                <h5 className="m-0 fw-bold d-flex align-items-center">
+                  <AlertCircle className="me-2" /> Facility Damage Reports
+                </h5>
+              </div>
+              <div className="card-body p-4">
+                {loadingReports ? (
+                  <div className="text-center py-5">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-3 text-muted">Loading facility reports...</p>
+                  </div>
+                ) : facilityReports.length === 0 ? (
+                  <div className="text-center py-5 text-muted">
+                    <AlertCircle size={48} className="mb-3" style={{ opacity: 0.3 }} />
+                    <p>No facility damage reports found</p>
+                  </div>
+                ) : (
+                  <div className="row g-3">
+                    {facilityReports.map((report) => (
+                      <div className="col-md-6 col-lg-4" key={report._id}>
+                        <div 
+                          className="card h-100 border-0 shadow-sm" 
+                          style={{ borderRadius: '12px', cursor: 'pointer', transition: 'transform 0.2s' }}
+                          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                          onClick={() => { setSelectedReport(report); setShowReportDetailModal(true); }}
+                        >
+                          {report.imageUrl && (
+                            <img 
+                              src={report.imageUrl} 
+                              className="card-img-top" 
+                              alt={report.title}
+                              style={{ height: '180px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }}
+                            />
+                          )}
+                          <div className="card-body">
+                            <div className="d-flex justify-content-between align-items-start mb-2">
+                              <span 
+                                className={`badge ${
+                                  report.status === 'Fixed' ? 'bg-success' : 
+                                  report.status === 'In Progress' ? 'bg-warning text-dark' : 
+                                  'bg-danger'
+                                }`}
+                              >
+                                {report.status}
+                              </span>
+                              <small className="text-muted">{report.facilityReportId}</small>
+                            </div>
+                            <h6 className="fw-bold mb-2" style={{ color: colors.accent }}>{report.title}</h6>
+                            <p className="small text-muted mb-2">
+                              <strong>{report.dorm}</strong> - {report.facilityType}
+                            </p>
+                            <p className="small text-muted mb-2" style={{ 
+                              overflow: 'hidden', 
+                              textOverflow: 'ellipsis', 
+                              display: '-webkit-box', 
+                              WebkitLineClamp: 2, 
+                              WebkitBoxOrient: 'vertical' 
+                            }}>
+                              {report.description || 'No description provided'}
+                            </p>
+                            <div className="d-flex justify-content-between align-items-center mt-3">
+                              <small className="text-muted">
+                                <i className="bi bi-calendar me-1"></i>
+                                {new Date(report.discoveryDate).toLocaleDateString()}
+                              </small>
+                              <small className="text-primary fw-bold">View Details →</small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Detail Modal */}
@@ -251,6 +475,290 @@ const FacilitiesManagement = () => {
           </div>
         </div>
       )}
+
+
+      {/* Facility Damage Report Modal */}
+{showReportModal && (
+  <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+    <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div className="modal-content border-0" style={{ borderRadius: '20px', overflow: 'hidden' }}>
+        <div className="modal-header border-0 p-4" style={styles.modalHeader}>
+          <h5 className="modal-title fw-bold d-flex align-items-center">
+            <AlertCircle className="me-3" size={24} />
+            Report Facility Damage
+          </h5>
+          <button type="button" className="btn-close btn-close-white" onClick={closeReportModal}></button>
+        </div>
+        <div className="modal-body p-4" style={{ backgroundColor: '#F8FAFC' }}>
+          <div className="row g-3">
+            <div className="col-md-6">
+              <label className="fw-bold mb-2 small">Dormitory <span className="text-danger">*</span></label>
+              <select 
+                className="form-select"
+                value={reportFormData.dorm}
+                onChange={(e) => setReportFormData({...reportFormData, dorm: e.target.value})}
+              >
+                <option value="">Select Dormitory...</option>
+                <option value="Adlam House">Adlam House</option>
+                <option value="Nurses Home">Nurses Home</option>
+              </select>
+            </div>
+
+            <div className="col-md-6">
+              <label className="fw-bold mb-2 small">Facility Type <span className="text-danger">*</span></label>
+              <select 
+                className="form-select"
+                value={reportFormData.facilityType}
+                onChange={(e) => setReportFormData({...reportFormData, facilityType: e.target.value})}
+              >
+                <option value="">Select Facility Type...</option>
+                {facilityTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-12">
+              <label className="fw-bold mb-2 small">Title <span className="text-danger">*</span></label>
+              <input 
+                type="text"
+                className="form-control"
+                placeholder="Brief title of the damage..."
+                value={reportFormData.title}
+                onChange={(e) => setReportFormData({...reportFormData, title: e.target.value})}
+              />
+            </div>
+
+            <div className="col-12">
+              <label className="fw-bold mb-2 small">Description</label>
+              <textarea 
+                className="form-control"
+                rows="4"
+                placeholder="Detailed description of the damage..."
+                value={reportFormData.description}
+                onChange={(e) => setReportFormData({...reportFormData, description: e.target.value})}
+              />
+            </div>
+
+            <div className="col-md-6">
+              <label className="fw-bold mb-2 small">Discovery Date <span className="text-danger">*</span></label>
+              <input 
+                type="date"
+                className="form-control"
+                value={reportFormData.discoveryDate}
+                onChange={(e) => setReportFormData({...reportFormData, discoveryDate: e.target.value})}
+              />
+            </div>
+
+            <div className="col-md-6">
+              <label className="fw-bold mb-2 small">Status</label>
+              <select 
+                className="form-select"
+                value={reportFormData.status}
+                onChange={(e) => setReportFormData({...reportFormData, status: e.target.value})}
+              >
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Fixed">Fixed</option>
+              </select>
+            </div>
+
+            <div className="col-12">
+              <label className="fw-bold mb-2 small">Photo Evidence</label>
+              <input 
+                type="file"
+                accept="image/*"
+                className="form-control"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setReportFormData({
+                      ...reportFormData,
+                      image: file,
+                      imagePreview: URL.createObjectURL(file)
+                    });
+                  }
+                }}
+              />
+              {reportFormData.imagePreview && (
+                <div className="mt-3">
+                  <img 
+                    src={reportFormData.imagePreview} 
+                    alt="Preview" 
+                    style={{width: '100%', maxHeight: '250px', objectFit: 'contain', borderRadius: '12px'}}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="modal-footer border-0 bg-light p-4">
+          <button className="btn btn-secondary rounded-pill px-4" onClick={closeReportModal}>
+            Cancel
+          </button>
+          <button 
+            className="btn rounded-pill px-4" 
+            style={styles.btnCustom}
+            onClick={handleSubmitFacilityReport}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2"></span>
+                Submitting...
+              </>
+            ) : (
+              'Submit Report'
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Facility Report Detail Modal */}
+{showReportDetailModal && selectedReport && (
+  <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+    <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div className="modal-content border-0" style={{ borderRadius: '20px', overflow: 'hidden' }}>
+        <div className="modal-header border-0 p-4" style={styles.modalHeader}>
+          <h5 className="modal-title fw-bold d-flex align-items-center">
+            <AlertCircle className="me-3" size={24} />
+            Facility Damage Report Details
+          </h5>
+          <button 
+            type="button" 
+            className="btn-close btn-close-white" 
+            onClick={() => setShowReportDetailModal(false)}
+          ></button>
+        </div>
+        <div className="modal-body p-4" style={{ backgroundColor: '#F8FAFC' }}>
+          {selectedReport.imageUrl && (
+            <div className="mb-4">
+              <img 
+                src={selectedReport.imageUrl} 
+                alt={selectedReport.title}
+                style={{ width: '100%', borderRadius: '12px', maxHeight: '400px', objectFit: 'cover' }}
+              />
+            </div>
+          )}
+          
+          <div className="bg-white p-4 rounded shadow-sm mb-3">
+            <div className="row g-3">
+              <div className="col-12">
+                <h4 className="fw-bold" style={{ color: colors.accent }}>{selectedReport.title}</h4>
+                <span 
+                  className={`badge ${
+                    selectedReport.status === 'Fixed' ? 'bg-success' : 
+                    selectedReport.status === 'In Progress' ? 'bg-warning text-dark' : 
+                    'bg-danger'
+                  }`}
+                >
+                  {selectedReport.status}
+                </span>
+              </div>
+              
+              <div className="col-md-6">
+                <label className="small text-muted fw-bold">Report ID</label>
+                <p className="mb-0">{selectedReport.facilityReportId}</p>
+              </div>
+              
+              <div className="col-md-6">
+                <label className="small text-muted fw-bold">Dormitory</label>
+                <p className="mb-0">{selectedReport.dorm}</p>
+              </div>
+              
+              <div className="col-md-6">
+                <label className="small text-muted fw-bold">Facility Type</label>
+                <p className="mb-0">{selectedReport.facilityType}</p>
+              </div>
+              
+              <div className="col-md-6">
+                <label className="small text-muted fw-bold">Discovery Date</label>
+                <p className="mb-0">{new Date(selectedReport.discoveryDate).toLocaleDateString()}</p>
+              </div>
+              
+              <div className="col-md-6">
+                <label className="small text-muted fw-bold">Reported By</label>
+                <p className="mb-0">{selectedReport.reportedBy}</p>
+              </div>
+              
+              <div className="col-md-6">
+                <label className="small text-muted fw-bold">Reported On</label>
+                <p className="mb-0">{new Date(selectedReport.createdAt).toLocaleString()}</p>
+              </div>
+              
+              <div className="col-12">
+                <label className="small text-muted fw-bold">Description</label>
+                <p className="mb-0">{selectedReport.description || 'No description provided'}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-3 rounded shadow-sm">
+            <label className="small text-muted fw-bold mb-2">Update Status</label>
+            <select 
+              className="form-select"
+              value={selectedReport.status}
+              onChange={async (e) => {
+                const newStatus = e.target.value;
+                try {
+                  const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/update-facility-report-status', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      facilityReportId: selectedReport._id,
+                      status: newStatus
+                    })
+                  });
+                  
+                  const data = await response.json();
+                  
+                  if (response.ok) {
+                    toast.success('Status updated successfully!');
+                    setSelectedReport({ ...selectedReport, status: newStatus });
+                    fetchFacilityReports(); // Refresh the list
+                  } else {
+                    toast.error(data.message || 'Failed to update status');
+                  }
+                } catch (error) {
+                  console.error('Error updating status:', error);
+                  toast.error('Failed to update status');
+                }
+              }}
+            >
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Fixed">Fixed</option>
+            </select>
+          </div>
+        </div>
+        <div className="modal-footer border-0 bg-light p-4">
+          <button 
+            className="btn btn-secondary rounded-pill px-4" 
+            onClick={() => setShowReportDetailModal(false)}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Add ToastContainer at the end */}
+<ToastContainer 
+  position="top-right"
+  autoClose={3000}
+  hideProgressBar={false}
+  newestOnTop={true}
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+/>
     </div>
   );
 };

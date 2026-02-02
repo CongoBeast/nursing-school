@@ -20,6 +20,10 @@ const StudentsPage = () => {
   const [selectedHouse, setSelectedHouse] = useState('Adlam House');
   const [occupancySearch, setOccupancySearch] = useState('');
 
+  // Add this state near your other state declarations
+  const [hasAlreadyPaid, setHasAlreadyPaid] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
+
     // Filters state adjusted for Dorms and Rent
   const [filters, setFilters] = useState({
       search: '',
@@ -175,93 +179,133 @@ const StudentsPage = () => {
 };
 
   const handleUpdateRentStatus = async () => {
-  try {
-    setIsSubmitting(true);
+    try {
+      setIsSubmitting(true);
 
-    if (!rentFormData.month) {
-      toast.error('Please select a month');
+      if (!rentFormData.month) {
+        toast.error('Please select a month');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!rentFormData.status) {
+        toast.error('Please select a status');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Only require proof of payment if status is "Paid"
+      if (rentFormData.status === 'Paid' && !rentFormData.proofOfPayment) {
+        toast.error('Please upload proof of payment for Paid status');
+        setIsSubmitting(false);
+        return;
+      }
+
+      let proofOfPaymentUrl = null;
+
+      // Upload image to Cloudinary if provided and status is Paid
+      if (rentFormData.status === 'Paid' && rentFormData.proofOfPayment) {
+        const formData = new FormData();
+        formData.append('image', rentFormData.proofOfPayment);
+
+        const uploadResponse = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const uploadData = await uploadResponse.json();
+
+        if (!uploadData.success) {
+          toast.error('Failed to upload proof of payment');
+          setIsSubmitting(false);
+          return;
+        }
+
+        proofOfPaymentUrl = uploadData.url;
+      }
+
+      const currentUserId = 'admin';
+
+      // Submit rental record
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-rental-record', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: selectedStudent.studentId,
+          month: rentFormData.month,
+          proofOfPaymentUrl: proofOfPaymentUrl,
+          approvedBy: currentUserId,
+          status: rentFormData.status
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.message || 'Failed to update rent status');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Update local state
+      setStudents(prevStudents => 
+        prevStudents.map(s => 
+          s.studentId === selectedStudent.studentId 
+            ? { ...s, rentStatus: rentFormData.status }
+            : s
+        )
+      );
+
+      toast.success('Rent status updated successfully!');
+      closeModal();
+
+    } catch (error) {
+      console.error('Error updating rent:', error);
+      toast.error('Failed to update rent status');
+    } finally {
       setIsSubmitting(false);
-      return;
     }
+  };
 
-    if (!rentFormData.proofOfPayment) {
-      toast.error('Please upload proof of payment');
+  // Add this function to check payment status when month changes
+  const checkPaymentStatus = async (studentId, month) => {
+    try {
+      setCheckingPayment(true);
+      const response = await fetch(
+        `https://nursing-school-backend--thomasmethembe4.replit.app/check-rental-status/${studentId}/${month}`
+      );
+      const data = await response.json();
+      
+      setHasAlreadyPaid(data.hasPaid);
+      
+      if (data.hasPaid) {
+        setRentFormData(prev => ({
+          ...prev,
+          status: data.record.status
+        }));
+      }
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+    } finally {
+      setCheckingPayment(false);
+    }
+  };
+
+  // Modify the closeModal function to reset the new states
+    const closeModal = () => {
+      setActiveModal(null);
+      setSelectedStudent(null);
+      setFormData({ house: '', dormNumber: '' });
+      setRentFormData({
+        month: new Date().toISOString().slice(0, 7),
+        proofOfPayment: null,
+        proofOfPaymentPreview: null,
+        status: ''
+      });
+      setHasAlreadyPaid(false);
+      setCheckingPayment(false);
       setIsSubmitting(false);
-      return;
-    }
-
-    // Upload image to Cloudinary first
-    const formData = new FormData();
-    formData.append('image', rentFormData.proofOfPayment);
-
-    const uploadResponse = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/upload', {
-      method: 'POST',
-      body: formData
-    });
-
-    const uploadData = await uploadResponse.json();
-
-    if (!uploadData.success) {
-      toast.error('Failed to upload proof of payment');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Get current user ID (you'll need to pass this from your auth context)
-    const currentUserId = 'admin'; // Replace with actual user ID from context
-
-    // Submit rental record
-    const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-rental-record', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        studentId: selectedStudent.studentId,
-        month: rentFormData.month,
-        proofOfPaymentUrl: uploadData.url,
-        approvedBy: currentUserId,
-        status: 'Paid'
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      toast.error(data.message || 'Failed to update rent status');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Update local state
-    setStudents(prevStudents => 
-      prevStudents.map(s => 
-        s.studentId === selectedStudent.studentId 
-          ? { ...s, rentStatus: 'Paid' }
-          : s
-      )
-    );
-
-    toast.success('Rent status updated successfully!');
-    closeModal();
-
-  } catch (error) {
-    console.error('Error updating rent:', error);
-    toast.error('Failed to update rent status');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-  const closeModal = () => {
-  setActiveModal(null);
-  setSelectedStudent(null);
-  setFormData({ house: '', dormNumber: '' });
-  setRentFormData({
-    month: new Date().toISOString().slice(0, 7),
-    proofOfPayment: null,
-    proofOfPaymentPreview: null
-  });
-  setIsSubmitting(false);
-};
+    };
 
     useEffect(() => {
       const fetchStudents = async () => {
@@ -477,8 +521,12 @@ const StudentsPage = () => {
                       {student.dormNumber || <span className="text-muted">-</span>}
                     </td>
                     <td style={styles.td}>
-                      <span className={`badge ${student.rentStatus === 'Paid' ? 'bg-success' : 'bg-danger'}`}>
-                        {student.rentStatus}
+                      <span
+                        className={`badge ${
+                          student.rentStatus === "Paid" ? "bg-success" : "bg-danger"
+                        }`}
+                      >
+                        {student.rentStatus || "Unpaid"}
                       </span>
                     </td>
                     <td style={styles.td}>
@@ -522,16 +570,23 @@ const StudentsPage = () => {
                             </button>
 
                             <button 
-                              title="Update Rent"
-                              className="btn btn-sm btn-outline-success"
-                              onClick={() => { 
-                                setSelectedStudent(student); 
-                                setActiveModal('rent'); 
-                                setFormData({ rentStatus: student.rentStatus || 'Pending' }); 
-                              }}
-                            >
-                              <CreditCard size={14}/>
-                            </button>
+                            title="Update Rent"
+                            className="btn btn-sm btn-outline-success"
+                            onClick={() => { 
+                              setSelectedStudent(student); 
+                              setActiveModal('rent');
+                              const currentMonth = new Date().toISOString().slice(0, 7);
+                              setRentFormData({ 
+                                month: currentMonth,
+                                proofOfPayment: null,
+                                proofOfPaymentPreview: null,
+                                status: ''
+                              });
+                              checkPaymentStatus(student.studentId, currentMonth);
+                            }}
+                          >
+                            <CreditCard size={14}/>
+                          </button>
                           </>
                         )}
                       </div>
@@ -640,48 +695,89 @@ const StudentsPage = () => {
                           type="month"
                           style={styles.input}
                           value={rentFormData.month}
-                          onChange={(e) => setRentFormData({...rentFormData, month: e.target.value})}
+                          onChange={(e) => {
+                            const newMonth = e.target.value;
+                            setRentFormData({...rentFormData, month: newMonth, status: ''});
+                            checkPaymentStatus(selectedStudent.studentId, newMonth);
+                          }}
                         />
                       </div>
 
+                      {checkingPayment && (
+                        <div className="text-center mb-3">
+                          <Loader size={20} className="spinner-border spinner-border-sm text-primary" />
+                          <small className="ms-2 text-muted">Checking payment status...</small>
+                        </div>
+                      )}
+
+                      {hasAlreadyPaid && (
+                        <div className="alert alert-info mb-3">
+                          <small>⚠️ A payment record already exists for this month.</small>
+                        </div>
+                      )}
+
                       <div className="mb-3">
-                        <label className="fw-bold mb-1">Proof of Payment</label>
-                        <input 
-                          type="file"
-                          accept="image/*"
-                          style={{...styles.input, cursor: 'pointer'}}
-                          onChange={(e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                              setRentFormData({
-                                ...rentFormData, 
-                                proofOfPayment: file,
-                                proofOfPaymentPreview: URL.createObjectURL(file)
-                              });
-                            }
-                          }}
-                        />
-                        {rentFormData.proofOfPaymentPreview && (
-                          <div className="mt-2">
-                            <img 
-                              src={rentFormData.proofOfPaymentPreview} 
-                              alt="Preview" 
-                              style={{width: '100%', maxHeight: '200px', objectFit: 'contain', borderRadius: '8px'}}
-                            />
-                          </div>
+                        <label className="fw-bold mb-1">Status</label>
+                        <select 
+                          style={styles.select}
+                          value={rentFormData.status}
+                          onChange={(e) => setRentFormData({...rentFormData, status: e.target.value})}
+                          disabled={hasAlreadyPaid}
+                        >
+                          <option value="">Select Status...</option>
+                          <option value="Paid">Paid</option>
+                          <option value="Pending">Pending</option>
+                        </select>
+                        {hasAlreadyPaid && (
+                          <small className="text-muted d-block mt-1">
+                            Status cannot be changed - record already exists
+                          </small>
                         )}
                       </div>
+
+                      {rentFormData.status === 'Paid' && (
+                        <div className="mb-3">
+                          <label className="fw-bold mb-1">Proof of Payment</label>
+                          <input 
+                            type="file"
+                            accept="image/*"
+                            style={{...styles.input, cursor: 'pointer'}}
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                setRentFormData({
+                                  ...rentFormData, 
+                                  proofOfPayment: file,
+                                  proofOfPaymentPreview: URL.createObjectURL(file)
+                                });
+                              }
+                            }}
+                            disabled={hasAlreadyPaid}
+                          />
+                          {rentFormData.proofOfPaymentPreview && (
+                            <div className="mt-2">
+                              <img 
+                                src={rentFormData.proofOfPaymentPreview} 
+                                alt="Preview" 
+                                style={{width: '100%', maxHeight: '200px', objectFit: 'contain', borderRadius: '8px'}}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       <button 
                         className="btn btn-success w-100 mt-2 d-flex align-items-center justify-content-center gap-2" 
                         onClick={handleUpdateRentStatus}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || hasAlreadyPaid || !rentFormData.status}
                       >
                         {isSubmitting ? (
                           <>
                             <Loader size={16} className="spinner-border spinner-border-sm" />
                             Processing...
                           </>
+                        ) : hasAlreadyPaid ? (
+                          <>Record Already Exists</>
                         ) : (
                           <>
                             <Upload size={16} />
