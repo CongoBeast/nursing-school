@@ -2,7 +2,7 @@ import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { 
   Users, ClipboardList, Calendar, Activity, 
-  FileText, User, LogOut, Stethoscope,
+  FileText, User, LogOut, Stethoscope,House, 
   ClipboardCheck, Pill, BookOpen, Settings,
   BarChart2, Megaphone, Building, Shield, ShieldX
 } from 'lucide-react';
@@ -71,8 +71,8 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout ,  }
     ],
     student: [
-      { name: "Home", icon: <FileText size={18} />, href: "/#/" , onClick: handleNavClick },
-      { name: "My Doctors", icon: <Stethoscope size={18} />, href: "/#/mydoctors" , onClick: handleNavClick },
+      { name: "Home", icon: <House size={18} />, href: "/#/" , onClick: handleNavClick },
+      { name: "My Records", icon: <FileText size={18} />, href: "/#/student-records" , onClick: handleNavClick },
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile"  , onClick: handleNavClick },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
