@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import './sidebar.css';
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import logo from './pari-logo.png'; // Update with your actual logo path
 
 const Sidebar = ({ userRole, show, onHide }) => {
   // Define sidebar items based on user role
@@ -139,15 +140,22 @@ const Sidebar = ({ userRole, show, onHide }) => {
       {show && <div className="sidebar-backdrop show" onClick={onHide}></div>}
       
       {/* Sidebar */}
-      <div className={`sidebar ${userRole || 'doctor'} ${show ? 'show' : ''}`}>
+      <div className={`sidebar ${userRole || 'user'} ${show ? 'show' : ''}`}>
         {/* Header */}
-        <div className="sidebar-header">
+      <div className="sidebar-header">
+        {/* Logo Section - Shows on all sidebars */}
+        <div className="sidebar-logo">
+          <img src={logo} alt="Logo" className="logo-image" />
+        </div>
+        
+        <div className="sidebar-portal-info">
           {getRoleLogo()}
           <h2 className="sidebar-brand">
             {getPortalTitle()}
           </h2>
         </div>
-
+      </div>
+      
         {/* Navigation */}
         <Nav className="flex-column">
           {sidebarItems[userRole]?.map((item, index) => (
