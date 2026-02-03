@@ -212,7 +212,7 @@ const AuthPage = () => {
       if (response.ok && data.token) {
       // ✅ Backend must be the source of truth
 
-      console.log(response)
+      console.log(data)
 
       const backendUserType = data.userType;
 
