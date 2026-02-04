@@ -55,7 +55,7 @@ const EmployeeProfile = () => {
         }
 
         const response = await fetch(
-            `http://localhost:4000/get-employee-timesheet/${username}`
+            `https://nursing-school-backend--thomasmethembe4.replit.app/get-employee-timesheet/${username}`
         );
         
         if (!response.ok) {

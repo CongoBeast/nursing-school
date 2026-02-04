@@ -9,27 +9,6 @@ const StaffManagementPage = () => {
 
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
 
-  // Refactored Staff Data for Hostel Management
-  // const [staff] = useState([
-  //   { id: 1, staffId: 'ZNS-ADM-001', name: 'Dr. Margaret Chinyoka', avatar: '', position: 'Principal Tutor', qualification: 'PhD Nursing', dateJoined: '2020-01-15', status: 'Active', email: 'm.chinyoka@zns.ac.zw', phone: '+263 77 123 4567', gender: 'Female' },
-  //   { id: 2, staffId: 'ZNS-ADM-002', name: 'Sr. Patricia Mpofu', avatar: '', position: 'Head Matron', qualification: 'MSc Nursing', dateJoined: '2019-08-01', status: 'Active', email: 'p.mpofu@zns.ac.zw', phone: '+263 77 234 5678', gender: 'Female' },
-  //   { id: 3, staffId: 'ZNS-ADM-003', name: 'Mr. Nelson Sibanda', avatar: '', position: 'Allocation Officer', qualification: 'BSc Admin', dateJoined: '2021-02-10', status: 'Active', email: 'n.sibanda@zns.ac.zw', phone: '+263 77 345 6789', gender: 'Male' },
-  //   { id: 4, staffId: 'ZNS-ADM-004', name: 'Mrs. Faith Makoni', avatar: '', position: 'Chairperson of School Improvement Committee', qualification: 'MA Leadership', dateJoined: '2022-03-15', status: 'Active', email: 'f.makoni@zns.ac.zw', phone: '+263 77 456 7890', gender: 'Female' },
-  //   // 7 Wardens
-  //   ...Array.from({ length: 7 }).map((_, i) => ({
-  //     id: 5 + i,
-  //     staffId: `ZNS-WDN-00${i + 1}`,
-  //     name: `Warden Name ${i + 1}`,
-  //     avatar: '',
-  //     position: 'Warden',
-  //     qualification: 'Diploma in Nursing',
-  //     dateJoined: '2023-01-08',
-  //     status: 'Active',
-  //     email: `warden${i + 1}@zns.ac.zw`,
-  //     phone: `+263 77 000 000${i}`,
-  //     gender: i % 2 === 0 ? 'Female' : 'Male'
-  //   }))
-  // ]);
   const navigate = useNavigate(); // Ensure this is initialized
   const [staff, setStaff] = useState([]); // Initialize as empty array
   const [loading, setLoading] = useState(true);
@@ -223,8 +202,8 @@ const StaffManagementPage = () => {
                 </td>
                 <td style={styles.td}>{new Date(member.registrationDate).toLocaleDateString()}</td>
                 <td style={styles.td}>
-                  <span style={styles.badge(member.accountStatus === 'Active' ? '#DCFCE7' : '#FEF3C7', member.accountStatus === 'Active' ? '#166534' : '#854D0E')}>
-                    {member.accountStatus}
+                  <span style={styles.badge(member.accountStatus === true ? '#DCFCE7' : '#FEF3C7', member.accountStatus === true ? '#166534' : '#854D0E')}>
+                    {member.accountStatus === true ? 'Active' : 'In-active'}
                   </span>
                 </td>
                 <td style={{ ...styles.td, borderRight: '1px solid #EDF2F7', borderTopRightRadius: '10px', borderBottomRightRadius: '10px' }}>
