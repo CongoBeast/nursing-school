@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Lock, Mail, Phone, UserCheck, GraduationCap, Shield, BookOpen, Eye, EyeOff, Upload, Calendar, MapPin, Users, Building, AlertTriangle, AlertCircle, Info, Clock } from 'lucide-react';
 import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import logo from "./pari-logo.png";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -217,7 +218,7 @@ const AuthPage = () => {
       const backendUserType = data.userType;
 
       // ❌ Account type mismatch
-      if (backendUserType !== formData.userType) {
+      if (backendUserType !== formData.userType && endpoint == "login") {
         setError(
           `This account is registered as a different type. 
     Please select the correct account type.`
@@ -364,8 +365,19 @@ const AuthPage = () => {
             <Card style={customStyles.authCard}>
               {/* Header */}
               <div style={customStyles.authHeader}>
+                <div className="d-flex justify-content-center mb-3">
+                  <img
+                    src={logo}
+                    alt="School Logo"
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      objectFit: "contain"
+                    }}
+                  />
+                </div>
                 <h1 className="h2 fw-bold mb-2">
-                  Zimbabwe School of Nursing
+                  Parirenyatwa School of Nursing
                 </h1>
                 <p className="mb-4 opacity-90">
                   Excellence in Nursing Education & Training
