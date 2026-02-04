@@ -5,7 +5,12 @@ import {
   User,
   Calendar,
   CreditCard,
+  MapPin,
+  Clock,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
+import "./StudentRecords.css"; // We'll add custom CSS
 
 const API_BASE =
   "https://nursing-school-backend--thomasmethembe4.replit.app";
@@ -55,139 +60,202 @@ export default function StudentRecords() {
 
   if (loading) {
     return (
-      <div className="container py-5 text-center text-primary">
-        Loading student dashboard…
+      <div className="student-records-container">
+        <div className="loading-spinner">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3 text-primary fw-semibold">Loading student dashboard…</p>
+        </div>
       </div>
     );
   }
 
   if (!student) {
     return (
-      <div className="container py-5 text-danger text-center">
-        Student not found
+      <div className="student-records-container">
+        <div className="error-message">
+          <XCircle size={48} className="text-danger mb-3" />
+          <h4 className="text-danger">Student not found</h4>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container py-4">
-      {/* =====================
-          Student Header
-      ====================== */}
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body d-flex align-items-center gap-3">
-          <User size={32} className="text-primary" />
-          <div>
-            <h5 className="mb-0 text-primary">
-              {student.username}
-            </h5>
-            <small className="text-muted">
-              Student ID: {student.studentId || "—"}
-            </small>
-          </div>
-
-          <span
-            className={`ms-auto badge ${
-              (student.rentStatus || "Unpaid") === "Paid"
-                ? "bg-success"
-                : "bg-danger"
-            }`}
-          >
-            {student.rentStatus || "Unpaid"}
-          </span>
-        </div>
-      </div>
-
-      {/* =====================
-          Cards Row
-      ====================== */}
-      <div className="row g-4">
+    <div className="student-records-container">
+      <div className="container-fluid py-4 px-lg-5">
         {/* =====================
-            Housing Records
+            Page Header
         ====================== */}
-        <div className="col-md-6">
-          <div className="card h-100 shadow-sm border-0">
-            <div className="card-header bg-primary text-white d-flex align-items-center gap-2">
-              <Home size={18} />
+        <div className="page-header mb-4">
+          <h2 className="page-title">
+            <FileText size={28} className="me-2" />
+            My Records
+          </h2>
+          <p className="text-muted">View your housing history and payment records</p>
+        </div>
+
+        {/* =====================
+            Student Info Card
+        ====================== */}
+        <div className="student-info-card mb-4">
+          <div className="card-content">
+            <div className="student-avatar">
+              <User size={40} />
+            </div>
+            <div className="student-details">
+              <h4 className="student-name">{student.username}</h4>
+              <p className="student-id">
+                <span className="label">Student ID:</span> 
+                <span className="value">{student.studentId || "—"}</span>
+              </p>
+              <p className="student-email mb-0">
+                <span className="label">Email:</span> 
+                <span className="value">{student.email || "—"}</span>
+              </p>
+            </div>
+            <div className="student-status">
+              <div className={`status-badge ${
+                (student.rentStatus || "Unpaid") === "Paid"
+                  ? "status-paid"
+                  : "status-unpaid"
+              }`}>
+                {(student.rentStatus || "Unpaid") === "Paid" ? (
+                  <CheckCircle size={18} className="me-2" />
+                ) : (
+                  <XCircle size={18} className="me-2" />
+                )}
+                {student.rentStatus || "Unpaid"}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* =====================
+            Records Grid
+        ====================== */}
+        <div className="row g-4">
+          {/* =====================
               Housing History
-            </div>
-
-            <div className="card-body p-0">
-              {housingHistory.length === 0 ? (
-                <div className="p-3 text-muted text-center">
-                  No housing records found
+          ====================== */}
+          <div className="col-lg-6">
+            <div className="records-card housing-card">
+              <div className="card-header-custom">
+                <div className="header-icon">
+                  <Home size={20} />
                 </div>
-              ) : (
-                <ul className="list-group list-group-flush">
-                  {housingHistory.map((record) => (
-                    <li
-                      key={record._id}
-                      className="list-group-item"
-                    >
-                      <div className="fw-semibold text-primary">
-                        {record.action.toUpperCase()}
+                <h5 className="header-title">Housing History</h5>
+                <span className="record-count">{housingHistory.length}</span>
+              </div>
+
+              <div className="card-body-custom">
+                {housingHistory.length === 0 ? (
+                  <div className="empty-state">
+                    <Home size={48} className="empty-icon" />
+                    <p className="empty-text">No housing records found</p>
+                  </div>
+                ) : (
+                  <div className="records-list">
+                    {housingHistory.map((record, index) => (
+                      <div key={record._id} className="record-item">
+                        <div className="record-timeline">
+                          <div className="timeline-dot"></div>
+                          {index !== housingHistory.length - 1 && (
+                            <div className="timeline-line"></div>
+                          )}
+                        </div>
+                        <div className="record-content">
+                          <div className="record-header">
+                            <span className={`action-badge action-${record.action}`}>
+                              {record.action.toUpperCase()}
+                            </span>
+                            <span className="record-date">
+                              <Calendar size={14} className="me-1" />
+                              {new Date(record.timestamp).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                          <p className="record-description">{record.description}</p>
+                          {record.house && (
+                            <p className="record-location">
+                              <MapPin size={14} className="me-1" />
+                              {record.house} - Room {record.roomNumber || record.newRoom}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="small text-muted">
-                        {record.description}
-                      </div>
-                      <div className="small">
-                        <Calendar size={14} />{" "}
-                        {new Date(
-                          record.timestamp,
-                        ).toLocaleDateString()}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* =====================
-            Rental Records
-        ====================== */}
-        <div className="col-md-6">
-          <div className="card h-100 shadow-sm border-0">
-            <div className="card-header bg-primary text-white d-flex align-items-center gap-2">
-              <CreditCard size={18} />
+          {/* =====================
               Rental Payments
-            </div>
-
-            <div className="card-body p-0">
-              {rentalRecords.length === 0 ? (
-                <div className="p-3 text-muted text-center">
-                  No rental records found
+          ====================== */}
+          <div className="col-lg-6">
+            <div className="records-card rental-card">
+              <div className="card-header-custom">
+                <div className="header-icon">
+                  <CreditCard size={20} />
                 </div>
-              ) : (
-                <ul className="list-group list-group-flush">
-                  {rentalRecords.map((record) => (
-                    <li
-                      key={record._id}
-                      className="list-group-item d-flex justify-content-between align-items-center"
-                    >
-                      <div>
-                        <div className="fw-semibold text-primary">
-                          {record.month}
-                        </div>
-                        <small className="text-muted">
-                          Approved by: {record.approvedBy}
-                        </small>
-                      </div>
+                <h5 className="header-title">Rental Payments</h5>
+                <span className="record-count">{rentalRecords.length}</span>
+              </div>
 
-                      <span
-                        className={`badge ${
-                          record.status === "Paid"
-                            ? "bg-success"
-                            : "bg-warning text-dark"
-                        }`}
-                      >
-                        {record.status}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="card-body-custom">
+                {rentalRecords.length === 0 ? (
+                  <div className="empty-state">
+                    <CreditCard size={48} className="empty-icon" />
+                    <p className="empty-text">No rental records found</p>
+                  </div>
+                ) : (
+                  <div className="records-list">
+                    {rentalRecords.map((record) => (
+                      <div key={record._id} className="payment-item">
+                        <div className="payment-icon">
+                          <CreditCard size={20} />
+                        </div>
+                        <div className="payment-details">
+                          <h6 className="payment-month">{record.month}</h6>
+                          <p className="payment-approver">
+                            Approved by: <span>{record.approvedBy}</span>
+                          </p>
+                          {record.createdAt && (
+                            <p className="payment-date">
+                              <Clock size={14} className="me-1" />
+                              {new Date(record.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </p>
+                          )}
+                        </div>
+                        <div className="payment-status">
+                          <span className={`status-pill ${
+                            record.status === "Paid"
+                              ? "status-pill-paid"
+                              : "status-pill-pending"
+                          }`}>
+                            {record.status === "Paid" ? (
+                              <CheckCircle size={16} className="me-1" />
+                            ) : (
+                              <Clock size={16} className="me-1" />
+                            )}
+                            {record.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -375,7 +375,7 @@ const AdminDashboard = () => {
       <div className="container-fluid">
         {/* Header */}
         <h1 style={styles.header}>
-          Zimbabwe Nursing School - Admin Dashboard
+          Parirenyatwa Nursing School Dashboard
         </h1>
 
         {/* Stats Cards Row */}
