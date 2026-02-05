@@ -247,14 +247,14 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
     // ]
     admin: [
           { name: "Home", icon: <Building size={18} />, href: "/#/" , onClick: () => handleNavClick("/#/")},
-          { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
-          { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff" },
-          { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
-          { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },
-          { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
-          { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
+          { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: () => handleNavClick("/#/students")},
+          { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff", onClick: () => handleNavClick("/#/staff") },
+          { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/#/facilities-management" , onClick: () => handleNavClick("/#/facilities-management")},
+          { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation", onClick: () => handleNavClick("/#/accomodation") },
+          { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: () => handleNavClick("/#/fault-reporting")},
+          { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: () => handleNavClick("/#/manage-schedule")},
           { divider: true },
-          { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" },
+          { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile", onClick: () => handleNavClick("/#/user-profile"") },
           { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
         ]
   };
@@ -500,5 +500,6 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
 
 
 export default TopNavbar;
+
 
 
