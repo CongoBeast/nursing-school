@@ -234,7 +234,7 @@ const AuthPage = () => {
       setMessage("Authentication successful! Redirecting...");
 
       setTimeout(() => {
-        navigate("/");
+        navigate("/thank-you");
       }, 1200);
     }
     else {
