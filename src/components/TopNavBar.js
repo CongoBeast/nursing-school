@@ -254,7 +254,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
           { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: () => handleNavClick("/#/fault-reporting")},
           { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: () => handleNavClick("/#/manage-schedule")},
           { divider: true },
-          { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile", onClick: () => handleNavClick("/#/user-profile"") },
+          { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile", onClick: () => handleNavClick("/#/user-profile") },
           { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
         ]
   };
@@ -500,6 +500,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
 
 
 export default TopNavbar;
+
 
 
 
