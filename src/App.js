@@ -72,6 +72,9 @@ import FaultReporting from './pages/FaultReporting.js';
 import UserProfile from './pages/UserProfile.js';
 import WardenSchedule from './pages/WardenSchedule.js';
 import ManageSchedule from './pages/ManageSchedule.js';
+import EmployeeProfile from './pages/EmployeeProfile.js';
+import StudentRecords from './pages/StudentRecords.js';
+import ThankYouPage from './pages/ThankYouPage.js';
 
 
 
@@ -95,14 +98,16 @@ const ProtectedRoute = ({ children }) => {
 function Layout({ children }) {
   const location = useLocation();
   const isAuthPage = location.pathname === '/auth';
+  const isThankYouPage = location.pathname === '/thank-you';
+  const hideLayout = isAuthPage || isThankYouPage;
 
   return (
     <div className="row">
       <div className="d-flex col">
-        {!isAuthPage && <Sidebar userRole={localStorage.userType}/>}
+        {!hideLayout && <Sidebar userRole={localStorage.userType}/>}
         
-        <div className={`container-fluid ${isAuthPage ? 'col-12' : 'col'}`}>
-          <TopNavBar />
+        <div className={`container-fluid ${hideLayout ? 'col-12' : 'col'}`}>
+          {!isThankYouPage && <TopNavBar />}
           {children}
         </div>
       </div>
@@ -117,6 +122,7 @@ function App() {
         <Routes>
           {/* Public route */}
           <Route path="/auth" element={<AuthPage/>} />
+          <Route path="/thank-you" element={<ThankYouPage/>} />
           
           {/* Protected routes */}
           <Route path="/" element={
@@ -184,11 +190,23 @@ function App() {
               <ManageSchedule />
             </ProtectedRoute>
           } />
+
+          <Route path="/employee-profile/:id" element={
+            <ProtectedRoute>
+              <EmployeeProfile />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/student-records/" element={
+            <ProtectedRoute>
+              <StudentRecords />
+            </ProtectedRoute>
+          } />
           
           {/* Optional: Redirect any unknown paths to /auth or / */}
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
-      </Layout>
+      </Layout>      
     </Router>
   );
 }
