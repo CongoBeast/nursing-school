@@ -125,83 +125,83 @@ function App() {
           <Route path="/thank-you" element={<ThankYouPage/>} />
           
           {/* Protected routes */}
-          // <Route path="/" element={
-          //   <ProtectedRoute>
-          //     <AdminDashboard />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/students" element={
-          //   <ProtectedRoute>
-          //     <StudentsPage />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/students" element={
+            <ProtectedRoute>
+              <StudentsPage />
+            </ProtectedRoute>
+          } />
           
-          // <Route path="/student-profile" element={
-          //   <ProtectedRoute>
-          //     <StudentProfile />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/student-profile" element={
+            <ProtectedRoute>
+              <StudentProfile />
+            </ProtectedRoute>
+          } />
           
-          // <Route path="/staff" element={
-          //   <ProtectedRoute>
-          //     <StaffManagementPage />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/staff" element={
+            <ProtectedRoute>
+              <StaffManagementPage />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/facilities-management" element={
-          //   <ProtectedRoute>
-          //     <FacilitiesManagement />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/facilities-management" element={
+            <ProtectedRoute>
+              <FacilitiesManagement />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/accomodation" element={
-          //   <ProtectedRoute>
-          //     <AccomodationManagement />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/accomodation" element={
+            <ProtectedRoute>
+              <AccomodationManagement />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/staff-attendance" element={
-          //   <ProtectedRoute>
-          //     <StaffAttendance />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/staff-attendance" element={
+            <ProtectedRoute>
+              <StaffAttendance />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/fault-reporting" element={
-          //   <ProtectedRoute>
-          //     <FaultReporting />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/fault-reporting" element={
+            <ProtectedRoute>
+              <FaultReporting />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/user-profile" element={
-          //   <ProtectedRoute>
-          //     <UserProfile />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/user-profile" element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/my-schedule" element={
-          //   <ProtectedRoute>
-          //     <WardenSchedule />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/my-schedule" element={
+            <ProtectedRoute>
+              <WardenSchedule />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/manage-schedule" element={
-          //   <ProtectedRoute>
-          //     <ManageSchedule />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/manage-schedule" element={
+            <ProtectedRoute>
+              <ManageSchedule />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/employee-profile/:id" element={
-          //   <ProtectedRoute>
-          //     <EmployeeProfile />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/employee-profile/:id" element={
+            <ProtectedRoute>
+              <EmployeeProfile />
+            </ProtectedRoute>
+          } />
 
-          // <Route path="/student-records/" element={
-          //   <ProtectedRoute>
-          //     <StudentRecords />
-          //   </ProtectedRoute>
-          // } />
+          <Route path="/student-records/" element={
+            <ProtectedRoute>
+              <StudentRecords />
+            </ProtectedRoute>
+          } />
           
           {/* Optional: Redirect any unknown paths to /auth or / */}
           <Route path="*" element={<Navigate to="/auth" replace />} />
