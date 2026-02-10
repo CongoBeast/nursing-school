@@ -200,6 +200,9 @@ const AuthPage = () => {
         lastLoggedIn: new Date().toISOString(),
       };
 
+      
+
+      // const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/${endpoint}`, {
       const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/${endpoint}`, {
         method: 'POST',
         headers: {
@@ -228,13 +231,13 @@ const AuthPage = () => {
 
       // ✅ Correct account type
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", data.username || formData.username);
+      localStorage.setItem("user", data.username || formData.username.trim());
       localStorage.setItem("userType", backendUserType);
 
       setMessage("Authentication successful! Redirecting...");
 
       setTimeout(() => {
-        navigate("/thank-you");
+        navigate("/");
       }, 1200);
     }
     else {
@@ -503,7 +506,7 @@ const AuthPage = () => {
                             type="text"
                             placeholder="First Name"
                             name="firstName"
-                            value={formData.firstName}
+                            value={formData.firstName.trim()}
                             onChange={handleChange}
                             style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                             required={!isLogin}
@@ -517,7 +520,7 @@ const AuthPage = () => {
                             type="text"
                             placeholder="Last Name"
                             name="lastName"
-                            value={formData.lastName}
+                            value={formData.lastName.trim()}
                             onChange={handleChange}
                             style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                             required={!isLogin}
@@ -535,7 +538,7 @@ const AuthPage = () => {
                         type="email"
                         placeholder="Email Address"
                         name="email"
-                        value={formData.email}
+                        value={formData.email.trim()}
                         onChange={handleChange}
                         style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                         required={!isLogin}
@@ -550,7 +553,7 @@ const AuthPage = () => {
                       type="text"
                       placeholder="Username"
                       name="username"
-                      value={formData.username}
+                      value={formData.username.trim()}
                       onChange={handleChange}
                       style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                       required
@@ -564,7 +567,7 @@ const AuthPage = () => {
                       type={showPassword ? "text" : "password"}
                       placeholder="Password"
                       name="password"
-                      value={formData.password}
+                      value={formData.password.trim()}
                       onChange={handleChange}
                       style={{ ...customStyles.formControl, paddingLeft: '3rem', paddingRight: '3rem' }}
                       required
@@ -586,7 +589,7 @@ const AuthPage = () => {
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirm Password"
                         name="confirmPassword"
-                        value={formData.confirmPassword}
+                        value={formData.confirmPassword.trim()}
                         onChange={handleChange}
                         style={{ ...customStyles.formControl, paddingLeft: '3rem', paddingRight: '3rem' }}
                         required={!isLogin}
@@ -674,7 +677,7 @@ const AuthPage = () => {
                           type="text"
                           placeholder="National ID Number"
                           name="nationalId"
-                          value={formData.nationalId}
+                          value={formData.nationalId.trim()}
                           onChange={handleChange}
                           style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                         />
@@ -688,7 +691,7 @@ const AuthPage = () => {
                           rows={2}
                           placeholder="Home Address"
                           name="address"
-                          value={formData.address}
+                          value={formData.address.trim()}
                           onChange={handleChange}
                           style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                         />
@@ -722,7 +725,7 @@ const AuthPage = () => {
                                 type="text"
                                 placeholder="Student ID"
                                 name="studentId"
-                                value={formData.studentId}
+                                value={formData.studentId.trim()}
                                 onChange={handleChange}
                                 style={customStyles.formControl}
                                 required
@@ -760,7 +763,7 @@ const AuthPage = () => {
                                 type="text"
                                 placeholder="Staff ID"
                                 name="staffId"
-                                value={formData.staffId}
+                                value={formData.staffId.trim()}
                                 onChange={handleChange}
                                 style={customStyles.formControl}
                                 required
@@ -798,7 +801,7 @@ const AuthPage = () => {
                                 type="text"
                                 placeholder="Staff ID"
                                 name="staffId"
-                                value={formData.staffId}
+                                value={formData.staffId.trim()}
                                 onChange={handleChange}
                                 style={customStyles.formControl}
                                 required
@@ -821,7 +824,7 @@ const AuthPage = () => {
                                 type="text"
                                 placeholder="Contact Name"
                                 name="emergencyName"
-                                value={formData.emergencyContact.name}
+                                value={formData.emergencyContact.name.trim()}
                                 onChange={handleChange}
                                 style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                               />
@@ -834,7 +837,7 @@ const AuthPage = () => {
                                 type="tel"
                                 placeholder="Contact Phone"
                                 name="emergencyPhone"
-                                value={formData.emergencyContact.phone}
+                                value={formData.emergencyContact.phone.trim()}
                                 onChange={handleChange}
                                 style={{ ...customStyles.formControl, paddingLeft: '3rem' }}
                               />
