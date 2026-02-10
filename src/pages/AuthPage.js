@@ -92,6 +92,10 @@ const AuthPage = () => {
     }
   };
 
+  const handleReset = () => {
+    navigate('/forgot-password');
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'countryCode' || name === 'number') {
@@ -892,6 +896,18 @@ const AuthPage = () => {
                         </Button>
                       </p>
                     )}
+
+                    <p className="small mb-0" style={{ color: '#2563EB' }}>
+                        Forgot password? Click here to reset?{' '}
+                        <Button
+                          variant="link"
+                          className="p-0 fw-medium text-decoration-none"
+                          style={{ color: '#2563EB' }}
+                          onClick={() => handleReset()}
+                        >
+                          RESET PASSWORD
+                        </Button>
+                      </p>
                   </div>
                 </Form>
               </Card.Body>
