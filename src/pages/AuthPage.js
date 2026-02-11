@@ -37,6 +37,9 @@ const AuthPage = () => {
     accountStatus: true
   });
 
+  const API_BASE = "https://nursing-school-backend-dev.replit.app";
+  
+
   const userTypes = [
     { value: 'student', label: 'Student', icon: <GraduationCap size={20} />, color: '#3B82F6' },
     { value: 'staff', label: 'Staff', icon: <Users size={20} />, color: '#2563EB' },
@@ -184,7 +187,7 @@ const AuthPage = () => {
         const formDataImage = new FormData();
         formDataImage.append('image', avatarFile);
 
-        const uploadRes = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/upload', {
+        const uploadRes = await fetch('https://nursing-school-backend-dev.replit.app/upload', {
           method: 'POST',
           body: formDataImage,
         });
@@ -207,7 +210,7 @@ const AuthPage = () => {
       
 
       // const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/${endpoint}`, {
-      const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/${endpoint}`, {
+      const response = await fetch(`${API_BASE}/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -220,9 +223,11 @@ const AuthPage = () => {
       if (response.ok && data.token) {
       // ✅ Backend must be the source of truth
 
-      console.log(data)
-
       const backendUserType = data.userType;
+
+      const userTypeToStore = isLogin ? data.userType : formData.userType;
+
+      console.log(userTypeToStore)
 
       // ❌ Account type mismatch
       if (backendUserType !== formData.userType && endpoint == "login") {
@@ -236,7 +241,7 @@ const AuthPage = () => {
       // ✅ Correct account type
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", data.username || formData.username.trim());
-      localStorage.setItem("userType", backendUserType);
+      localStorage.setItem("userType", userTypeToStore);
 
       setMessage("Authentication successful! Redirecting...");
 
