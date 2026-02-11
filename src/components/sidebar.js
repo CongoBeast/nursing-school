@@ -4,7 +4,7 @@ import {
   Users, ClipboardList, Calendar, Activity, 
   FileText, User, LogOut, Stethoscope,House, 
   ClipboardCheck, Pill, BookOpen, Settings,
-  BarChart2, Megaphone, Building, Shield, ShieldX, HardHat, Building2
+  BarChart2, Megaphone, Building, Shield, ShieldX, HardHat, Building2, Handshake
 } from 'lucide-react';
 import './sidebar.css';
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -85,6 +85,7 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff" },
       { name: "Facilities Management", icon: <Building2 size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
       { name: "Manage Notices", icon: <Megaphone size={18} />, href: "/#/manage-notices" , onClick: handleNavClick},
+      { name: "Manage Staff Request", icon: <Handshake size={18} />, href: "/#/admin-staff-requests" , onClick: handleNavClick},
       // { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
       // { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},

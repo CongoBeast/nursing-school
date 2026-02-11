@@ -171,7 +171,7 @@ import {
   FileText, User, LogOut, Stethoscope,
   ClipboardCheck, Pill, BookOpen, Settings,
   BarChart2, Megaphone, Building, Shield, ShieldX ,
-  Menu, X, House, HardHat
+  Menu, X, House, HardHat, Handshake
 } from 'lucide-react';
 // import './topnavbar.css';
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -243,6 +243,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
           { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff" },
           { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
           { name: "Manage Notices", icon: <Megaphone size={18} />, href: "/#/manage-notices" , onClick: handleNavClick},
+          { name: "Manage Staff Request", icon: <Handshake size={18} />, href: "/#/admin-staff-requests" , onClick: handleNavClick},
           // { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },/
           { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
           { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
