@@ -3,6 +3,7 @@ import { Lock, Mail, User, Shield, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import logo from "./pari-logo.png";
+import API_URL from '../config';
 
 const ForgotPasswordPage = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -71,7 +72,7 @@ const ForgotPasswordPage = () => {
     setMessage('');
 
     try {
-      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/reset-password', {
+      const response = await fetch(`${API_URL}/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
