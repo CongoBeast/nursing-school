@@ -5,8 +5,11 @@ import {
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API_URL from '../config';
+import { useNavigate } from 'react-router-dom';
+
 
 const FacilitiesManagement = () => {
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState(null);
 
@@ -25,6 +28,8 @@ const FacilitiesManagement = () => {
 
   const [facilityReports, setFacilityReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
+  const [loadingNotices, setLoadingNotices] = useState(true);
+  const [maintenanceNotices, setMaintenanceNotices] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [showReportDetailModal, setShowReportDetailModal] = useState(false);
 
@@ -144,6 +149,24 @@ const FacilitiesManagement = () => {
     }
   };
 
+  const fetchMaintenanceNotice = async () => {
+    try {
+      setLoadingNotices(true);
+      const response = await fetch(`${API_URL}/get-maintenance-notices`);
+      const data = await response.json();
+      setMaintenanceNotices(data);
+    } catch (error) {
+      console.error('Error fetching maintenance notices:', error);
+      toast.error('Failed to load maintenance notices');
+    } finally {
+      setLoadingNotices(false);
+    }
+  };
+
+  console.log(maintenanceNotices)
+
+
+
   // Add this function to handle report submission
   const handleSubmitFacilityReport = async () => {
     try {
@@ -251,6 +274,7 @@ const FacilitiesManagement = () => {
 
     useEffect(() => {
       fetchFacilityReports();
+      fetchMaintenanceNotice();
     }, []);
 
   return (
@@ -324,17 +348,24 @@ const FacilitiesManagement = () => {
                 <h5 className="fw-bold mb-4 d-flex align-items-center" style={{ color: colors.accent }}>
                   <ClipboardCheck className="me-2" /> Maintenance Notices
                 </h5>
-                {notices.map((notice) => (
-                  <div key={notice.id} className="bg-white p-3 rounded-3 mb-3 shadow-sm border-start border-4 border-primary">
+                {maintenanceNotices.map((notice) => (
+                  <div key={notice.maintenanceNoticeId} className="bg-white p-3 rounded-3 mb-3 shadow-sm border-start border-4 border-primary">
                     <div className="d-flex align-items-center mb-2" style={{ color: colors.tertiary }}>
-                      {notice.icon}
-                      <span className="ms-2 fw-bold small">{notice.title}</span>
+                      <ShieldAlert size={18} />
+                      <span className="ms-2 fw-bold small">{notice.house}  {notice.title}</span>
                     </div>
-                    <p className="mb-0 text-muted small" style={{ fontSize: '0.8rem' }}>{notice.content}</p>
-                    <small className="text-primary fw-bold mt-2 d-block">{notice.date}</small>
+                    <p className="mb-0 text-muted small" style={{ fontSize: '0.8rem' }}>{notice.description}</p>
+                    <small className="text-primary fw-bold mt-2 d-block">{notice.plannedDate}</small>
                   </div>
                 ))}
               </div>
+                      <button 
+                        className="btn w-100 d-flex align-items-center justify-content-center" 
+                        style={styles.btnCustom}
+                        onClick={ () => navigate('/manage-notices') }
+                      >
+                        View All Notices <ArrowRight size={16} className="ms-2" />
+                      </button>
             </div>
           </div>
         </div>
@@ -705,7 +736,7 @@ const FacilitiesManagement = () => {
               onChange={async (e) => {
                 const newStatus = e.target.value;
                 try {
-                  const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/update-facility-report-status', {
+                  const response = await fetch(`${API_URL}/update-facility-report-status`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
