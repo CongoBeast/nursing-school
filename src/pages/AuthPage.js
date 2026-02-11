@@ -3,6 +3,7 @@ import { User, Lock, Mail, Phone, UserCheck, GraduationCap, Shield, BookOpen, Ey
 import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "./pari-logo.png";
+import API_URL from '../config'
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -37,9 +38,7 @@ const AuthPage = () => {
     accountStatus: true
   });
 
-  const API_BASE = "https://nursing-school-backend--thomasmethembe4.replit.app";
-  // const API_BASE = "https://nursing-school-backend-dev.replit.app";
-  
+  const API_BASE = "https://nursing-school-backend-dev.replit.app";
   
 
   const userTypes = [
@@ -189,7 +188,7 @@ const AuthPage = () => {
         const formDataImage = new FormData();
         formDataImage.append('image', avatarFile);
 
-        const uploadRes = await fetch('https://nursing-school-backend-dev.replit.app/upload', {
+        const uploadRes = await fetch(`${API_URL}/upload`, {
           method: 'POST',
           body: formDataImage,
         });
@@ -212,7 +211,7 @@ const AuthPage = () => {
       
 
       // const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/${endpoint}`, {
-      const response = await fetch(`${API_BASE}/${endpoint}`, {
+      const response = await fetch(`${API_URL}/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -925,6 +924,5 @@ const AuthPage = () => {
     </div>
   );
 };
-
 
 export default AuthPage;
