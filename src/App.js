@@ -75,9 +75,11 @@ import ManageSchedule from './pages/ManageSchedule.js';
 import EmployeeProfile from './pages/EmployeeProfile.js';
 import StudentRecords from './pages/StudentRecords.js';
 import ThankYouPage from './pages/ThankYouPage.js';
-
-
-
+import MaintenanceAuthPage from './pages/MaintenanceAuthPage.js';
+import MaintenanceDashboard from './pages/MaintenanceDashboard.js';
+import ReportsPage from './pages/ReportsPage.js';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.js';
+import StaffRequests from './pages/StaffRequests.js';
 
 
 // ProtectedRoute component to check for authentication
@@ -98,8 +100,10 @@ const ProtectedRoute = ({ children }) => {
 function Layout({ children }) {
   const location = useLocation();
   const isAuthPage = location.pathname === '/auth';
+  const isMainAuthPage = location.pathname === '/maintenance-auth';
   const isThankYouPage = location.pathname === '/thank-you';
-  const hideLayout = isAuthPage || isThankYouPage;
+  const isForgotPasswordPage = location.pathname === '/forgot-password';
+  const hideLayout = isAuthPage || isThankYouPage || isMainAuthPage || isForgotPasswordPage;
 
   return (
     <div className="row">
@@ -122,7 +126,9 @@ function App() {
         <Routes>
           {/* Public route */}
           <Route path="/auth" element={<AuthPage/>} />
+          <Route path="/maintenance-auth" element={<MaintenanceAuthPage/>} />
           <Route path="/thank-you" element={<ThankYouPage/>} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           
           {/* Protected routes */}
           <Route path="/" element={
@@ -202,7 +208,25 @@ function App() {
               <StudentRecords />
             </ProtectedRoute>
           } />
+
+          <Route path="/maintenance-dashboard" element={
+            <ProtectedRoute>
+              <MaintenanceDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/reports-page" element={
+            <ProtectedRoute>
+              <ReportsPage />
+            </ProtectedRoute>
+          } />
           
+          <Route path="/staff-requests" element={
+            <ProtectedRoute>
+              <StaffRequests />
+            </ProtectedRoute>
+          } />
+
           {/* Optional: Redirect any unknown paths to /auth or / */}
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
