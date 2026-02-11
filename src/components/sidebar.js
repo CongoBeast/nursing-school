@@ -4,7 +4,7 @@ import {
   Users, ClipboardList, Calendar, Activity, 
   FileText, User, LogOut, Stethoscope,House, 
   ClipboardCheck, Pill, BookOpen, Settings,
-  BarChart2, Megaphone, Building, Shield, ShieldX
+  BarChart2, Megaphone, Building, Shield, ShieldX, HardHat
 } from 'lucide-react';
 import './sidebar.css';
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -66,6 +66,7 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "Home", icon: <Users size={18} />, href: "/#/" , onClick: handleNavClick },
       { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "/#/staff-attendance" },
       { name: "Schedule", icon: <Calendar size={18} />, href: "/#/my-schedule" , onClick: handleNavClick},
+      { name: "My Requests", icon: <BarChart2 size={18} />, href: "/#/staff-requests" },
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" , onClick: handleNavClick},
@@ -89,6 +90,14 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
+    ],
+    maintenance: [
+      { name: "Home", icon: <House size={18} />, href: "/#/maintenance-dashboard" , onClick: handleNavClick },
+      { name: "Fault Reports", icon: <FileText size={18} />, href: "/#/reports-page" , onClick: handleNavClick },
+      { name: "Maintenance Reports", icon: <FileText size={18} />, href: "/#/maintainance-reports" , onClick: handleNavClick },
+      { divider: true },
+      { name: "View Profile", icon: <User size={18} />, href: "/#/maintainance-profile"  , onClick: handleNavClick },
+      { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
     ]
   };
 
@@ -101,6 +110,8 @@ const Sidebar = ({ userRole, show, onHide }) => {
         return <User size={24} />;
       case 'admin':
         return <Shield size={24} />;
+      case 'maintenance':
+        return <HardHat size={24} />;
       default:
         return <User size={24} />;
     }
@@ -115,6 +126,8 @@ const Sidebar = ({ userRole, show, onHide }) => {
         return 'Student Portal';
       case 'admin':
         return 'Admin Portal';
+      case 'maintenance':
+        return 'Maintenance Portal';
       default:
         return 'Portal';
     }

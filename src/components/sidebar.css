@@ -43,6 +43,10 @@
   --primary-lightest: #dde6ff;
 
   /* staff theme colors */
+  --maintenance-bg: #175e00;
+  --maintenance-text: #ffebeb;
+
+  /* staff theme colors */
   --staff-bg: #003ad8;
   --staff-text: #ffffff;
   

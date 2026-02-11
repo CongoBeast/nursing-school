@@ -171,7 +171,7 @@ import {
   FileText, User, LogOut, Stethoscope,
   ClipboardCheck, Pill, BookOpen, Settings,
   BarChart2, Megaphone, Building, Shield, ShieldX ,
-  Menu, X
+  Menu, X, House, HardHat
 } from 'lucide-react';
 // import './topnavbar.css';
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -224,6 +224,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
       { name: "Home", icon: <Users size={18} />, href: "/#/" , onClick: handleNavClick },
       { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "/#/staff-attendance" },
       { name: "Schedule", icon: <Calendar size={18} />, href: "/#/my-schedule" , onClick: handleNavClick},
+      { name: "My Requests", icon: <BarChart2 size={18} />, href: "/#/staff-requests" },
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" , onClick: handleNavClick},
@@ -236,27 +237,26 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile"  , onClick: handleNavClick },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
     ],
-    // admin: [
-    //   { name: "Manage Facilities", icon: <Building size={18} />, href: "/facilitiesmanagement" },
-    //   { name: "Reports & Audits", icon: <ClipboardList size={18} />, href: "/audit-reports" },
-    //   { name: "HR Management", icon: <BarChart2 size={18} />, href: "/hrmanagement" },
-    //   { name: "Pandemic Management", icon: <Megaphone size={18} />, href: "/pandemicmanagement" },
-    //   { name: "System Settings", icon: <Settings size={18} />, href: "#settings" },
-    //   { name: "View Profile", icon: <User size={18} />, href: "#profile" },
-    //   { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
-    // ]
     admin: [
-          { name: "Home", icon: <Building size={18} />, href: "/#/" , onClick: () => handleNavClick("/#/")},
-          { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: () => handleNavClick("/#/students")},
-          { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff", onClick: () => handleNavClick("/#/staff") },
-          { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/#/facilities-management" , onClick: () => handleNavClick("/#/facilities-management")},
-          { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation", onClick: () => handleNavClick("/#/accomodation") },
-          { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: () => handleNavClick("/#/fault-reporting")},
-          { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: () => handleNavClick("/#/manage-schedule")},
+          { name: "Home", icon: <Building size={18} />, href: "/#/" , onClick: handleNavClick},
+          { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
+          { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff" },
+          { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
+          { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },
+          { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
+          { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
           { divider: true },
-          { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile", onClick: () => handleNavClick("/#/user-profile") },
+          { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" },
           { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
-        ]
+        ],
+    maintainance: [
+      { name: "Home", icon: <House size={18} />, href: "/#/maintainance-dashboard" , onClick: handleNavClick },
+      { name: "Fault Reports", icon: <FileText size={18} />, href: "/#/fault-reports" , onClick: handleNavClick },
+      { name: "Maintainence Reports", icon: <FileText size={18} />, href: "/#/maintainance-reports" , onClick: handleNavClick },
+      { divider: true },
+      { name: "View Profile", icon: <User size={18} />, href: "/#/maintainance-profile"  , onClick: handleNavClick },
+      { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
+    ]
   };
 
   const getRoleLogo = () => {
@@ -267,6 +267,8 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         return <User size={24} />;
       case 'admin':
         return <Shield size={24} />;
+      case 'maintainance':
+        return <HardHat size={24} />;
       default:
         return <User size={24} />;
     }
@@ -280,6 +282,8 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         return 'Student Portal';
       case 'admin':
         return 'Admin Portal';
+      case 'maintainance':
+        return 'Maintainance Portal';
       default:
         return 'Portal';
     }
@@ -287,9 +291,9 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
 
   const getUserName = () => {
     switch(userRole) {
-      case 'staff':
+      case 'doctor':
         return 'Dr. Smith';
-      case 'student':
+      case 'patient':
         return 'John Doe';
       case 'admin':
         return 'Admin User';
@@ -297,6 +301,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         return 'User';
     }
   };
+  
 
   // Don't render on large screens
   if (!showNavbar) {
@@ -498,9 +503,4 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
   );
 };
 
-
 export default TopNavbar;
-
-
-
-
