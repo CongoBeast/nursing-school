@@ -71,7 +71,7 @@ const ForgotPasswordPage = () => {
     setMessage('');
 
     try {
-      const response = await fetch('https://nursing-school-backend-dev.replit.app/reset-password', {
+      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
