@@ -37,7 +37,9 @@ const AuthPage = () => {
     accountStatus: true
   });
 
-  const API_BASE = "https://nursing-school-backend-dev.replit.app";
+  const API_BASE = "https://nursing-school-backend--thomasmethembe4.replit.app";
+  // const API_BASE = "https://nursing-school-backend-dev.replit.app";
+  
   
 
   const userTypes = [
@@ -923,5 +925,6 @@ const AuthPage = () => {
     </div>
   );
 };
+
 
 export default AuthPage;
