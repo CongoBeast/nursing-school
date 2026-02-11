@@ -1,6 +1,7 @@
 import React, { useState, useMemo , useEffect } from 'react';
 import { Search, Download, Edit2, Trash2, Home, Users, ChevronRight, Phone, Mail, Calendar, X, Network, UserCheck, Shield } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import API_URL from '../config';
 
 const StaffManagementPage = () => {
   // Roles as per requirement
@@ -19,7 +20,7 @@ const StaffManagementPage = () => {
   useEffect(() => {
     const fetchStaff = async () => {
       try {
-        const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-all-employees');
+        const response = await fetch(`${API_URL}/get-all-employees`);
         // const response = await fetch('http://localhost:4000/get-all-employees');
 
         const data = await response.json();

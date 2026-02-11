@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Filter, FileText, Clock, CheckCircle, XCircle } from 'lucide-react';
+import API_URL from '../config';
 
 const StaffRequests = () => {
   const colors = { primary: '#1E3A8A', secondary: '#3B82F6', light: '#DBEAFE' };
@@ -27,7 +28,7 @@ const StaffRequests = () => {
     const fetchMyRequests = async () => {
     setLoading(true);
     try {
-        const res = await fetch(`${API_BASE}/get-staff-requests/${username}`);
+        const res = await fetch(`${API_URL}/get-staff-requests/${username}`);
         const data = await res.json();
         setRequests(data);
     } catch (err) {
@@ -50,7 +51,7 @@ const StaffRequests = () => {
         description: description.trim(),
         };
 
-        const res = await fetch(`${API_BASE}/add-staff-request`, {
+        const res = await fetch(`${API_URL}/add-staff-request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

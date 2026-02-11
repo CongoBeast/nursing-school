@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LogOut, Clock, User, CheckCircle, Calendar, Filter, TrendingUp } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_URL from '../config';
 
 const StaffAttendance = () => {
   const [isClockedIn, setIsClockedIn] = useState(false);
@@ -19,6 +20,8 @@ const StaffAttendance = () => {
     absent: 0,
     total: 0
   });
+
+  
 
   // Update current time every second
   useEffect(() => {
@@ -39,7 +42,7 @@ const StaffAttendance = () => {
   const checkAttendanceStatus = async () => {
     try {
       const storedUsername = localStorage.getItem('user');
-      const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/get-attendance-status/${storedUsername}`);
+      const response = await fetch(`${API_URL}/get-attendance-status/${storedUsername}`);
       const data = await response.json();
       
       setIsClockedIn(data.isClockedIn);
@@ -54,7 +57,7 @@ const StaffAttendance = () => {
       setIsLoading(true);
       const storedUsername = localStorage.getItem('user');
       const response = await fetch(
-        `https://nursing-school-backend--thomasmethembe4.replit.app/get-attendance/${storedUsername}?filter=${filter}`
+        `${API_URL}/get-attendance/${storedUsername}?filter=${filter}`
       );
       const data = await response.json();
       
@@ -84,7 +87,7 @@ const StaffAttendance = () => {
       setIsLoading(true);
       const storedUsername = localStorage.getItem('user');
       
-      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/clock-in', {
+      const response = await fetch(`${API_URL}/clock-in`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: storedUsername })
@@ -115,7 +118,7 @@ const StaffAttendance = () => {
       setIsLoading(true);
       const storedUsername = localStorage.getItem('user');
       
-      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/clock-out', {
+      const response = await fetch(`${API_URL}/clock-out`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: storedUsername })
@@ -146,7 +149,7 @@ const StaffAttendance = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/login', {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
