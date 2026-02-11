@@ -4,7 +4,7 @@ import {
   Users, ClipboardList, Calendar, Activity, 
   FileText, User, LogOut, Stethoscope,House, 
   ClipboardCheck, Pill, BookOpen, Settings,
-  BarChart2, Megaphone, Building, Shield, ShieldX, HardHat
+  BarChart2, Megaphone, Building, Shield, ShieldX, HardHat, Building2
 } from 'lucide-react';
 import './sidebar.css';
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -83,7 +83,8 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "Home", icon: <Building size={18} />, href: "/#/" , onClick: handleNavClick},
       { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
       { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff" },
-      { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
+      { name: "Facilities Management", icon: <Building2 size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
+      { name: "Manage Notices", icon: <Megaphone size={18} />, href: "/#/manage-notices" , onClick: handleNavClick},
       // { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
       // { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},

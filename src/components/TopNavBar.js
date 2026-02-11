@@ -232,7 +232,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
     ],
     student: [
       { name: "Home", icon: <FileText size={18} />, href: "/#/" , onClick: handleNavClick },
-      { name: "My Doctors", icon: <Stethoscope size={18} />, href: "/#/mydoctors" , onClick: handleNavClick },
+      { name: "My Records", icon: <FileText size={18} />, href: "/#/student-records" , onClick: handleNavClick },
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile"  , onClick: handleNavClick },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
@@ -242,17 +242,18 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
           { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
           { name: "Staff Management", icon: <BarChart2 size={18} />, href: "/#/staff" },
           { name: "Facilities Management", icon: <Megaphone size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
-          { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },
+          { name: "Manage Notices", icon: <Megaphone size={18} />, href: "/#/manage-notices" , onClick: handleNavClick},
+          // { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },/
           { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
           { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
           { divider: true },
           { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" },
           { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
         ],
-    maintainance: [
+    maintenance: [
       { name: "Home", icon: <House size={18} />, href: "/#/maintainance-dashboard" , onClick: handleNavClick },
       { name: "Fault Reports", icon: <FileText size={18} />, href: "/#/fault-reports" , onClick: handleNavClick },
-      { name: "Maintainence Reports", icon: <FileText size={18} />, href: "/#/maintainance-reports" , onClick: handleNavClick },
+      { name: "Maintenance Reports", icon: <FileText size={18} />, href: "/#/maintainance-reports" , onClick: handleNavClick },
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/maintainance-profile"  , onClick: handleNavClick },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
@@ -267,7 +268,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         return <User size={24} />;
       case 'admin':
         return <Shield size={24} />;
-      case 'maintainance':
+      case 'maintenance':
         return <HardHat size={24} />;
       default:
         return <User size={24} />;
@@ -282,7 +283,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         return 'Student Portal';
       case 'admin':
         return 'Admin Portal';
-      case 'maintainance':
+      case 'maintenance':
         return 'Maintainance Portal';
       default:
         return 'Portal';
@@ -297,6 +298,8 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         return 'John Doe';
       case 'admin':
         return 'Admin User';
+      case 'maintenance':
+        return 'Maintenance User';
       default:
         return 'User';
     }
@@ -330,6 +333,10 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         
         .top-navbar.admin {
           background: linear-gradient(135deg, #16006eff 0%, #1a0043ff 100%);
+        }
+
+        .top-navbar.maintenance {
+          background: linear-gradient(135deg, #056e00ff 0%, #044300ff 100%);
         }
         
         .navbar-brand {
@@ -390,6 +397,10 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
         
         .user-avatar.admin {
           background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        }
+        
+        .user-avatar.maintenance {
+          background: linear-gradient(135deg, #daded9ff 0%, #0f4204ff 100%);
         }
         
         .user-details h6 {
