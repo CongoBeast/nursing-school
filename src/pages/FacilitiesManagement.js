@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_URL from '../config';
 
 const FacilitiesManagement = () => {
   const [showModal, setShowModal] = useState(false);
@@ -132,7 +133,7 @@ const FacilitiesManagement = () => {
   const fetchFacilityReports = async () => {
     try {
       setLoadingReports(true);
-      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-facility-reports');
+      const response = await fetch(`${API_URL}/get-facility-reports`);
       const data = await response.json();
       setFacilityReports(data);
     } catch (error) {
@@ -190,7 +191,7 @@ const FacilitiesManagement = () => {
         formData.append('image', reportFormData.image);
       }
 
-      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-facility-report', {
+      const response = await fetch(`${API_URL}/add-facility-report`, {
         method: 'POST',
         body: formData
       });
