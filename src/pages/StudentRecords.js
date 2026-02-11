@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 import "./StudentRecords.css"; // We'll add custom CSS
 
+import API_URL from '../config';
+
+
 const API_BASE =
   "https://nursing-school-backend--thomasmethembe4.replit.app";
 
@@ -29,7 +32,7 @@ export default function StudentRecords() {
     const fetchData = async () => {
       try {
         // 1️⃣ Fetch student info
-        const userRes = await fetch(`${API_BASE}/get-user/${username}`);
+        const userRes = await fetch(`${API_URL}/get-user/${username}`);
         const userData = await userRes.json();
         setStudent(userData);
 

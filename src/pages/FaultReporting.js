@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Wrench, Plus, Image as ImageIcon, CheckCircle, AlertTriangle, X, Search, Filter } from 'lucide-react';
+import API_URL from '../config';
 
 const FaultReporting = () => {
   const [showModal, setShowModal] = useState(false);
@@ -44,7 +45,7 @@ const FaultReporting = () => {
 
   const fetchFaultReports = async () => {
     try {
-      const response = await fetch('https://nursing-school-backend-dev.replit.app/get-fault-reports');
+      const response = await fetch(`${API_URL}/get-fault-reports`);
       const data = await response.json();
       setFaultRecords(data);
     } catch (error) {
@@ -82,7 +83,7 @@ const FaultReporting = () => {
     }
 
     try {
-      const response = await fetch('https://nursing-school-backend-dev.replit.app/add-fault-report', {
+      const response = await fetch(`${API_URL}/add-fault-report`, {
         method: 'POST',
         body: formDataToSend
       });
@@ -115,7 +116,7 @@ const FaultReporting = () => {
 
   const handleStatusUpdate = async (reportId, newStatus) => {
     try {
-      const response = await fetch('https://nursing-school-backend-dev.replit.app/update-fault-status', {
+      const response = await fetch(`${API_URL}/update-fault-status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
