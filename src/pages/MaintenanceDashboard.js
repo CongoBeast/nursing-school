@@ -8,6 +8,8 @@ import {
   ChevronRight, MapPin, User, Bell
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../config';
+
 
 const MaintenanceDashboard = () => {
   const navigate = useNavigate();
@@ -42,11 +44,11 @@ const MaintenanceDashboard = () => {
         setLoading(true);
         
         // Fetch fault reports
-        const faultResponse = await fetch('https://nursing-school-backend-dev.replit.app/get-fault-reports');
+        const faultResponse = await fetch(`${API_URL}/get-fault-reports`);
         const faultData = await faultResponse.json();
         
         // Fetch facility damage reports
-        const facilityResponse = await fetch('https://nursing-school-backend-dev.replit.app/get-facility-reports');
+        const facilityResponse = await fetch(`${API_URL}/get-facility-reports`);
         const facilityData = await facilityResponse.json();
         
         // Transform fault reports

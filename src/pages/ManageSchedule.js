@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Users, Settings, PlusCircle, Save } from 'lucide-react';
+import API_URL from '../config';
 
 const ManageSchedule = () => {
   const colors = { primary: '#1E3A8A', secondary: '#3B82F6', bg: '#F0F7FF' };
