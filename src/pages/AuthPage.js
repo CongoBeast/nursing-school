@@ -63,7 +63,8 @@ const AuthPage = () => {
   const adminPositions = [
     'Allocation Officer',
     'Principal Tutor',
-    'Chairperson of School Improvement Committee'
+    'Chairperson of School Improvement Committee',
+    'Hospital Administrator'
   ];
 
   const countryCodes = [
@@ -924,5 +925,6 @@ const AuthPage = () => {
     </div>
   );
 };
+
 
 export default AuthPage;
