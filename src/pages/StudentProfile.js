@@ -7,6 +7,8 @@ import {
 import { useNavigate , useLocation } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_URL from '../config';
+
 
 const StudentProfile = () => {
   const navigate = useNavigate();
@@ -95,14 +97,14 @@ const StudentProfile = () => {
           const roomEncoded = encodeURIComponent(studentData.roomNumber);
           
           const faultRes = await fetch(
-            `https://nursing-school-backend--thomasmethembe4.replit.app/get-room-faults/${houseEncoded}/${roomEncoded}`
+            `${API_URL}/get-room-faults/${houseEncoded}/${roomEncoded}`
           );
           const roomFaults = await faultRes.json();
           setFaultReports(roomFaults);
 
           // 2. Fetch Housing History (Audit Logs) for this specific student
           const historyRes = await fetch(
-            `https://nursing-school-backend--thomasmethembe4.replit.app/get-housing-history/${studentData.id}`
+            `${API_URL}/get-housing-history/${studentData.id}`
           );
           
           if (historyRes.ok) {

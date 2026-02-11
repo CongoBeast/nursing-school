@@ -3,6 +3,7 @@ import { Search, Download, Edit2, Trash2, Home, CreditCard, UserCheck ,ArrowRigh
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_URL from '../config';
 
 const StudentsPage = () => {
 
@@ -45,7 +46,7 @@ const StudentsPage = () => {
 
   const fetchOccupancyData = async () => {
     try {
-      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-room-occupancy');
+      const response = await fetch(`${API_URL}/get-room-occupancy`);
       const data = await response.json();
       setOccupancyData(data);
       setShowOccupancyModal(true);
@@ -59,7 +60,7 @@ const StudentsPage = () => {
   const handleAssignStudent = async () => {
   try {
     setIsSubmitting(true);
-    const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/assign-student-housing', {
+    const response = await fetch(`${API_URL}/assign-student-housing`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -99,7 +100,7 @@ const StudentsPage = () => {
   const handleMoveStudent = async () => {
   try {
     setIsSubmitting(true);
-    const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/move-student-housing', {
+    const response = await fetch(`${API_URL}/move-student-housing`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -141,7 +142,7 @@ const StudentsPage = () => {
   const handleDeactivateStudent = async () => {
   try {
     setIsSubmitting(true);
-    const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/deactivate-student-housing', {
+    const response = await fetch(`${API_URL}/deactivate-student-housing`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -208,7 +209,7 @@ const StudentsPage = () => {
         const formData = new FormData();
         formData.append('image', rentFormData.proofOfPayment);
 
-        const uploadResponse = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/upload', {
+        const uploadResponse = await fetch(`${API_URL}/upload`, {
           method: 'POST',
           body: formData
         });
@@ -227,7 +228,7 @@ const StudentsPage = () => {
       const currentUserId = 'admin';
 
       // Submit rental record
-      const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/add-rental-record', {
+      const response = await fetch(`${API_URL}/add-rental-record`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -272,7 +273,7 @@ const StudentsPage = () => {
     try {
       setCheckingPayment(true);
       const response = await fetch(
-        `https://nursing-school-backend--thomasmethembe4.replit.app/check-rental-status/${studentId}/${month}`
+        `${API_URL}/check-rental-status/${studentId}/${month}`
       );
       const data = await response.json();
       
@@ -310,7 +311,7 @@ const StudentsPage = () => {
     useEffect(() => {
       const fetchStudents = async () => {
         try {
-          const response = await fetch('https://nursing-school-backend--thomasmethembe4.replit.app/get-students-with-housing');
+          const response = await fetch(`${API_URL}/get-students-with-housing`);
           const data = await response.json();
           setStudents(data);
         } catch (error) {

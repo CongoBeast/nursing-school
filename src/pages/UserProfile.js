@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Fingerprint, MapPin, Edit3, Camera, ShieldCheck } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_URL from '../config';
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
@@ -15,6 +16,9 @@ const UserProfile = () => {
     address: ''
   });
 
+  const API_BASE = "https://nursing-school-backend-dev.replit.app";
+
+
   // Fetch user data from database
   useEffect(() => {
     fetchUserData();
@@ -24,13 +28,14 @@ const UserProfile = () => {
     setLoading(true);
     try {
       const username = localStorage.getItem('user');
+      console.log(username)
       
       if (!username) {
         toast.error('No user logged in');
         return;
       }
 
-      const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/get-user/${username}`);
+      const response = await fetch(`${API_URL}/get-user/${username}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch user data');
@@ -66,7 +71,7 @@ const UserProfile = () => {
 
       console.log(username)
 
-      const response = await fetch(`https://nursing-school-backend--thomasmethembe4.replit.app/update-user/${username}`, {
+      const response = await fetch(`${API_URL}/update-user/${username}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
