@@ -4,6 +4,7 @@ import {
   Calendar, ShieldCheck, Briefcase, Clock, CheckCircle, LogOut, Coffee, AlertCircle
 } from 'lucide-react';
 import { useNavigate, useLocation } from "react-router-dom";
+import API_URL from '../config';
 
 const EmployeeProfile = () => {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ const EmployeeProfile = () => {
         }
 
         const response = await fetch(
-            `https://nursing-school-backend--thomasmethembe4.replit.app/get-employee-timesheet/${username}`
+            `${API_URL}/get-employee-timesheet/${username}`
         );
         
         if (!response.ok) {

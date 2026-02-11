@@ -8,6 +8,7 @@ import {
   AlertTriangle, CheckCircle, Clock, MapPin , Wrench
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../config';
 
 const ReportsPage = () => {
   const navigate = useNavigate();
@@ -38,8 +39,8 @@ const ReportsPage = () => {
     try {
       setLoading(true);
       const [faultRes, facilityRes] = await Promise.all([
-        fetch('https://nursing-school-backend-dev.replit.app/get-fault-reports'),
-        fetch('https://nursing-school-backend-dev.replit.app/get-facility-reports')
+        fetch(`${API_URL}/get-fault-reports`),
+        fetch(`${API_URL}/get-facility-reports`)
       ]);
       
       const faultData = await faultRes.json();
@@ -107,7 +108,7 @@ const ReportsPage = () => {
     };
 
     try {
-      const response = await fetch('https://nursing-school-backend-dev.replit.app/add-maintenance-notice', {
+      const response = await fetch(`${API_URL}/add-maintenance-notice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
