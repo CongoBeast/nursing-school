@@ -16,6 +16,11 @@ const UserProfile = () => {
     address: ''
   });
 
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [avatarFile, setAvatarFile]           = useState(null);
+  const [avatarPreview, setAvatarPreview]     = useState(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
   const API_BASE = "https://nursing-school-backend-dev.replit.app";
 
 
@@ -23,6 +28,72 @@ const UserProfile = () => {
   useEffect(() => {
     fetchUserData();
   }, []);
+
+  const handleAvatarFileChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Basic validation
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB');
+      return;
+    }
+
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return;
+    setIsUploadingAvatar(true);
+
+    try {
+      // Step 1: Upload to Cloudinary via your /upload route
+      const formData = new FormData();
+      formData.append('image', avatarFile);
+
+      const uploadRes = await fetch(`${API_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const uploadData = await uploadRes.json();
+
+      if (!uploadData.success) {
+        toast.error('Image upload failed');
+        return;
+      }
+
+      // Step 2: Save the URL to the user's profile
+      const username = localStorage.getItem('user');
+      const updateRes = await fetch(`${API_URL}/update-user/${username}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photo: uploadData.url }),
+      });
+
+      const updateData = await updateRes.json();
+
+      if (updateData.success) {
+        toast.success('Profile photo updated!');
+        setShowAvatarModal(false);
+        setAvatarFile(null);
+        setAvatarPreview(null);
+        fetchUserData(); // Refresh so new photo shows
+      } else {
+        toast.error('Failed to save photo');
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      toast.error('Something went wrong');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   const fetchUserData = async () => {
     setLoading(true);
@@ -177,12 +248,15 @@ const UserProfile = () => {
           <div className="card-body text-center position-relative" style={{ marginTop: '-60px' }}>
             <div className="position-relative d-inline-block">
               <img 
-                src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} 
+                src={user.photo || user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
                 alt="Profile" 
                 className="rounded-circle border border-4 border-white shadow-sm" 
                 style={{ width: '120px', height: '120px', backgroundColor: 'white' }} 
               />
-              <button className="btn btn-sm btn-light position-absolute bottom-0 end-0 rounded-circle shadow-sm">
+              <button
+                className="btn btn-sm btn-light position-absolute bottom-0 end-0 rounded-circle shadow-sm"
+                onClick={() => setShowAvatarModal(true)}
+              >
                 <Camera size={16} />
               </button>
             </div>
@@ -322,6 +396,108 @@ const UserProfile = () => {
             </div>
           </div>
         )}
+
+
+        {showAvatarModal && (
+          <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content border-0" style={{ borderRadius: '16px' }}>
+
+                <div className="modal-header border-0 pb-0">
+                  <h5 className="modal-title fw-bold" style={{ color: colors.primary }}>
+                    Update Profile Photo
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => {
+                      setShowAvatarModal(false);
+                      setAvatarFile(null);
+                      setAvatarPreview(null);
+                    }}
+                  />
+                </div>
+
+                <div className="modal-body p-4 text-center">
+
+                  {/* Preview circle */}
+                  <div className="mb-4 position-relative d-inline-block">
+                    <img
+                      src={
+                        avatarPreview ||
+                        user.photo ||
+                        user.avatar ||
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`
+                      }
+                      alt="Preview"
+                      className="rounded-circle border shadow-sm"
+                      style={{ width: '120px', height: '120px', objectFit: 'cover', backgroundColor: '#F0F7FF' }}
+                    />
+                    {avatarPreview && (
+                      <span
+                        className="position-absolute top-0 end-0 badge rounded-pill bg-success"
+                        style={{ fontSize: '10px' }}
+                      >
+                        New
+                      </span>
+                    )}
+                  </div>
+
+                  {/* File input styled as a button */}
+                  <div className="mb-3">
+                    <label
+                      htmlFor="avatar-upload-input"
+                      className="btn w-100 py-2"
+                      style={{
+                        border: `2px dashed ${colors.secondary}`,
+                        borderRadius: '10px',
+                        color: colors.secondary,
+                        backgroundColor: '#F0F7FF',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                      }}
+                    >
+                      <Camera size={18} className="me-2" />
+                      {avatarFile ? avatarFile.name : 'Choose Photo'}
+                    </label>
+                    <input
+                      id="avatar-upload-input"
+                      type="file"
+                      accept="image/*"
+                      className="d-none"
+                      onChange={handleAvatarFileChange}
+                    />
+                    <p className="text-muted small mt-2 mb-0">JPG, PNG or GIF · Max 5MB</p>
+                  </div>
+
+                  {/* Upload button — only shown once a file is selected */}
+                  {avatarFile && (
+                    <button
+                      className="btn w-100 py-2 fw-bold text-white mt-2"
+                      style={{
+                        backgroundColor: isUploadingAvatar ? '#93C5FD' : colors.primary,
+                        borderRadius: '10px',
+                      }}
+                      onClick={handleAvatarUpload}
+                      disabled={isUploadingAvatar}
+                    >
+                      {isUploadingAvatar ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                          Uploading...
+                        </>
+                      ) : (
+                        'Save Photo'
+                      )}
+                    </button>
+                  )}
+
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
       
       <ToastContainer />
