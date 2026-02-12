@@ -23,6 +23,7 @@ import API_URL from '../config'
 const AdminDashboard = () => {
   const [showNoticeModal, setShowNoticeModal] = React.useState(false);
   const [showEventModal, setShowEventModal] = React.useState(false);
+  const [stats , setStats] = React.useState([])
 
   // Add state for form data
   const [noticeForm, setNoticeForm] = React.useState({
@@ -48,12 +49,12 @@ const AdminDashboard = () => {
   const [loadingEvents, setLoadingEvents] = React.useState(true);
   
   // Sample data
-  const stats = {
-    totalStudents: 342,
-    onCampusStudents: 218,
-    offCampusStudents: 124,
-    totalStaff: 45
-  };
+  // const stats = {
+  //   totalStudents: 342,
+  //   onCampusStudents: 218,
+  //   offCampusStudents: 124,
+  //   totalStaff: 45
+  // };
 
   // Fetch notices
   const fetchNotices = async () => {
@@ -217,6 +218,47 @@ const AdminDashboard = () => {
     return priority === 'low' ? '#1E3A8A' : '#FFFFFF';
   };
 
+  const fetchAdminStats = async () => {
+  try {
+    const [studentsRes, staffStatsRes, faultReportsRes, facilityReportsRes] = await Promise.all([
+      fetch(`${API_URL}/get-students-with-housing`),
+      fetch(`${API_URL}/get-staff-stats`),
+      fetch(`${API_URL}/get-fault-reports`),
+      fetch(`${API_URL}/get-facility-reports`),
+    ]);
+
+    const students        = await studentsRes.json();
+    const staffStats      = await staffStatsRes.json();
+    const faultReports    = await faultReportsRes.json();
+    const facilityReports = await facilityReportsRes.json();
+
+    // Students
+    const totalStudents   = students.length;
+    const housedStudents  = students.filter(s => s.dormHouse).length;
+    const unpaidStudents  = students.filter(s => s.rentStatus !== 'Paid').length;
+
+    // Reports
+    const pendingFaults    = faultReports.filter(r => r.status === 'Pending').length;
+    const pendingFacility  = facilityReports.filter(r => r.status === 'Pending').length;
+    const totalPendingIssues = pendingFaults + pendingFacility;
+
+    setStats({
+      totalStudents,
+      housedStudents,
+      unpaidStudents,
+      totalStaff:          staffStats.total   || 0,
+      totalAdmins:         staffStats.admins  || 0,
+      totalWardens:        staffStats.wardens || 0,
+      totalPendingIssues,
+    });
+
+  } catch (error) {
+    console.error('Failed to fetch admin stats:', error);
+  }
+};
+
+console.log(stats)
+
   const formatDate = (dateString) => {
     return new Date(dateString + 'T00:00:00').toLocaleDateString('en-US', {
       month: 'short',
@@ -247,6 +289,7 @@ const AdminDashboard = () => {
   React.useEffect(() => {
     fetchNotices();
     fetchEvents();
+    fetchAdminStats();
   }, []);
 
   const styles = {
@@ -380,14 +423,13 @@ const AdminDashboard = () => {
         </h1>
 
         {/* Stats Cards Row */}
-        {localStorage.userType === 'admin' && (
+        {localStorage.getItem('userType') === 'admin' && (
           <div className="row mb-4">
+
             <div className="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3">
               <div style={{...styles.card, background: 'linear-gradient(135deg, #1E40AF, #2563EB)'}}>
                 <div style={styles.statCard}>
-                  <div style={styles.statIcon}>
-                    <Users size={24} color="white" />
-                  </div>
+                  <div style={styles.statIcon}><Users size={24} color="white" /></div>
                   <div style={styles.statNumber}>{stats.totalStudents}</div>
                   <div style={styles.statLabel}>Total Students</div>
                 </div>
@@ -397,38 +439,37 @@ const AdminDashboard = () => {
             <div className="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3">
               <div style={{...styles.card, background: 'linear-gradient(135deg, #2563EB, #3B82F6)'}}>
                 <div style={styles.statCard}>
-                  <div style={styles.statIcon}>
-                    <Home size={24} color="white" />
-                  </div>
-                  <div style={styles.statNumber}>{stats.onCampusStudents}</div>
-                  <div style={styles.statLabel}>On Campus Students</div>
+                  <div style={styles.statIcon}><Home size={24} color="white" /></div>
+                  <div style={styles.statNumber}>{stats.housedStudents}</div>
+                  <div style={styles.statLabel}>Housed Students</div>
                 </div>
               </div>
             </div>
 
             <div className="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3">
-              <div style={{...styles.card, background: 'linear-gradient(135deg, #3B82F6, #60A5FA)', color: '#1E3A8A'}}>
-                <div style={{...styles.statCard, color: '#1E3A8A'}}>
-                  <div style={styles.statIcon}>
-                    <Building size={24} color="#1E3A8A" />
-                  </div>
-                  <div style={styles.statNumber}>{stats.offCampusStudents}</div>
-                  <div style={{...styles.statLabel, opacity: 0.8}}>Off Campus Students</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3">
-              <div style={{...styles.card, background: 'linear-gradient(135deg, #93C5FD, #BFDBFE)', color: '#1E3A8A'}}>
-                <div style={{...styles.statCard, color: '#1E3A8A'}}>
-                  <div style={styles.statIcon}>
-                    <UserCog size={24} color="#1E3A8A" />
-                  </div>
+              <div style={{...styles.card, background: 'linear-gradient(135deg, #3B82F6, #60A5FA)'}}>
+                <div style={styles.statCard}>
+                  <div style={styles.statIcon}><UserCog size={24} color="white" /></div>
                   <div style={styles.statNumber}>{stats.totalStaff}</div>
-                  <div style={{...styles.statLabel, opacity: 0.8}}>Total Staff</div>
+                  <div style={styles.statLabel}>Total Staff</div>
                 </div>
               </div>
             </div>
+
+            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3">
+              <div style={{...styles.card, background: stats.totalPendingIssues > 0
+                  ? 'linear-gradient(135deg, #DC2626, #EF4444)'
+                  : 'linear-gradient(135deg, #93C5FD, #BFDBFE)'}}>
+                <div style={{...styles.statCard, color: stats.totalPendingIssues > 0 ? 'white' : '#1E3A8A'}}>
+                  <div style={styles.statIcon}>
+                    <AlertTriangle size={24} color={stats.totalPendingIssues > 0 ? 'white' : '#1E3A8A'} />
+                  </div>
+                  <div style={styles.statNumber}>{stats.totalPendingIssues}</div>
+                  <div style={{...styles.statLabel, opacity: 0.85}}>Pending Issues</div>
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
 
