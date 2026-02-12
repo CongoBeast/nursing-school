@@ -96,7 +96,7 @@ const Sidebar = ({ userRole, show, onHide }) => {
     maintenance: [
       { name: "Home", icon: <House size={18} />, href: "/#/maintenance-dashboard" , onClick: handleNavClick },
       { name: "Fault Reports", icon: <FileText size={18} />, href: "/#/reports-page" , onClick: handleNavClick },
-      { name: "Maintenance Reports", icon: <FileText size={18} />, href: "/#/maintainance-reports" , onClick: handleNavClick },
+      { name: "Maintenance Reports", icon: <FileText size={18} />, href: "/#/maintenance-reports" , onClick: handleNavClick },
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/maintainance-profile"  , onClick: handleNavClick },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
