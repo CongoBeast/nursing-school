@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ChevronRight, Home, Users, User, Mail, Phone, MapPin, 
-  Calendar, ShieldCheck, Briefcase, Clock, CheckCircle, LogOut, Coffee, AlertCircle
+  Calendar, ShieldCheck, Briefcase, Clock, CheckCircle, LogOut, Coffee, AlertCircle, FileText, Plus, XCircle
 } from 'lucide-react';
 import { useNavigate, useLocation } from "react-router-dom";
 import API_URL from '../config';
@@ -13,6 +13,12 @@ const EmployeeProfile = () => {
 
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [staffRequests, setStaffRequests] = useState([]);
+  const [loadingRequests, setLoadingRequests] = useState(true);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestForm, setRequestForm] = useState({ type: '', description: '' });
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
 
   // Updated Data for Employee Focus
   const employeeData = employeeFromState ? {
@@ -40,6 +46,48 @@ const EmployeeProfile = () => {
         joinDate: '2021-11-01',
         workShift: 'Morning (07:00 - 16:00)'
         };
+      
+    const fetchStaffRequests = async () => {
+      try {
+        setLoadingRequests(true);
+        const username = employeeData.name;
+        const response = await fetch(`${API_URL}/get-staff-requests/${username}`);
+        const data = await response.json();
+        setStaffRequests(data);
+      } catch (error) {
+        console.error('Error fetching staff requests:', error);
+        setStaffRequests([]);
+      } finally {
+        setLoadingRequests(false);
+      }
+    };
+
+    const handleRequestSubmit = async (e) => {
+      e.preventDefault();
+      setIsSubmittingRequest(true);
+      try {
+        const response = await fetch(`${API_URL}/add-staff-request`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: employeeData.name,
+            type: requestForm.type,
+            description: requestForm.description
+          })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          setShowRequestModal(false);
+          setRequestForm({ type: '', description: '' });
+          fetchStaffRequests();
+        }
+      } catch (error) {
+        console.error('Error submitting request:', error);
+      } finally {
+        setIsSubmittingRequest(false);
+      }
+    };
 
     useEffect(() => {
     const fetchAttendance = async () => {
@@ -75,6 +123,7 @@ const EmployeeProfile = () => {
     };
 
     fetchAttendance();
+    fetchStaffRequests(); 
     }, [employeeData.name, employeeFromState?.username]);
 
   const colors = {
@@ -211,6 +260,119 @@ const EmployeeProfile = () => {
             View Full Timesheet History
             </button>
         </div>
+        </div>
+
+        {/* Staff Requests Card */}
+        <div style={styles.card}>
+          <div style={{
+            ...styles.cardHeader,
+            backgroundColor: '#0F172A',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <FileText size={18} /> Staff Requests
+            </span>
+          </div>
+
+          <div className="p-3">
+            {loadingRequests ? (
+              <div className="text-center py-4">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                <p className="text-muted mt-2 small">Loading requests...</p>
+              </div>
+            ) : staffRequests.length === 0 ? (
+              <div className="text-center py-4">
+                <FileText size={40} color="#CBD5E1" />
+                <p className="text-muted mt-2 small">No requests submitted yet</p>
+              </div>
+            ) : (
+              staffRequests.map((request, index) => (
+                <div
+                  key={request._id || index}
+                  style={{
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '10px',
+                    padding: '15px',
+                    marginBottom: '12px',
+                    borderLeft: `4px solid ${
+                      request.status === 'Approved' ? '#10B981' :
+                      request.status === 'Rejected' ? '#EF4444' : '#F59E0B'
+                    }`
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                    <div style={{ flex: 1 }}>
+                      {/* Type Badge */}
+                      <span style={{
+                        backgroundColor: '#EFF6FF',
+                        color: '#2563EB',
+                        padding: '3px 10px',
+                        borderRadius: '12px',
+                        fontSize: '0.72rem',
+                        fontWeight: '700',
+                        marginBottom: '8px',
+                        display: 'inline-block'
+                      }}>
+                        {request.type}
+                      </span>
+
+                      <p style={{
+                        color: '#334155',
+                        fontSize: '0.875rem',
+                        margin: '8px 0 10px 0',
+                        lineHeight: '1.5'
+                      }}>
+                        {request.description}
+                      </p>
+
+                      <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                        <small style={{ color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Clock size={12} />
+                          {new Date(request.createdAt).toLocaleDateString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric'
+                          })}
+                        </small>
+                        {request.statusUpdatedBy && (
+                          <small style={{ color: '#94A3B8' }}>
+                            Reviewed by: <strong>{request.statusUpdatedBy}</strong>
+                          </small>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <span style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '5px 12px',
+                      borderRadius: '20px',
+                      fontSize: '0.72rem',
+                      fontWeight: '700',
+                      marginLeft: '15px',
+                      whiteSpace: 'nowrap',
+                      backgroundColor:
+                        request.status === 'Approved' ? '#DCFCE7' :
+                        request.status === 'Rejected' ? '#FEE2E2' : '#FEF3C7',
+                      color:
+                        request.status === 'Approved' ? '#065F46' :
+                        request.status === 'Rejected' ? '#991B1B' : '#92400E'
+                    }}>
+                      {request.status === 'Approved' && <CheckCircle size={12} />}
+                      {request.status === 'Rejected' && <XCircle size={12} />}
+                      {request.status === 'Pending' && <AlertCircle size={12} />}
+                      {request.status}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         {/* Weekly Stats Summary */}
