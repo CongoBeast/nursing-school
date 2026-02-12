@@ -92,7 +92,8 @@ const ReportsPage = () => {
       id: report._id,
       house: type === 'fault' ? report.house : report.dorm,
       title: type === 'fault' ? report.item : report.title,
-      type: type
+      type: type,
+      reportedBy: report.reportedBy
     });
     setShowModal(true);
   };
@@ -104,8 +105,11 @@ const ReportsPage = () => {
       problemTitle: selectedReport.title,
       maintenanceDate: noticeData.plannedDate,
       status: noticeData.status,
-      additionalNotes: noticeData.notes
+      additionalNotes: noticeData.notes,
+      reportedBy: selectedReport.reportedBy
     };
+
+    console.log(payload)
 
     try {
       const response = await fetch(`${API_URL}/add-maintenance-notice`, {
@@ -136,7 +140,7 @@ const ReportsPage = () => {
       <Container>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-bold" style={{ color: '#15803D' }}>Maintenance Central</h2>
-          <Button variant="success" onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
+          <Button variant="success" onClick={() => navigate('/maintenance-dashboard')}>Back to Dashboard</Button>
         </div>
 
         {/* Stats Row */}
