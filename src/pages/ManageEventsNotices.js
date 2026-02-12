@@ -79,84 +79,130 @@ const ManageNoticesEvents = () => {
     }
   };
 
+  // Open edit modal for notice
+const handleEditNotice = (notice) => {
+  setEditMode(true);
+  setCurrentItem(notice);
+  setNoticeForm({
+    title: notice.title,
+    content: notice.content,
+    priority: notice.priority,
+    date: notice.date
+  });
+  setShowNoticeModal(true);
+};
+
+// Open edit modal for event
+const handleEditEvent = (event) => {
+  setEditMode(true);
+  setCurrentItem(event);
+  
+  // Combine date and time back to datetime-local format
+  const datetime = `${event.date}T${event.time.replace(/\s*(AM|PM)/i, '')}`;
+  
+  setEventForm({
+    title: event.title,
+    datetime: datetime,
+    location: event.location
+  });
+  setShowEventModal(true);
+};
+
+
   React.useEffect(() => {
     fetchNotices();
     fetchEvents();
   }, []);
 
-  // Handle notice submission
-  const handleNoticeSubmit = async (e) => {
+  // Update the handleNoticeSubmit function:
+    const handleNoticeSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      const username = localStorage.getItem('user') || 'Unknown';
-      
-      const response = await fetch(`${API_URL}/add-notice`, {
-        method: 'POST',
+        const username = localStorage.getItem('user') || 'Unknown';
+        
+        const url = editMode 
+        ? `${API_URL}/update-notice/${currentItem._id}`
+        : `${API_URL}/add-notice`;
+        
+        const method = editMode ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+        method: method,
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...noticeForm,
-          postedBy: username
+            ...noticeForm,
+            postedBy: username
         })
-      });
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.success) {
-        toast.success('Notice published successfully!');
+        if (data.success) {
+        toast.success(editMode ? 'Notice updated successfully!' : 'Notice published successfully!');
         setShowNoticeModal(false);
         setNoticeForm({ title: '', content: '', priority: 'medium', date: '' });
+        setEditMode(false);
+        setCurrentItem(null);
         fetchNotices();
-      } else {
-        toast.error('Failed to publish notice');
-      }
+        } else {
+        toast.error(editMode ? 'Failed to update notice' : 'Failed to publish notice');
+        }
     } catch (error) {
-      console.error(error);
-      toast.error('Error publishing notice');
+        console.error(error);
+        toast.error(editMode ? 'Error updating notice' : 'Error publishing notice');
     } finally {
-      setIsSubmitting(false);
+        setIsSubmitting(false);
     }
-  };
+    };
 
-  // Handle event submission
-  const handleEventSubmit = async (e) => {
+  // Update the handleEventSubmit function:
+    const handleEventSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      const username = localStorage.getItem('user') || 'Unknown';
-      
-      const response = await fetch(`${API_URL}/add-event`, {
-        method: 'POST',
+        const username = localStorage.getItem('user') || 'Unknown';
+        
+        const url = editMode 
+        ? `${API_URL}/update-event/${currentItem._id}`
+        : `${API_URL}/add-event`;
+        
+        const method = editMode ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+        method: method,
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...eventForm,
-          postedBy: username
+            ...eventForm,
+            postedBy: username
         })
-      });
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.success) {
-        toast.success('Event scheduled successfully!');
+        if (data.success) {
+        toast.success(editMode ? 'Event updated successfully!' : 'Event scheduled successfully!');
         setShowEventModal(false);
         setEventForm({ title: '', datetime: '', location: '' });
+        setEditMode(false);
+        setCurrentItem(null);
         fetchEvents();
-      } else {
-        toast.error('Failed to schedule event');
-      }
+        } else {
+        toast.error(editMode ? 'Failed to update event' : 'Failed to schedule event');
+        }
     } catch (error) {
-      console.error(error);
-      toast.error('Error scheduling event');
+        console.error(error);
+        toast.error(editMode ? 'Error updating event' : 'Error scheduling event');
     } finally {
-      setIsSubmitting(false);
+        setIsSubmitting(false);
     }
-  };
+    };
 
   // Delete notice
   const handleDeleteNotice = async (noticeId) => {
@@ -241,6 +287,22 @@ const ManageNoticesEvents = () => {
     return event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
            event.location.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  // Add reset function when closing modals:
+    const closeNoticeModal = () => {
+    setShowNoticeModal(false);
+    setEditMode(false);
+    setCurrentItem(null);
+    setNoticeForm({ title: '', content: '', priority: 'medium', date: '' });
+    };
+
+    const closeEventModal = () => {
+    setShowEventModal(false);
+    setEditMode(false);
+    setCurrentItem(null);
+    setEventForm({ title: '', datetime: '', location: '' });
+    };
+
 
   const styles = {
     body: {
@@ -476,15 +538,17 @@ const ManageNoticesEvents = () => {
                     </div>
                     <div style={styles.cardActions}>
                       <button
+                        onClick={() => handleEditNotice(notice)}
                         style={{
-                          ...styles.iconButton,
-                          backgroundColor: '#DBEAFE',
-                          color: '#1E40AF'
+                            ...styles.iconButton,
+                            backgroundColor: '#DBEAFE',
+                            color: '#1E40AF'
                         }}
                         title="Edit"
-                      >
+                        >
                         <Edit2 size={18} />
                       </button>
+
                       <button
                         onClick={() => handleDeleteNotice(notice._id)}
                         style={{
@@ -542,13 +606,14 @@ const ManageNoticesEvents = () => {
                     </div>
                     <div style={styles.cardActions}>
                       <button
+                        onClick={() => handleEditEvent(event)}
                         style={{
-                          ...styles.iconButton,
-                          backgroundColor: '#DBEAFE',
-                          color: '#1E40AF'
+                            ...styles.iconButton,
+                            backgroundColor: '#DBEAFE',
+                            color: '#1E40AF'
                         }}
                         title="Edit"
-                      >
+                        >
                         <Edit2 size={18} />
                       </button>
                       <button
@@ -578,10 +643,10 @@ const ManageNoticesEvents = () => {
             <div className="modal-content" style={{ borderRadius: '15px', border: 'none' }}>
               <div className="modal-header" style={{ backgroundColor: '#1E40AF', color: 'white', borderRadius: '15px 15px 0 0' }}>
                 <h5 className="modal-title">
-                  <Megaphone size={20} style={{ display: 'inline', marginRight: '10px' }} />
-                  Add New Notice
+                    <Megaphone size={20} style={{ display: 'inline', marginRight: '10px' }} />
+                    {editMode ? 'Edit Notice' : 'Add New Notice'}
                 </h5>
-                <button type="button" className="btn-close btn-close-white" onClick={() => setShowNoticeModal(false)}></button>
+                <button type="button" className="btn-close btn-close-white" onClick={closeNoticeModal}></button>
               </div>
               <div className="modal-body">
                 <form onSubmit={handleNoticeSubmit}>
@@ -659,14 +724,17 @@ const ManageNoticesEvents = () => {
 
                   <button type="submit" className="btn w-100" 
                     style={{ 
-                      backgroundColor: isSubmitting ? '#93C5FD' : '#1E40AF', 
-                      color: 'white', 
-                      fontWeight: 'bold'
+                        backgroundColor: isSubmitting ? '#93C5FD' : '#1E40AF', 
+                        color: 'white', 
+                        fontWeight: 'bold'
                     }}
                     disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Publishing...' : 'Publish Notice'}
-                  </button>
+                    >
+                    {isSubmitting 
+                        ? (editMode ? 'Updating...' : 'Publishing...') 
+                        : (editMode ? 'Update Notice' : 'Publish Notice')
+                    }
+                    </button>
                 </form>
               </div>
             </div>
@@ -681,10 +749,10 @@ const ManageNoticesEvents = () => {
             <div className="modal-content" style={{ borderRadius: '15px', border: 'none' }}>
               <div className="modal-header" style={{ backgroundColor: '#2563EB', color: 'white', borderRadius: '15px 15px 0 0' }}>
                 <h5 className="modal-title">
-                  <Calendar size={20} style={{ display: 'inline', marginRight: '10px' }} />
-                  Schedule New Event
+                    <Calendar size={20} style={{ display: 'inline', marginRight: '10px' }} />
+                    {editMode ? 'Edit Event' : 'Schedule New Event'}
                 </h5>
-                <button type="button" className="btn-close btn-close-white" onClick={() => setShowEventModal(false)}></button>
+                <button type="button" className="btn-close btn-close-white" onClick={closeEventModal}></button>
               </div>
               <div className="modal-body">
                 <form onSubmit={handleEventSubmit}>
@@ -727,14 +795,17 @@ const ManageNoticesEvents = () => {
                     type="submit" 
                     className="btn w-100" 
                     style={{ 
-                      backgroundColor: isSubmitting ? '#93C5FD' : '#2563EB', 
-                      color: 'white', 
-                      fontWeight: 'bold'
+                        backgroundColor: isSubmitting ? '#93C5FD' : '#2563EB', 
+                        color: 'white', 
+                        fontWeight: 'bold'
                     }}
                     disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Scheduling...' : 'Confirm Event'}
-                  </button>
+                    >
+                    {isSubmitting 
+                        ? (editMode ? 'Updating...' : 'Scheduling...') 
+                        : (editMode ? 'Update Event' : 'Confirm Event')
+                    }
+                    </button>
                 </form>
               </div>
             </div>
