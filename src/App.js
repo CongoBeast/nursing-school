@@ -31,6 +31,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage.js';
 import StaffRequests from './pages/StaffRequests.js';
 import ManageNoticesEvents from './pages/ManageEventsNotices.js';
 import AdminStaffRequests from './pages/AdminStaffRequests.js';
+import MaintenanceReportsPage from './pages/MaintenanceReportsPage.js';
 
 
 // ProtectedRoute component to check for authentication
@@ -189,6 +190,12 @@ function App() {
           <Route path="/manage-notices" element={
             <ProtectedRoute>
               <ManageNoticesEvents />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/maintenance-reports" element={
+            <ProtectedRoute>
+              <MaintenanceReportsPage />
             </ProtectedRoute>
           } />
 
