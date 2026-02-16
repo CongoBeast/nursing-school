@@ -249,12 +249,12 @@ const ForgotPasswordPage = () => {
                   {/* Staff ID */}
                   <Form.Group className="mb-3 position-relative">
                     <Form.Label className="fw-medium small" style={{ color: '#1E3A8A' }}>
-                      Staff ID
+                      Staff or Student ID
                     </Form.Label>
                     <User style={customStyles.inputIcon} size={18} />
                     <Form.Control
                       type="text"
-                      placeholder="Enter your Staff ID"
+                      placeholder="Enter your Staff or Student ID"
                       name="staffId"
                       value={formData.staffId}
                       onChange={handleChange}
