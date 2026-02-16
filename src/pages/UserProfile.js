@@ -70,8 +70,8 @@ const UserProfile = () => {
       }
 
       // Step 2: Save the URL to the user's profile
-      const username = localStorage.getItem('user');
-      const updateRes = await fetch(`${API_URL}/update-user/${username}`, {
+      const userId = localStorage.getItem('userId');
+      const updateRes = await fetch(`${API_URL}/update-user/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ photo: uploadData.url }),
@@ -140,11 +140,11 @@ const UserProfile = () => {
     setIsUpdating(true);
 
     try {
-      const username = localStorage.getItem('user');
+      const userId = localStorage.getItem('userId');
 
-      console.log(username)
+      console.log(userId)
 
-      const response = await fetch(`${API_URL}/update-user/${username}`, {
+      const response = await fetch(`${API_URL}/update-user/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
