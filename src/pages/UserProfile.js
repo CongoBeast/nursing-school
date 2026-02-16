@@ -13,6 +13,7 @@ const UserProfile = () => {
   const [editForm, setEditForm] = useState({
     email: '',
     phone: '',
+    username: '',
     address: ''
   });
 
@@ -98,15 +99,15 @@ const UserProfile = () => {
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      const username = localStorage.getItem('user');
-      console.log(username)
+      const userId = localStorage.getItem('userId');
+      console.log(userId)
       
-      if (!username) {
+      if (!userId) {
         toast.error('No user logged in');
         return;
       }
 
-      const response = await fetch(`${API_URL}/get-user/${username}`);
+      const response = await fetch(`${API_URL}/get-user/${userId}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch user data');
@@ -119,7 +120,8 @@ const UserProfile = () => {
       setEditForm({
         email: data.email || '',
         phone: data.phone || '',
-        address: data.address || ''
+        username: data.username || '',
+        address: data.address || '',
       });
 
     } catch (error) {
@@ -361,6 +363,15 @@ const UserProfile = () => {
                         className="form-control" 
                         value={editForm.phone}
                         onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label small fw-bold"> Username</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        value={editForm.username}
+                        onChange={(e) => setEditForm({...editForm, username: e.target.value})}
                       />
                     </div>
                     <div className="mb-4">

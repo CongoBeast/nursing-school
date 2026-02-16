@@ -3,7 +3,7 @@ import { User, Lock, Mail, Phone, UserCheck, GraduationCap, Shield, BookOpen, Ey
 import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "./pari-logo.png";
-import API_URL from '../config'
+import API_URL from '../config';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -229,7 +229,14 @@ const AuthPage = () => {
 
       const userTypeToStore = isLogin ? data.userType : formData.userType;
 
-      console.log(userTypeToStore)
+      var userIdType
+
+      if(userTypeToStore === 'student'){
+          userIdType = formData.studentId
+      }
+      else{
+        userIdType = formData.staffId
+      }
 
       // ❌ Account type mismatch
       if (backendUserType !== formData.userType && endpoint == "login") {
@@ -244,6 +251,9 @@ const AuthPage = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", data.username || formData.username.trim());
       localStorage.setItem("userType", userTypeToStore);
+      localStorage.setItem("userId", data.userId || userIdType);
+
+      console.log(data)
 
       setMessage("Authentication successful! Redirecting...");
 
@@ -925,6 +935,5 @@ const AuthPage = () => {
     </div>
   );
 };
-
 
 export default AuthPage;
