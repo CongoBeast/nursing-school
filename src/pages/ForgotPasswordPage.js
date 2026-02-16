@@ -16,7 +16,6 @@ const ForgotPasswordPage = () => {
   const [formData, setFormData] = useState({
     staffId: '',
     email: '',
-    position: '',
     newPassword: '',
     confirmPassword: ''
   });
@@ -36,10 +35,10 @@ const ForgotPasswordPage = () => {
   };
 
   const validateForm = () => {
-    if (!formData.staffId || !formData.email || !formData.position) {
-      setError('All fields are required');
-      return false;
-    }
+    // if (!formData.staffId || !formData.email || !formData.position) {
+    //   setError('All fields are required');
+    //   return false;
+    // }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
@@ -78,9 +77,8 @@ const ForgotPasswordPage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          staffId: formData.staffId.trim(),
+          id: formData.staffId.trim(),
           email: formData.email.trim(),
-          position: formData.position,
           newPassword: formData.newPassword.trim(),
           confirmPassword: formData.confirmPassword.trim()
         }),
@@ -93,6 +91,8 @@ const ForgotPasswordPage = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", data.username);
       localStorage.setItem("userType", backendUserType);
+      localStorage.setItem("userId", data.userId);
+
 
       if (response.ok) {
         setMessage('Password reset successful! Redirecting to login...');
@@ -101,7 +101,6 @@ const ForgotPasswordPage = () => {
         setFormData({
           staffId: '',
           email: '',
-          position: '',
           newPassword: '',
           confirmPassword: ''
         });
@@ -282,7 +281,7 @@ const ForgotPasswordPage = () => {
                   </Form.Group>
 
                   {/* Position */}
-                  <Form.Group className="mb-3 position-relative">
+                  {/* <Form.Group className="mb-3 position-relative">
                     <Form.Label className="fw-medium small" style={{ color: '#1E3A8A' }}>
                       Position
                     </Form.Label>
@@ -301,7 +300,7 @@ const ForgotPasswordPage = () => {
                         </option>
                       ))}
                     </Form.Select>
-                  </Form.Group>
+                  </Form.Group> */}
 
                   <hr className="my-4" />
 
