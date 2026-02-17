@@ -100,7 +100,6 @@ const UserProfile = () => {
     setLoading(true);
     try {
       const userId = localStorage.getItem('userId');
-      console.log(userId)
       
       if (!userId) {
         toast.error('No user logged in');

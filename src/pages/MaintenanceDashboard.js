@@ -37,6 +37,7 @@ const MaintenanceDashboard = () => {
     fetchDashboardData();
   }, []);
 
+
   // 1. UPDATE THE fetchDashboardData FUNCTION
 
     const fetchDashboardData = async () => {
