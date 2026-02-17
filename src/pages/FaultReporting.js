@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Wrench, Plus, Image as ImageIcon, CheckCircle, AlertTriangle, X, Search, Filter } from 'lucide-react';
+import { Wrench, Plus, Image as ImageIcon, CheckCircle, AlertTriangle, X, Search, Filter, Loader } from 'lucide-react';
 import API_URL from '../config';
 
 const FaultReporting = () => {
@@ -8,6 +8,7 @@ const FaultReporting = () => {
   const [loading, setLoading] = useState(true);
   const [imagePreview, setImagePreview] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [submitting, setSubmitting] = useState(false); // New state for submission loading
   
   const [formData, setFormData] = useState({
     house: '',
@@ -69,6 +70,7 @@ const FaultReporting = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true); // Set submitting to true
 
     const formDataToSend = new FormData();
     formDataToSend.append('house', formData.house);
@@ -111,6 +113,8 @@ const FaultReporting = () => {
     } catch (error) {
       console.error('Error submitting fault report:', error);
       alert('Failed to submit fault report');
+    } finally {
+      setSubmitting(false); // Set submitting back to false regardless of outcome
     }
   };
 
@@ -179,8 +183,30 @@ const FaultReporting = () => {
       backgroundColor: 'white', padding: '30px', borderRadius: '12px',
       width: '90%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
       boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+    },
+    loadingOverlay: {
+      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: 'rgba(255,255,255,0.8)', display: 'flex',
+      justifyContent: 'center', alignItems: 'center', borderRadius: '12px',
+      zIndex: 10
+    },
+    spinner: {
+      animation: 'spin 1s linear infinite'
     }
   };
+
+  // Add keyframes for spinner animation
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => style.remove();
+  }, []);
 
   return (
     <div style={styles.body}>
@@ -334,10 +360,20 @@ const FaultReporting = () => {
         {/* Modal */}
         {showModal && (
           <div style={styles.modalOverlay}>
-            <div style={styles.modalContent}>
+            <div style={{...styles.modalContent, position: 'relative'}}>
+              {/* Loading overlay */}
+              {submitting && (
+                <div style={styles.loadingOverlay}>
+                  <div className="text-center">
+                    <Loader size={48} style={{...styles.spinner, color: '#1E3A8A'}} />
+                    <p style={{color: '#1E3A8A', fontWeight: 'bold', marginTop: '10px'}}>Submitting report...</p>
+                  </div>
+                </div>
+              )}
+              
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <h4 className="m-0" style={{color: '#1E3A8A'}}>Report a Fault</h4>
-                <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowModal(false)} />
+                <X size={24} style={{cursor: 'pointer', opacity: submitting ? 0.5 : 1, pointerEvents: submitting ? 'none' : 'auto'}} onClick={() => setShowModal(false)} />
               </div>
 
               <form onSubmit={handleSubmit}>
@@ -350,6 +386,7 @@ const FaultReporting = () => {
                       value={formData.house}
                       onChange={(e) => setFormData({...formData, house: e.target.value, roomNumber: ''})}
                       required
+                      disabled={submitting}
                     >
                       <option value="">Select House...</option>
                       <option value="Adlam House">Adlam House</option>
@@ -363,7 +400,7 @@ const FaultReporting = () => {
                       style={styles.select}
                       value={formData.roomNumber}
                       onChange={(e) => setFormData({...formData, roomNumber: e.target.value})}
-                      disabled={!formData.house}
+                      disabled={!formData.house || submitting}
                       required
                     >
                       <option value="">Select Room...</option>
@@ -384,6 +421,7 @@ const FaultReporting = () => {
                     value={formData.item}
                     onChange={(e) => setFormData({...formData, item: e.target.value})}
                     required 
+                    disabled={submitting}
                   />
                 </div>
 
@@ -396,6 +434,7 @@ const FaultReporting = () => {
                     placeholder="Describe the issue..."
                     value={formData.details}
                     onChange={(e) => setFormData({...formData, details: e.target.value})}
+                    disabled={submitting}
                   ></textarea>
                 </div>
 
@@ -407,6 +446,7 @@ const FaultReporting = () => {
                     style={styles.input}
                     accept="image/*" 
                     onChange={handleImageChange}
+                    disabled={submitting}
                   />
                   {imagePreview && (
                     <img src={imagePreview} alt="Preview" style={{width: '100%', marginTop: '10px', borderRadius: '8px'}} />
@@ -422,11 +462,29 @@ const FaultReporting = () => {
                     value={formData.discoveryDate}
                     onChange={(e) => setFormData({...formData, discoveryDate: e.target.value})}
                     required
+                    disabled={submitting}
                   />
                 </div>
 
-                <button type="submit" className="btn w-100 py-2 fw-bold" style={{backgroundColor: '#1E3A8A', color: 'white'}}>
-                  Submit Report
+                <button 
+                  type="submit" 
+                  className="btn w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2" 
+                  style={{
+                    backgroundColor: submitting ? '#6B7280' : '#1E3A8A', 
+                    color: 'white',
+                    cursor: submitting ? 'not-allowed' : 'pointer',
+                    opacity: submitting ? 0.7 : 1
+                  }}
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader size={20} style={styles.spinner} />
+                      Submitting...
+                    </>
+                  ) : (
+                    'Submit Report'
+                  )}
                 </button>
               </form>
             </div>
