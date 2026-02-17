@@ -199,6 +199,17 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
   }, []);
 
   const handleLogout = () => {
+
+
+    var navString = ""
+
+    if(localStorage.getItem('userType') == "maintenance"){
+      navString = "/maintenance-auth"
+    }
+    else{
+      navString = "/auth"
+    }
+
     const username = localStorage.getItem('username');
     localStorage.removeItem('token');
     localStorage.removeItem('username');
@@ -209,14 +220,20 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
     console.log('Logged out');
     setIsMenuOpen(false);
 
-    navigate('/auth');
+    navigate(navString);
   };
 
+  // const handleNavClick = (href) => {
+  //   console.log('Navigate to:', href);
+  //   setIsMenuOpen(false);
+  //   navigate(href)
+  // };
   const handleNavClick = (href) => {
-    console.log('Navigate to:', href);
-    setIsMenuOpen(false);
-    navigate(href)
-  };
+  setIsMenuOpen(false);
+  // Strip the /#  prefix so HashRouter gets a clean path
+  const path = href.replace('/#', '') || '/';
+  navigate(path);
+};
 
 
   const navItems = {
@@ -252,11 +269,11 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
           { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
         ],
     maintenance: [
-      { name: "Home", icon: <House size={18} />, href: "/#/maintainance-dashboard" , onClick: handleNavClick },
-      { name: "Fault Reports", icon: <FileText size={18} />, href: "/#/fault-reports" , onClick: handleNavClick },
-      { name: "Maintenance Reports", icon: <FileText size={18} />, href: "/#/maintainance-reports" , onClick: handleNavClick },
+      { name: "Home", icon: <House size={18} />, href: "/#/maintenance-dashboard" , onClick: handleNavClick },
+      { name: "Fault Reports", icon: <FileText size={18} />, href: "/#/reports-page" , onClick: handleNavClick },
+      { name: "Maintenance Reports", icon: <FileText size={18} />, href: "/#/maintenance-reports" , onClick: handleNavClick },
       { divider: true },
-      { name: "View Profile", icon: <User size={18} />, href: "/#/maintainance-profile"  , onClick: handleNavClick },
+      { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile"  , onClick: handleNavClick },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
     ]
   };
@@ -485,7 +502,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
                     e.preventDefault();
                     console.log(item.href)
                     if (item.onClick) {
-                      item.onClick();
+                      item.onClick(item.href);
                     } else {
                       handleNavClick(item.href);
                     }
