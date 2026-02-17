@@ -507,7 +507,7 @@ const StudentsPage = () => {
                         style={{cursor: 'pointer'}} 
                         onClick={() => navigate("/student-profile", { state: { student } })}
                       >
-                        <img src={student.avatar || student.photo || 'https://via.placeholder.com/40'} style={styles.avatar} alt="avatar" />
+                        <img src={student.avatar || student.photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.id}` } style={styles.avatar} alt="avatar" />
                         <div>
                           <div className="fw-bold" style={{color: '#1E3A8A'}}>{student.username}</div>
                           <small className="text-muted">{student.firstName} {student.lastName}</small>
@@ -944,5 +944,6 @@ const StudentsPage = () => {
     </div>
   );
 };
+
 
 export default StudentsPage;
