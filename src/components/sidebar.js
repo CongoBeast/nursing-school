@@ -36,6 +36,7 @@ const Sidebar = ({ userRole, show, onHide }) => {
     localStorage.removeItem('user');
     localStorage.removeItem('email');
     localStorage.removeItem('userType');
+    localStorage.removeItem('userId');
 
   
     // Prepare notification data

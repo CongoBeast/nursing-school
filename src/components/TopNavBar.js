@@ -216,6 +216,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
     localStorage.removeItem('user');
     localStorage.removeItem('email');
     localStorage.removeItem('userType');
+    localStorage.removeItem('userId');
     
     console.log('Logged out');
     setIsMenuOpen(false);
@@ -263,7 +264,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
           { name: "Manage Staff Request", icon: <Handshake size={18} />, href: "/#/admin-staff-requests" , onClick: handleNavClick},
           // { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },/
           { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
-          { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
+          // { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
           { divider: true },
           { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" },
           { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
