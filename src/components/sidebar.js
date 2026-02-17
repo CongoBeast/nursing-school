@@ -21,6 +21,15 @@ const Sidebar = ({ userRole, show, onHide }) => {
   const handleLogout = () => {
     // Remove token from local storage and update state
     const username = localStorage.getItem('username');
+
+    var navString = ""
+
+    if(localStorage.getItem('userType') == "maintenance"){
+      navString = "/maintenance-auth"
+    }
+    else{
+      navString = "/auth"
+    }
   
     localStorage.removeItem('token');
     localStorage.removeItem('username');
@@ -47,7 +56,7 @@ const Sidebar = ({ userRole, show, onHide }) => {
     //     console.error('Error sending logout notification:', error);
     //   });
   
-    navigate('/auth'); // Redirect to home after logout
+    navigate(navString); // Redirect to home after logout
     // toggleSidebar(); // Close the sidebar after logout
   };
 
