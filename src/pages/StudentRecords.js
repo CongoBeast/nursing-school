@@ -24,15 +24,15 @@ export default function StudentRecords() {
   const [rentalRecords, setRentalRecords] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const username = localStorage.getItem("user");
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    if (!username) return;
+    if (!userId) return;
 
     const fetchData = async () => {
       try {
         // 1️⃣ Fetch student info
-        const userRes = await fetch(`${API_URL}/get-user/${username}`);
+        const userRes = await fetch(`${API_URL}/get-user/${userId}`);
         const userData = await userRes.json();
         setStudent(userData);
 
@@ -59,7 +59,7 @@ export default function StudentRecords() {
     };
 
     fetchData();
-  }, [username]);
+  }, [userId]);
 
   if (loading) {
     return (

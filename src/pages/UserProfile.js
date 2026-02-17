@@ -159,6 +159,9 @@ const UserProfile = () => {
           position: "top-right",
           autoClose: 3000,
         });
+        if (editForm.username){
+        localStorage.setItem("user", editForm.username);
+        }
         setShowEditModal(false);
         fetchUserData(); // Refresh user data
       } else {
