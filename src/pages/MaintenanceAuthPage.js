@@ -206,7 +206,7 @@ const MaintenanceAuthPage = () => {
         console.log("set the token")
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", data.username || formData.username);
-        localStorage.setItem("userType", backendUserType);
+        localStorage.setItem("userType", 'maintenance');
 
         setMessage("Authentication successful! Redirecting to Maintenance Dashboard...");
 
