@@ -246,7 +246,7 @@ const StudentProfile = () => {
                 <button 
                   className="btn btn-primary w-100 mt-2 py-2 fw-bold" 
                   style={{ backgroundColor: colors.primary }}
-                  onClick={() => navigate('/report-fault', { state: { room: studentData.roomNumber, house: studentData.dormHouse } })}
+                  onClick={() => navigate('/fault-reporting', { state: { room: studentData.roomNumber, house: studentData.dormHouse } })}
                 >
                   Report New Issue
                 </button>
