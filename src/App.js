@@ -48,6 +48,20 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+const AdminOnlyRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('token');
+  const userType = localStorage.getItem('userType'); // or localStorage.userType
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+  if (userType === 'maintenance') {
+    return <Navigate to="/maintenance-dashboard" replace />;
+  }
+  return children;
+};
+
+
 
 
 // Create a layout component that uses useLocation
@@ -85,29 +99,28 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           
           {/* Protected routes */}
-          <Route path="/" element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
+          <Route path="/" element={<AdminOnlyRoute><AdminDashboard /></AdminOnlyRoute>} />
+
 
           <Route path="/students" element={
-            <ProtectedRoute>
+            <AdminOnlyRoute>
               <StudentsPage />
-            </ProtectedRoute>
+            </AdminOnlyRoute>
           } />
           
           <Route path="/student-profile" element={
-            <ProtectedRoute>
+            <AdminOnlyRoute>
               <StudentProfile />
-            </ProtectedRoute>
+            </AdminOnlyRoute>
           } />
           
-          <Route path="/staff" element={
+          {/* <Route path="/staff" element={
             <ProtectedRoute>
               <StaffManagementPage />
             </ProtectedRoute>
-          } />
+          } /> */}
+
+          <Route path="/staff" element={<AdminOnlyRoute><StaffManagementPage /></AdminOnlyRoute>} />
 
           <Route path="/facilities-management" element={
             <ProtectedRoute>
@@ -122,9 +135,9 @@ function App() {
           } />
 
           <Route path="/staff-attendance" element={
-            <ProtectedRoute>
+            <AdminOnlyRoute>
               <StaffAttendance />
-            </ProtectedRoute>
+            </AdminOnlyRoute>
           } />
 
           <Route path="/fault-reporting" element={
@@ -152,15 +165,15 @@ function App() {
           } />
 
           <Route path="/employee-profile/:id" element={
-            <ProtectedRoute>
+            <AdminOnlyRoute>
               <EmployeeProfile />
-            </ProtectedRoute>
+            </AdminOnlyRoute>
           } />
 
           <Route path="/student-records/" element={
-            <ProtectedRoute>
+            <AdminOnlyRoute>
               <StudentRecords />
-            </ProtectedRoute>
+            </AdminOnlyRoute>
           } />
 
           <Route path="/maintenance-dashboard" element={
@@ -176,15 +189,15 @@ function App() {
           } />
           
           <Route path="/staff-requests" element={
-            <ProtectedRoute>
+            <AdminOnlyRoute>
               <StaffRequests />
-            </ProtectedRoute>
+            </AdminOnlyRoute>
           } />
 
           <Route path="/admin-staff-requests" element={
-            <ProtectedRoute>
+            <AdminOnlyRoute>
               <AdminStaffRequests />
-            </ProtectedRoute>
+            </AdminOnlyRoute>
           } />
 
           <Route path="/manage-notices" element={
@@ -200,7 +213,11 @@ function App() {
           } />
 
           {/* Optional: Redirect any unknown paths to /auth or / */}
-          <Route path="*" element={<Navigate to="/auth" replace />} />
+          <Route path="*" element={
+              localStorage.getItem('userType') === 'maintenance' 
+                ? <Navigate to="/maintenance-auth" replace />
+                : <Navigate to="/auth" replace />
+            } />
         </Routes>
       </Layout>      
     </Router>
