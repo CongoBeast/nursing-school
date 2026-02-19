@@ -31,6 +31,10 @@ const ReportsPage = () => {
       notes: ''
     });
 
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [viewReport, setViewReport] = useState(null);
+  const [viewReportType, setViewReportType] = useState(null);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -53,6 +57,12 @@ const ReportsPage = () => {
       console.error("Error loading reports:", error);
       setLoading(false);
     }
+  };
+
+  const handleViewDetails = (report, type) => {
+  setViewReport(report);
+  setViewReportType(type);
+  setShowDetailsModal(true);
   };
 
   const getStatusBadge = (status) => {
@@ -243,7 +253,7 @@ const ReportsPage = () => {
                       <td className="text-center">
                         <div className="d-flex gap-2 justify-content-center">
                             {/* View Details remains always active */}
-                            <Button size="sm" variant="outline-primary" onClick={() => navigate(`/reports/${fault._id}`)}>
+                            <Button size="sm" variant="outline-primary" onClick={() => handleViewDetails(fault, 'fault')}>
                             <Eye size={14} />
                             </Button>
 
@@ -297,7 +307,7 @@ const ReportsPage = () => {
                       <td className="text-center">
                         <div className="d-flex gap-2 justify-content-center">
                             {/* View Details remains always active */}
-                            <Button size="sm" variant="outline-primary" onClick={() => navigate(`/reports/${fac._id}`)}>
+                            <Button size="sm" variant="outline-primary" onClick={() => handleViewDetails(fac, 'facility')}>
                             <Eye size={14} />
                             </Button>
 
@@ -408,6 +418,121 @@ const ReportsPage = () => {
             onClick={handleCreateNotice}
           >
             Publish Notice
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered size="lg">
+        <Modal.Header closeButton style={{ background: '#1E3A5F', color: 'white' }}>
+          <Modal.Title className="h5">
+            <Eye size={20} className="me-2" />
+            Report Details
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-4">
+          {viewReport && (
+            <>
+              {/* Image */}
+              <div className="text-center mb-4">
+                <img
+                  src={viewReport.imageUrl || 'https://via.placeholder.com/400x200'}
+                  alt="report"
+                  style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '12px' }}
+                />
+              </div>
+
+              <Row className="g-3">
+                {/* Title / Item */}
+                <Col md={6}>
+                  <div className="p-3 bg-light rounded border h-100">
+                    <p className="text-muted small mb-1">
+                      {viewReportType === 'fault' ? 'Faulty Item' : 'Issue Title'}
+                    </p>
+                    <p className="fw-bold mb-0">
+                      {viewReportType === 'fault' ? viewReport.item : viewReport.title}
+                    </p>
+                  </div>
+                </Col>
+
+                {/* Location */}
+                <Col md={6}>
+                  <div className="p-3 bg-light rounded border h-100">
+                    <p className="text-muted small mb-1">Location</p>
+                    <p className="fw-bold mb-0">
+                      <MapPin size={14} className="me-1 text-success" />
+                      {viewReportType === 'fault'
+                        ? `${viewReport.house} — Room ${viewReport.roomNumber}`
+                        : viewReport.dorm}
+                    </p>
+                  </div>
+                </Col>
+
+                {/* Status */}
+                <Col md={4}>
+                  <div className="p-3 bg-light rounded border h-100">
+                    <p className="text-muted small mb-1">Status</p>
+                    {getStatusBadge(viewReport.status)}
+                  </div>
+                </Col>
+
+                {/* Date */}
+                <Col md={4}>
+                  <div className="p-3 bg-light rounded border h-100">
+                    <p className="text-muted small mb-1">
+                      {viewReportType === 'fault' ? 'Discovery Date' : 'Reported Date'}
+                    </p>
+                    <p className="fw-bold mb-0 small">
+                      <Clock size={13} className="me-1" />
+                      {new Date(viewReport.discoveryDate || viewReport.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </Col>
+
+                {/* Reported By */}
+                <Col md={4}>
+                  <div className="p-3 bg-light rounded border h-100">
+                    <p className="text-muted small mb-1">Reported By</p>
+                    <p className="fw-bold mb-0 small">{viewReport.reportedBy || 'N/A'}</p>
+                  </div>
+                </Col>
+
+                {/* Fault-specific: Facility Type badge */}
+                {viewReportType === 'facility' && viewReport.facilityType && (
+                  <Col md={12}>
+                    <div className="p-3 bg-light rounded border">
+                      <p className="text-muted small mb-1">Facility Type</p>
+                      <Badge bg="secondary">{viewReport.facilityType}</Badge>
+                    </div>
+                  </Col>
+                )}
+
+                {/* Details / Description */}
+                {(viewReport.details || viewReport.description) && (
+                  <Col md={12}>
+                    <div className="p-3 bg-light rounded border">
+                      <p className="text-muted small mb-1">Details</p>
+                      <p className="mb-0" style={{ lineHeight: '1.6' }}>
+                        {viewReport.details || viewReport.description}
+                      </p>
+                    </div>
+                  </Col>
+                )}
+              </Row>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="border-0">
+          <Button variant="light" onClick={() => setShowDetailsModal(false)}>Close</Button>
+          <Button
+            style={{ backgroundColor: '#15803D', border: 'none' }}
+            disabled={viewReport?.status === 'Fixed' || viewReport?.status === 'Completed'}
+            onClick={() => {
+              setShowDetailsModal(false);
+              handleOpenModal(viewReport, viewReportType);
+            }}
+          >
+            <Calendar size={14} className="me-2" />
+            Schedule Maintenance
           </Button>
         </Modal.Footer>
       </Modal>
