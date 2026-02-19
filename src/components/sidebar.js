@@ -77,6 +77,7 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "/#/staff-attendance" },
       { name: "Schedule", icon: <Calendar size={18} />, href: "/#/my-schedule" , onClick: handleNavClick},
       { name: "My Requests", icon: <BarChart2 size={18} />, href: "/#/staff-requests" },
+      { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" , onClick: handleNavClick},
@@ -222,5 +223,6 @@ const Sidebar = ({ userRole, show, onHide }) => {
     </>
   );
 };
+
 
 export default Sidebar;
