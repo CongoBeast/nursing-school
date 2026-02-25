@@ -33,6 +33,8 @@ import ManageNoticesEvents from './pages/ManageEventsNotices.js';
 import AdminStaffRequests from './pages/AdminStaffRequests.js';
 import MaintenanceReportsPage from './pages/MaintenanceReportsPage.js';
 
+import SuperUserPage from './pages/SuperUserPage.js';
+
 
 // ProtectedRoute component to check for authentication
 const ProtectedRoute = ({ children }) => {
@@ -100,6 +102,8 @@ function App() {
           
           {/* Protected routes */}
           <Route path="/" element={<AdminOnlyRoute><AdminDashboard /></AdminOnlyRoute>} />
+          <Route path="/super-user" element={<AdminOnlyRoute><SuperUserPage /></AdminOnlyRoute>} />
+
 
 
           <Route path="/students" element={
