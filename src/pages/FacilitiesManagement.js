@@ -49,7 +49,7 @@ const FacilitiesManagement = () => {
       inspectionScore: 'A-',
       status: 'Good',
       inventory: [
-        { item: 'Accommodation Rooms', quantity: 166, condition: 'Mixed (52+70+3)' },
+        { item: 'Accommodation Rooms', quantity: 122, condition: 'Mixed (52+70+3)' },
         { item: 'Toilets & Baths', quantity: 28, condition: 'Good' },
         { item: 'Store Rooms', quantity: 6, condition: 'Functional' },
         { item: 'Laundry Rooms', quantity: 3, condition: 'Good' },
@@ -794,5 +794,6 @@ const FacilitiesManagement = () => {
     </div>
   );
 };
+
 
 export default FacilitiesManagement;
