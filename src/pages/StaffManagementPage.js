@@ -17,6 +17,11 @@ const StaffManagementPage = () => {
   const [filters, setFilters] = useState({ search: '', position: '', status: '', gender: '' });
   const [selectedStaff, setSelectedStaff] = useState([]);
 
+  const [isSuperUser, setIsSuperUser] = useState(false);
+
+  const userId = localStorage.getItem('userId');
+
+
   useEffect(() => {
     const fetchStaff = async () => {
       try {
@@ -26,10 +31,15 @@ const StaffManagementPage = () => {
         const data = await response.json();
         
         // FILTER: Only include users where userType is NOT "student"
-        const employeesOnly = data.filter(user => user.userType !== 'student');
+        const employeesOnly = data.filter(user => user.userType !== "student");
 
-        console.log(employeesOnly)
-        setStaff(employeesOnly);
+        // REMOVE super users AND inactive users
+        const visibleEmployees = employeesOnly.filter(
+            user => user.super !== "true" && user.accountStatus === true
+          );
+
+        setStaff(visibleEmployees);
+        
       } catch (error) {
         console.error("Error fetching staff:", error);
       } finally {
@@ -37,6 +47,18 @@ const StaffManagementPage = () => {
       }
     };
     fetchStaff();
+
+    const checkSuperUser = async () => {
+    try {
+      const res = await fetch(`${API_URL}/check-super-user/${userId}`);
+      const data = await res.json();
+      setIsSuperUser(data.isSuper);
+    } catch (error) {
+      setIsSuperUser(false);
+    }
+  };
+
+  checkSuperUser();
   }, []);
 
   const filteredStaff = useMemo(() => {
@@ -162,8 +184,14 @@ const StaffManagementPage = () => {
               <th style={styles.th}>Designation</th>
               <th style={styles.th}>Contact Details</th>
               <th style={styles.th}>Joined</th>
-              <th style={styles.th}>Status</th>
-              <th style={styles.th}>Actions</th>
+              
+              {isSuperUser && (
+                  <th style={styles.th}>Status</th>
+                )}
+
+              {isSuperUser && (
+                  <th style={styles.th}>Actions</th>
+                )}
             </tr>
           </thead>
           <tbody>
@@ -202,17 +230,30 @@ const StaffManagementPage = () => {
                   </div>
                 </td>
                 <td style={styles.td}>{new Date(member.registrationDate).toLocaleDateString()}</td>
-                <td style={styles.td}>
+
+                {isSuperUser && (
+                  <td style={styles.td}>
                   <span style={styles.badge(member.accountStatus === true ? '#DCFCE7' : '#FEF3C7', member.accountStatus === true ? '#166534' : '#854D0E')}>
                     {member.accountStatus === true ? 'Active' : 'In-active'}
                   </span>
                 </td>
-                <td style={{ ...styles.td, borderRight: '1px solid #EDF2F7', borderTopRightRadius: '10px', borderBottomRightRadius: '10px' }}>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <Edit2 size={16} color="#3B82F6" style={{ cursor: 'pointer' }} />
-                    <Trash2 size={16} color="#EF4444" style={{ cursor: 'pointer' }} />
-                  </div>
-                </td>
+                )}
+                
+                {isSuperUser && (
+                  <td
+                    style={{
+                      ...styles.td,
+                      borderRight: "1px solid #EDF2F7",
+                      borderTopRightRadius: "10px",
+                      borderBottomRightRadius: "10px",
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <Edit2 size={16} color="#3B82F6" style={{ cursor: "pointer" }} />
+                      <Trash2 size={16} color="#EF4444" style={{ cursor: "pointer" }} />
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
