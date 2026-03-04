@@ -171,7 +171,7 @@ import {
   FileText, User, LogOut, Stethoscope,
   ClipboardCheck, Pill, BookOpen, Settings,
   BarChart2, Megaphone, Building, Shield, ShieldX ,
-  Menu, X, House, HardHat, Handshake
+  Menu, X, House, HardHat, Handshake, DollarSign
 } from 'lucide-react';
 // import './topnavbar.css';
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -243,7 +243,6 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
       { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "/#/staff-attendance" },
       { name: "Schedule", icon: <Calendar size={18} />, href: "/#/my-schedule" , onClick: handleNavClick},
       { name: "My Requests", icon: <BarChart2 size={18} />, href: "/#/staff-requests" },
-          { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" , onClick: handleNavClick},
@@ -265,6 +264,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
           { name: "Manage Staff Request", icon: <Handshake size={18} />, href: "/#/admin-staff-requests" , onClick: handleNavClick},
           // { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },/
           { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
+          { name: "Payment Records", icon: <DollarSign size={18} />, href: "/#/payments-records" , onClick: handleNavClick},
           // { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
           { divider: true },
           { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" },
@@ -533,6 +533,5 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
     </>
   );
 };
-
 
 export default TopNavbar;
