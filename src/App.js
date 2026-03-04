@@ -34,6 +34,7 @@ import AdminStaffRequests from './pages/AdminStaffRequests.js';
 import MaintenanceReportsPage from './pages/MaintenanceReportsPage.js';
 
 import SuperUserPage from './pages/SuperUserPage.js';
+import PaymentRecordsPage from './pages/PaymentsRecordsPage.js';
 
 
 // ProtectedRoute component to check for authentication
@@ -201,6 +202,12 @@ function App() {
           <Route path="/admin-staff-requests" element={
             <AdminOnlyRoute>
               <AdminStaffRequests />
+            </AdminOnlyRoute>
+          } />
+
+          <Route path="/payments-records" element={
+            <AdminOnlyRoute>
+              <PaymentRecordsPage />
             </AdminOnlyRoute>
           } />
 
