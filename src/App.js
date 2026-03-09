@@ -35,6 +35,7 @@ import MaintenanceReportsPage from './pages/MaintenanceReportsPage.js';
 
 import SuperUserPage from './pages/SuperUserPage.js';
 import PaymentRecordsPage from './pages/PaymentsRecordsPage.js';
+import RoomPage from './pages/RoomPage.js';
 
 
 // ProtectedRoute component to check for authentication
@@ -208,6 +209,12 @@ function App() {
           <Route path="/payments-records" element={
             <AdminOnlyRoute>
               <PaymentRecordsPage />
+            </AdminOnlyRoute>
+          } />
+
+          <Route path="/room/:roomNumber" element={
+            <AdminOnlyRoute>
+              <RoomPage />
             </AdminOnlyRoute>
           } />
 
