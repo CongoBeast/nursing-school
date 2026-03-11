@@ -36,6 +36,7 @@ import MaintenanceReportsPage from './pages/MaintenanceReportsPage.js';
 import SuperUserPage from './pages/SuperUserPage.js';
 import PaymentRecordsPage from './pages/PaymentsRecordsPage.js';
 import RoomPage from './pages/RoomPage.js';
+import ScannerPage from './pages/ScannerPage.js';
 
 
 // ProtectedRoute component to check for authentication
@@ -209,6 +210,12 @@ function App() {
           <Route path="/payments-records" element={
             <AdminOnlyRoute>
               <PaymentRecordsPage />
+            </AdminOnlyRoute>
+          } />
+
+          <Route path="/scanner" element={
+            <AdminOnlyRoute>
+              <ScannerPage />
             </AdminOnlyRoute>
           } />
 
