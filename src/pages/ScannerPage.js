@@ -653,7 +653,7 @@ const ItemModal = ({ item: initialItem, onClose, onUpdated }) => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/api/update-item-status`, {
+      const res = await fetch(`${API_URL}/update-item-status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -850,7 +850,7 @@ const ScannerPage = () => {
     setMode(null);
     setLookingUp(true);
     try {
-      const res  = await fetch(`${API_URL}/api/get-item-by-barcode/${barcode}`);
+      const res  = await fetch(`${API_URL}/get-item-by-barcode/${barcode}`);
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.message || 'Item not found');
