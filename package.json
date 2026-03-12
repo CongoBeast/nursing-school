@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@zxing/library": "^0.21.3",
     "axios": "^1.13.4",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.5.0",
     "cra-template": "1.2.0",
     "date-fns": "^4.1.0",
+    "jsqr": "^1.4.0",
     "lodash.isequal": "^4.5.0",
     "lucide-react": "^0.525.0",
     "moment": "^2.30.1",
@@ -29,10 +31,10 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
-    "start": "CI=false react-scripts start",
-    "build": "CI=false react-scripts build",
-    "test": "CI=false react-scripts test",
-    "eject": "CI=false react-scripts eject"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
