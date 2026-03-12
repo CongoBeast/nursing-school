@@ -4,7 +4,8 @@ import {
   Users, ClipboardList, Calendar, Activity, 
   FileText, User, LogOut, Stethoscope,House, 
   ClipboardCheck, Pill, BookOpen, Settings,
-  BarChart2, Megaphone, Building, Shield, ShieldX, HardHat, Building2, Handshake,DollarSign
+  BarChart2, Megaphone, Building, Shield, ShieldX, HardHat, Building2, Handshake,DollarSign, ScanBarcode,
+  Scan
 } from 'lucide-react';
 import './sidebar.css';
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -99,6 +100,8 @@ const Sidebar = ({ userRole, show, onHide }) => {
       // { name: "Accomodation Management", icon: <Settings size={18} />, href: "/#/accomodation" },
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
       { name: "Payment Records", icon: <DollarSign size={18} />, href: "/#/payments-records" , onClick: handleNavClick},
+      { name: "Scan Codes", icon: <ScanBarcode size={18} />, href: "/#/scanner" , onClick: handleNavClick},
+
 
       // { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
       { divider: true },
