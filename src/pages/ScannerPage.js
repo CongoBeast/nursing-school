@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import jsQR from 'jsqr';
 import {
   QrCode, Barcode, X, RefreshCw, CheckCircle2, AlertTriangle,
   Package, BedDouble, Armchair, Monitor, Building2, Hash,
@@ -70,89 +71,130 @@ const STATUS_META = {
   under_repair: { label: 'Under Repair', bg: '#EFF6FF', fg: T.blue,   icon: Wrench        },
 };
 
-/* ── QR Scanner using jsQR via camera ─────────────────────────── */
+/* ── Utility: stop all tracks on a MediaStream ─────────────────── */
+const stopStream = (stream) => {
+  if (!stream) return;
+  stream.getTracks().forEach(t => { try { t.stop(); } catch {} });
+};
+
+/* ── Load external script (returns promise) ────────────────────── */
+const loadScript = (src, globalKey) => new Promise((resolve, reject) => {
+  if (window[globalKey]) { resolve(window[globalKey]); return; }
+  const existing = document.querySelector(`script[src="${src}"]`);
+  if (existing) {
+    existing.addEventListener('load', () => resolve(window[globalKey]));
+    existing.addEventListener('error', reject);
+    return;
+  }
+  const s = document.createElement('script');
+  s.src = src;
+  s.onload = () => resolve(window[globalKey]);
+  s.onerror = reject;
+  document.head.appendChild(s);
+});
+
+/* ══════════════════════════════════════════════════════════════════
+   QR SCANNER
+   Uses jsQR + getUserMedia. Fully cleans up on unmount / close.
+══════════════════════════════════════════════════════════════════ */
 const QRScanner = ({ onResult, onClose }) => {
   const videoRef  = useRef(null);
   const canvasRef = useRef(null);
-  const streamRef = useRef(null);
-  const rafRef    = useRef(null);
-  const [error, setError]   = useState(null);
-  const [active, setActive] = useState(false);
+  const mountedRef = useRef(true);    // flipped false on cleanup
+  const streamRef  = useRef(null);    // MediaStream
+  const rafRef     = useRef(null);    // requestAnimationFrame id
+  const [status, setStatus] = useState('loading'); // loading | active | error
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const startCamera = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }
-      });
+  /* ── Full teardown ── */
+  const teardown = useCallback(() => {
+    mountedRef.current = false;
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    stopStream(streamRef.current);
+    streamRef.current = null;
+    const v = videoRef.current;
+    if (v) { v.pause(); v.srcObject = null; }
+  }, []);
+
+  const handleClose = useCallback(() => {
+    teardown();
+    onClose();
+  }, [teardown, onClose]);
+
+  /* ── Start camera + scan loop ── */
+  useEffect(() => {
+    mountedRef.current = true;
+    let cancelled = false;
+
+    const start = async () => {
+      // 1. Get camera
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+      } catch (e) {
+        if (!cancelled) {
+          setStatus('error');
+          setErrorMsg(e.name === 'NotAllowedError'
+            ? 'Camera access denied. Please allow camera permissions and try again.'
+            : 'Could not access camera. Please check your device.');
+        }
+        return;
+      }
+      if (cancelled) { stopStream(stream); return; }
+
       streamRef.current = stream;
+
+      // 3. Attach to video element
       const video = videoRef.current;
-      if (!video) return;
-
-      // Detach any previous source before assigning the new stream
-      video.srcObject = null;
+      if (!video || cancelled) { stopStream(stream); return; }
       video.srcObject = stream;
-
-      // Wait for metadata before calling play() — prevents
-      // "play() interrupted by new load request" browser error
-      await new Promise((resolve) => {
-        video.onloadedmetadata = () => resolve();
-      });
 
       try {
         await video.play();
-        setActive(true);
-      } catch (playErr) {
-        // AbortError is harmless if component unmounted before play finished
-        if (playErr.name !== 'AbortError') throw playErr;
+      } catch (e) {
+        if (!cancelled && e.name !== 'AbortError') {
+          setStatus('error'); setErrorMsg('Could not start camera preview.');
+        }
+        return;
       }
-    } catch {
-      setError('Camera access denied. Please allow camera permissions.');
-    }
-  }, []);
+      if (cancelled) return;
 
-  const stopCamera = useCallback(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-    setActive(false);
-  }, []);
+      setStatus('active');
 
-  // Load jsQR dynamically
-  useEffect(() => {
-    let jsQR;
-    let cancelled = false;
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
-    script.onload = () => { if (!cancelled) jsQR = window.jsQR; };
-    document.head.appendChild(script);
-
-    startCamera();
-
-    const tick = () => {
-      const video  = videoRef.current;
-      const canvas = canvasRef.current;
-      if (!video || !canvas || !jsQR) { rafRef.current = requestAnimationFrame(tick); return; }
-      if (video.readyState !== video.HAVE_ENOUGH_DATA) { rafRef.current = requestAnimationFrame(tick); return; }
-
-      canvas.width  = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0);
-      const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
-      if (code?.data) { stopCamera(); onResult(code.data); return; }
+      // 4. Scan loop
+      const tick = () => {
+        if (cancelled || !mountedRef.current) return;
+        const v = videoRef.current;
+        const c = canvasRef.current;
+        if (!v || !c || v.readyState < HTMLVideoElement.HAVE_ENOUGH_DATA) {
+          rafRef.current = requestAnimationFrame(tick);
+          return;
+        }
+        c.width  = v.videoWidth;
+        c.height = v.videoHeight;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(v, 0, 0);
+        const imageData = ctx.getImageData(0, 0, c.width, c.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+        if (code?.data) {
+          teardown();
+          onResult(code.data);
+          return;
+        }
+        rafRef.current = requestAnimationFrame(tick);
+      };
       rafRef.current = requestAnimationFrame(tick);
     };
-    rafRef.current = requestAnimationFrame(tick);
+
+    start();
 
     return () => {
       cancelled = true;
-      stopCamera();
-      try { document.head.removeChild(script); } catch {}
+      teardown();
     };
-  }, [startCamera, stopCamera, onResult]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15,23,42,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(6px)', padding: 16 }}>
@@ -163,31 +205,46 @@ const QRScanner = ({ onResult, onClose }) => {
             <QrCode size={20} color={T.white} />
             <span style={{ fontWeight: 800, color: T.white, fontSize: '1rem' }}>QR Code Scanner</span>
           </div>
-          <button onClick={() => { stopCamera(); onClose(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', padding: 4 }}><X size={20} /></button>
+          <button onClick={handleClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', padding: 4 }}>
+            <X size={20} />
+          </button>
         </div>
 
         {/* Camera view */}
-        <div style={{ position: 'relative', backgroundColor: '#000', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <video ref={videoRef} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted playsInline />
+        <div style={{ position: 'relative', backgroundColor: '#000', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          <video ref={videoRef} style={{ width: '100%', height: '100%', objectFit: 'cover', display: status === 'active' ? 'block' : 'none' }} muted playsInline />
           <canvas ref={canvasRef} style={{ display: 'none' }} />
 
+          {/* Loading state */}
+          {status === 'loading' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+              <RefreshCw size={28} color={T.blueL} style={{ animation: 'spin 1s linear infinite' }} />
+              <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem' }}>Starting camera…</span>
+            </div>
+          )}
+
           {/* Scanning overlay */}
-          {active && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {status === 'active' && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
               <div style={{ width: 220, height: 220, position: 'relative' }}>
                 {/* Corner brackets */}
-                {[{t:0,l:0},{t:0,r:0},{b:0,l:0},{b:0,r:0}].map((pos, i) => (
+                {[
+                  { top: 0, left: 0 },
+                  { top: 0, right: 0 },
+                  { bottom: 0, left: 0 },
+                  { bottom: 0, right: 0 },
+                ].map((pos, i) => (
                   <div key={i} style={{
                     position: 'absolute', width: 30, height: 30,
                     borderColor: T.blueL, borderStyle: 'solid', borderWidth: 0,
-                    ...(pos.t !== undefined ? { top: 0, borderTopWidth: 3 } : { bottom: 0, borderBottomWidth: 3 }),
-                    ...(pos.l !== undefined ? { left: 0, borderLeftWidth: 3 } : { right: 0, borderRightWidth: 3 }),
+                    ...(pos.top    !== undefined ? { top:    pos.top,    borderTopWidth:    3 } : { bottom: pos.bottom, borderBottomWidth: 3 }),
+                    ...(pos.left   !== undefined ? { left:   pos.left,   borderLeftWidth:   3 } : { right:  pos.right,  borderRightWidth:  3 }),
                   }} />
                 ))}
-                {/* Scan line */}
+                {/* Animated scan line */}
                 <div style={{
                   position: 'absolute', left: 0, right: 0, height: 2,
-                  backgroundColor: T.blueL, opacity: 0.8,
+                  backgroundColor: T.blueL, opacity: 0.85,
                   animation: 'scanLine 2s ease-in-out infinite',
                   boxShadow: `0 0 8px ${T.blueL}`,
                 }} />
@@ -195,11 +252,12 @@ const QRScanner = ({ onResult, onClose }) => {
             </div>
           )}
 
-          {error && (
+          {/* Error state */}
+          {status === 'error' && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.7)', padding: 24 }}>
               <div style={{ textAlign: 'center', color: T.white }}>
                 <Camera size={36} style={{ display: 'block', margin: '0 auto 12px', opacity: 0.5 }} />
-                <div style={{ fontSize: '0.85rem', lineHeight: 1.5 }}>{error}</div>
+                <div style={{ fontSize: '0.85rem', lineHeight: 1.6 }}>{errorMsg}</div>
               </div>
             </div>
           )}
@@ -216,83 +274,211 @@ const QRScanner = ({ onResult, onClose }) => {
   );
 };
 
-/* ── Barcode camera scanner using QuaggaJS ────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   BARCODE SCANNER
+   Uses getUserMedia + canvas-based BarcodeDetector (native browser API)
+   with jsQR fallback for 1D barcodes via ZXing-js.
+   Falls back gracefully to manual entry.
+══════════════════════════════════════════════════════════════════ */
 const BarcodeScanner = ({ onResult, onClose }) => {
-  const scannerRef  = useRef(null);
-  const [error, setError]     = useState(null);
-  const [detected, setDetected] = useState(null); // last detected code for visual feedback
-  const [tab, setTab]         = useState('camera'); // 'camera' | 'manual'
+  const videoRef   = useRef(null);
+  const canvasRef  = useRef(null);
+  const mountedRef = useRef(true);
+  const streamRef  = useRef(null);
+  const rafRef     = useRef(null);
+  const lastCodeRef = useRef(null);
+  const hitCountRef = useRef(0);
+
+  const [tab, setTab]         = useState('camera');
+  const [status, setStatus]   = useState('loading'); // loading | active | error
+  const [errorMsg, setErrorMsg] = useState('');
+  const [detected, setDetected] = useState(null);
   const [input, setInput]     = useState('');
   const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
-  const quaggaRef = useRef(null);
-  const lastResult = useRef(null);
-  const resultCount = useRef({});
 
+  /* ── Full teardown ── */
+  const teardown = useCallback(() => {
+    mountedRef.current = false;
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    stopStream(streamRef.current);
+    streamRef.current = null;
+    const v = videoRef.current;
+    if (v) { v.pause(); v.srcObject = null; }
+  }, []);
+
+  const handleClose = useCallback(() => {
+    teardown();
+    onClose();
+  }, [teardown, onClose]);
+
+  /* ── Camera scan loop using native BarcodeDetector or ZXing ── */
   useEffect(() => {
     if (tab !== 'camera') return;
+    mountedRef.current = true;
+    let cancelled = false;
+    lastCodeRef.current = null;
+    hitCountRef.current = 0;
 
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js';
-    script.onload = () => {
-      quaggaRef.current = window.Quagga;
-      window.Quagga.init({
-        inputStream: {
-          name: 'Live',
-          type: 'LiveStream',
-          target: scannerRef.current,
-          constraints: {
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-        },
-        decoder: {
-          // CODE_128 handles uppercase letters + digits — matches our barcode format
-          readers: ['code_128_reader', 'code_39_reader'],
-          multiple: false,
-        },
-        locate: true,
-        frequency: 10,
-      }, (err) => {
-        if (err) {
-          setError('Camera access denied or not available.');
+    const start = async () => {
+      // Get camera
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+      } catch (e) {
+        if (!cancelled) {
+          setStatus('error');
+          setErrorMsg(e.name === 'NotAllowedError'
+            ? 'Camera access denied. Switch to Manual Entry.'
+            : 'Could not access camera. Switch to Manual Entry.');
+        }
+        return;
+      }
+      if (cancelled) { stopStream(stream); return; }
+      streamRef.current = stream;
+
+      const video = videoRef.current;
+      if (!video || cancelled) { stopStream(stream); return; }
+      video.srcObject = stream;
+      try { await video.play(); } catch (e) {
+        if (!cancelled && e.name !== 'AbortError') {
+          setStatus('error'); setErrorMsg('Could not start camera preview.');
+        }
+        return;
+      }
+      if (cancelled) return;
+      setStatus('active');
+
+      // Try native BarcodeDetector first (Chrome 83+, Edge, Safari 17+)
+      const hasNativeDetector = 'BarcodeDetector' in window;
+      let detector = null;
+      if (hasNativeDetector) {
+        try {
+          detector = new window.BarcodeDetector({
+            formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix', 'aztec']
+          });
+        } catch { detector = null; }
+      }
+
+      // Load ZXing as fallback
+      let ZXing = null;
+      if (!detector) {
+        try {
+          await loadScript('https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js', 'ZXing');
+          ZXing = window.ZXing;
+        } catch {
+          if (!cancelled) {
+            setStatus('error');
+            setErrorMsg('Barcode library failed to load. Please use Manual Entry.');
+          }
           return;
         }
-        window.Quagga.start();
-      });
+        if (cancelled) return;
+      }
 
-      // Debounce: require the same code 3 times in a row before accepting
-      window.Quagga.onDetected((result) => {
-        const code = result.codeResult?.code?.toUpperCase();
-        if (!code || code.length !== 13) return;
-
-        resultCount.current[code] = (resultCount.current[code] || 0) + 1;
-        setDetected(code);
-
-        if (resultCount.current[code] >= 3) {
-          window.Quagga.stop();
-          onResult(code);
+      // ZXing reader instance
+      let zxingReader = null;
+      if (ZXing) {
+        try {
+          const hints = new Map();
+          const formats = [
+            ZXing.BarcodeFormat.CODE_128,
+            ZXing.BarcodeFormat.CODE_39,
+            ZXing.BarcodeFormat.EAN_13,
+            ZXing.BarcodeFormat.EAN_8,
+            ZXing.BarcodeFormat.UPC_A,
+            ZXing.BarcodeFormat.UPC_E,
+          ];
+          hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+          hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+          zxingReader = new ZXing.MultiFormatReader();
+          zxingReader.setHints(hints);
+        } catch {
+          // If ZXing init fails, still try with canvas fallback
         }
-      });
+      }
+
+      /* ── Tick: decode one frame ── */
+      const tick = async () => {
+        if (cancelled || !mountedRef.current) return;
+        const v = videoRef.current;
+        const c = canvasRef.current;
+        if (!v || !c || v.readyState < HTMLVideoElement.HAVE_ENOUGH_DATA) {
+          rafRef.current = requestAnimationFrame(tick);
+          return;
+        }
+
+        const w = v.videoWidth;
+        const h = v.videoHeight;
+        c.width  = w;
+        c.height = h;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(v, 0, 0, w, h);
+
+        let code = null;
+
+        try {
+          if (detector) {
+            // Native BarcodeDetector
+            const results = await detector.detect(c);
+            if (results.length > 0) code = results[0].rawValue;
+          } else if (zxingReader) {
+            // ZXing fallback
+            const imageData = ctx.getImageData(0, 0, w, h);
+            const luminance = new ZXing.RGBLuminanceSource(imageData.data, w, h);
+            const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminance));
+            const result = zxingReader.decode(binaryBitmap);
+            if (result) code = result.getText();
+          }
+        } catch {
+          // No barcode found this frame — normal, keep scanning
+        }
+
+        if (code && cancelled === false) {
+          // Require 2 consistent reads to avoid false positives
+          if (code === lastCodeRef.current) {
+            hitCountRef.current++;
+            if (hitCountRef.current >= 2) {
+              teardown();
+              onResult(code.trim().toUpperCase());
+              return;
+            }
+          } else {
+            lastCodeRef.current = code;
+            hitCountRef.current = 1;
+            setDetected(code);
+          }
+        }
+
+        rafRef.current = requestAnimationFrame(tick);
+      };
+
+      rafRef.current = requestAnimationFrame(tick);
     };
-    script.onerror = () => setError('Failed to load barcode library.');
-    document.head.appendChild(script);
+
+    start();
 
     return () => {
-      try { window.Quagga?.stop(); } catch {}
-      try { document.head.removeChild(script); } catch {}
+      cancelled = true;
+      teardown();
+      // Reset status for if user switches tabs and comes back
+      setStatus('loading');
+      setDetected(null);
     };
-  }, [tab, onResult]);
+  }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Manual tab — focus input, USB scanners auto-fill
+  // Focus manual input when switching to manual tab
   useEffect(() => {
-    if (tab === 'manual') inputRef.current?.focus();
+    if (tab === 'manual') {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
   }, [tab]);
 
   const handleManualSubmit = async () => {
     const code = input.trim().toUpperCase();
-    if (code.length !== 13) return;
+    if (!code) return;
     setLoading(true);
     await onResult(code);
     setLoading(false);
@@ -309,8 +495,7 @@ const BarcodeScanner = ({ onResult, onClose }) => {
             <Barcode size={20} color={T.white} />
             <span style={{ fontWeight: 800, color: T.white, fontSize: '1rem' }}>Barcode Scanner</span>
           </div>
-          <button onClick={() => { try { window.Quagga?.stop(); } catch {} onClose(); }}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', padding: 4 }}>
+          <button onClick={handleClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', padding: 4 }}>
             <X size={20} />
           </button>
         </div>
@@ -340,37 +525,39 @@ const BarcodeScanner = ({ onResult, onClose }) => {
         {/* Camera tab */}
         {tab === 'camera' && (
           <>
-            <div style={{ position: 'relative', backgroundColor: '#000', aspectRatio: '4/3', overflow: 'hidden' }}>
-              {/* Quagga mounts its own video+canvas here */}
-              <div ref={scannerRef} style={{ width: '100%', height: '100%' }} />
+            <div style={{ position: 'relative', backgroundColor: '#000', aspectRatio: '4/3', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <video ref={videoRef} style={{ width: '100%', height: '100%', objectFit: 'cover', display: status === 'active' ? 'block' : 'none' }} muted playsInline />
+              <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-              {/* Targeting overlay — wide rectangle for 1D barcodes */}
-              {!error && (
+              {/* Loading */}
+              {status === 'loading' && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                  <RefreshCw size={28} color={T.violet} style={{ animation: 'spin 1s linear infinite' }} />
+                  <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem' }}>Starting camera…</span>
+                </div>
+              )}
+
+              {/* Targeting overlay for 1D barcodes */}
+              {status === 'active' && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                   <div style={{ width: '80%', height: 80, position: 'relative' }}>
-                    {/* Long horizontal brackets */}
                     {[
-                      { top: 0, left: 0, borderTop: 3, borderLeft: 3 },
-                      { top: 0, right: 0, borderTop: 3, borderRight: 3 },
-                      { bottom: 0, left: 0, borderBottom: 3, borderLeft: 3 },
-                      { bottom: 0, right: 0, borderBottom: 3, borderRight: 3 },
+                      { top: 0, left: 0, borderTopWidth: 3, borderLeftWidth: 3 },
+                      { top: 0, right: 0, borderTopWidth: 3, borderRightWidth: 3 },
+                      { bottom: 0, left: 0, borderBottomWidth: 3, borderLeftWidth: 3 },
+                      { bottom: 0, right: 0, borderBottomWidth: 3, borderRightWidth: 3 },
                     ].map((s, i) => (
                       <div key={i} style={{
                         position: 'absolute', width: 24, height: 24,
                         borderColor: detected ? T.green : T.violet,
                         borderStyle: 'solid', borderWidth: 0,
-                        ...(s.top    !== undefined ? { top:    s.top,    borderTopWidth:    s.borderTop    } : {}),
-                        ...(s.bottom !== undefined ? { bottom: s.bottom, borderBottomWidth: s.borderBottom } : {}),
-                        ...(s.left   !== undefined ? { left:   s.left,   borderLeftWidth:   s.borderLeft   } : {}),
-                        ...(s.right  !== undefined ? { right:  s.right,  borderRightWidth:  s.borderRight  } : {}),
+                        ...s,
                         transition: 'border-color 0.2s',
                       }} />
                     ))}
-                    {/* Scan line */}
                     <div style={{
                       position: 'absolute', top: '50%', left: 0, right: 0, height: 2,
                       backgroundColor: detected ? T.green : T.violet,
-                      opacity: 0.9,
                       boxShadow: `0 0 10px ${detected ? T.green : T.violet}`,
                       transition: 'background-color 0.2s',
                     }} />
@@ -379,19 +566,20 @@ const BarcodeScanner = ({ onResult, onClose }) => {
               )}
 
               {/* Detected flash */}
-              {detected && (
+              {detected && status === 'active' && (
                 <div style={{ position: 'absolute', bottom: 12, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-                  <div style={{ backgroundColor: 'rgba(5,150,105,0.9)', color: T.white, padding: '6px 16px', borderRadius: 99, fontSize: '0.78rem', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.1em' }}>
+                  <div style={{ backgroundColor: 'rgba(5,150,105,0.92)', color: T.white, padding: '6px 16px', borderRadius: 99, fontSize: '0.78rem', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.08em' }}>
                     ✓ {detected}
                   </div>
                 </div>
               )}
 
-              {error && (
+              {/* Error */}
+              {status === 'error' && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.75)', padding: 24 }}>
                   <div style={{ textAlign: 'center', color: T.white }}>
                     <Camera size={36} style={{ display: 'block', margin: '0 auto 12px', opacity: 0.5 }} />
-                    <div style={{ fontSize: '0.85rem', lineHeight: 1.5, marginBottom: 12 }}>{error}</div>
+                    <div style={{ fontSize: '0.85rem', lineHeight: 1.5, marginBottom: 14 }}>{errorMsg}</div>
                     <button onClick={() => setTab('manual')} style={{ padding: '8px 18px', borderRadius: 8, border: 'none', backgroundColor: T.blue, color: T.white, fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>
                       Use Manual Entry
                     </button>
@@ -399,6 +587,7 @@ const BarcodeScanner = ({ onResult, onClose }) => {
                 </div>
               )}
             </div>
+
             <div style={{ padding: '12px 20px', backgroundColor: T.slate50, textAlign: 'center' }}>
               <div style={{ fontSize: '0.78rem', color: T.slate500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                 <ScanLine size={13} color={T.violet} />
@@ -418,39 +607,39 @@ const BarcodeScanner = ({ onResult, onClose }) => {
               </span>
             </div>
             <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: T.slate600, marginBottom: 7 }}>
-              Barcode (13 characters)
+              Barcode
             </label>
             <input
               ref={inputRef}
               value={input}
               onChange={e => setInput(e.target.value.toUpperCase())}
-              onKeyDown={e => e.key === 'Enter' && input.length === 13 && handleManualSubmit()}
+              onKeyDown={e => e.key === 'Enter' && input.trim() && handleManualSubmit()}
               placeholder="Scan or type barcode…"
-              maxLength={13}
               style={{ width: '100%', padding: '11px 14px', borderRadius: 9, border: `1.5px solid ${T.slate200}`, fontSize: '1rem', fontFamily: 'monospace', letterSpacing: '0.1em', outline: 'none', backgroundColor: T.slate50, color: T.slate800, boxSizing: 'border-box' }}
             />
             <div style={{ marginTop: 5, fontSize: '0.72rem', color: T.slate400, textAlign: 'right', marginBottom: 16 }}>
-              {input.length}/13
+              {input.length} chars
             </div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={onClose} style={{ padding: '9px 20px', borderRadius: 8, border: `1.5px solid ${T.slate200}`, backgroundColor: T.white, color: T.slate600, fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}>
+              <button onClick={handleClose} style={{ padding: '9px 20px', borderRadius: 8, border: `1.5px solid ${T.slate200}`, backgroundColor: T.white, color: T.slate600, fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}>
                 Cancel
               </button>
-              <button onClick={handleManualSubmit} disabled={input.length !== 13 || loading}
-                style={{ padding: '9px 20px', borderRadius: 8, border: 'none', backgroundColor: input.length === 13 ? T.violet : T.slate300, color: T.white, fontWeight: 700, cursor: input.length === 13 ? 'pointer' : 'not-allowed', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 7 }}>
+              <button onClick={handleManualSubmit} disabled={!input.trim() || loading}
+                style={{ padding: '9px 20px', borderRadius: 8, border: 'none', backgroundColor: input.trim() ? T.violet : T.slate300, color: T.white, fontWeight: 700, cursor: input.trim() ? 'pointer' : 'not-allowed', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 7 }}>
                 {loading ? <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <ArrowRight size={14} />}
                 {loading ? 'Looking up…' : 'Look Up Item'}
               </button>
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
 };
 
-/* ── Item Detail Modal ─────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   ITEM DETAIL MODAL
+══════════════════════════════════════════════════════════════════ */
 const ItemModal = ({ item: initialItem, onClose, onUpdated }) => {
   const [item, setItem]       = useState(initialItem);
   const [editing, setEditing] = useState(false);
@@ -533,15 +722,13 @@ const ItemModal = ({ item: initialItem, onClose, onUpdated }) => {
 
         {/* Body */}
         <div style={{ padding: '20px 24px' }}>
-
-          {/* Info grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             {[
-              { label: 'Barcode',     val: item.barcode,    mono: true },
-              { label: 'Room',        val: item.roomNumber, mono: true },
-              { label: 'House',       val: item.house,      mono: false },
-              { label: 'Capacity',    val: `${item.capacity} person${item.capacity > 1 ? 's' : ''}`, mono: false },
-              { label: 'Slot',        val: `Item ${item.slot} of ${item.capacity}`, mono: false },
+              { label: 'Barcode',      val: item.barcode,    mono: true },
+              { label: 'Room',         val: item.roomNumber, mono: true },
+              { label: 'House',        val: item.house,      mono: false },
+              { label: 'Capacity',     val: `${item.capacity} person${item.capacity > 1 ? 's' : ''}`, mono: false },
+              { label: 'Slot',         val: `Item ${item.slot} of ${item.capacity}`, mono: false },
               { label: 'Last Updated', val: fmtDate(item.updatedAt), mono: false },
             ].map(({ label, val, mono }, i) => (
               <div key={i} style={{ padding: '11px 14px', borderRadius: 9, backgroundColor: T.slate50, border: `1px solid ${T.slate100}` }}>
@@ -551,7 +738,6 @@ const ItemModal = ({ item: initialItem, onClose, onUpdated }) => {
             ))}
           </div>
 
-          {/* Notes display */}
           {item.notes && !editing && (
             <div style={{ padding: '12px 14px', borderRadius: 9, backgroundColor: '#FFFBEB', border: `1px solid #FDE68A`, marginBottom: 16 }}>
               <div style={{ fontSize: '0.68rem', color: T.amber, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Notes</div>
@@ -559,14 +745,12 @@ const ItemModal = ({ item: initialItem, onClose, onUpdated }) => {
             </div>
           )}
 
-          {/* Edit form */}
           {editing ? (
             <div style={{ border: `1.5px solid ${T.slate200}`, borderRadius: 10, padding: 16, marginBottom: 16 }}>
               <div style={{ fontWeight: 700, color: T.slate800, fontSize: '0.88rem', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 7 }}>
                 <Edit3 size={14} color={T.blue} /> Update Item
               </div>
 
-              {/* Status selector */}
               <div style={{ marginBottom: 14 }}>
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: T.slate600, marginBottom: 8 }}>Status</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -592,7 +776,6 @@ const ItemModal = ({ item: initialItem, onClose, onUpdated }) => {
                 </div>
               </div>
 
-              {/* Notes */}
               <div style={{ marginBottom: 14 }}>
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: T.slate600, marginBottom: 7 }}>Notes (optional)</label>
                 <textarea
@@ -630,22 +813,25 @@ const ItemModal = ({ item: initialItem, onClose, onUpdated }) => {
   );
 };
 
-/* ════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════════
    MAIN SCANNER PAGE
-════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════════ */
 const ScannerPage = () => {
   const navigate = useNavigate();
 
-  const [mode, setMode]               = useState(null);      // 'qr' | 'barcode' | null
-  const [itemModal, setItemModal]     = useState(null);      // item object
-  const [recentScans, setRecentScans] = useState([]);        // last 10 scans
-  const [lookingUp, setLookingUp]     = useState(false);
+  const [mode, setMode]           = useState(null);
+  const [itemModal, setItemModal] = useState(null);
+  const [recentScans, setRecentScans] = useState([]);
+  const [lookingUp, setLookingUp] = useState(false);
+
+  const addScan = useCallback((scan) => {
+    setRecentScans(prev => [scan, ...prev].slice(0, 10));
+  }, []);
 
   /* ── QR result handler ── */
   const handleQRResult = useCallback((data) => {
     setMode(null);
-    // QR codes contain a URL → navigate to it
-    // Expected format: https://domain.com/room/a04  OR  just  /room/a04
+    console.log(data)
     try {
       let path = data;
       if (data.startsWith('http')) {
@@ -657,7 +843,7 @@ const ScannerPage = () => {
     } catch {
       toast.error('Invalid QR code format');
     }
-  }, [navigate]);
+  }, [navigate, addScan]);
 
   /* ── Barcode result handler ── */
   const handleBarcodeResult = useCallback(async (barcode) => {
@@ -678,11 +864,7 @@ const ScannerPage = () => {
     } finally {
       setLookingUp(false);
     }
-  }, []);
-
-  const addScan = (scan) => {
-    setRecentScans(prev => [scan, ...prev].slice(0, 10));
-  };
+  }, [addScan]);
 
   const MODE_CARDS = [
     {
@@ -719,21 +901,20 @@ const ScannerPage = () => {
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
       `}</style>
 
-      {/* ── Breadcrumb ── */}
+      {/* Breadcrumb */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
         <Home size={15} color={T.blue} />
         <ChevronRight size={13} color={T.slate400} />
         <span style={{ fontWeight: 700, color: T.slate800, fontSize: '0.84rem' }}>Scanner</span>
       </div>
 
-      {/* ── Hero ── */}
+      {/* Hero */}
       <div style={{
         background: `linear-gradient(135deg, ${T.navy} 0%, #1E3A8A 55%, ${T.blue} 100%)`,
         borderRadius: 16, padding: '26px 28px', marginBottom: 24,
         position: 'relative', overflow: 'hidden',
       }}>
         <div style={{ position: 'absolute', right: -60, top: -60, width: 240, height: 240, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.04)' }} />
-        <div style={{ position: 'absolute', right: 100, bottom: -80, width: 280, height: 280, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.03)' }} />
         <div style={{ position: 'relative' }}>
           <div style={{ fontWeight: 900, fontSize: '1.6rem', color: T.white, letterSpacing: '-0.02em', marginBottom: 6 }}>
             Scanner
@@ -743,7 +924,7 @@ const ScannerPage = () => {
             Scan QR codes for rooms · Scan barcodes for items
           </div>
           {recentScans.length > 0 && (
-            <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
+            <div style={{ marginTop: 14 }}>
               <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Clock size={11} /> Last scan: {recentScans[0].result}
               </span>
@@ -752,7 +933,7 @@ const ScannerPage = () => {
         </div>
       </div>
 
-      {/* ── Two mode cards ── */}
+      {/* Mode cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         {MODE_CARDS.map(({ key, icon: Icon, title, desc, color, bg, border }) => (
           <button key={key} onClick={() => setMode(key)}
@@ -775,7 +956,7 @@ const ScannerPage = () => {
         ))}
       </div>
 
-      {/* ── Loading state ── */}
+      {/* Loading lookup */}
       {lookingUp && (
         <div style={{ ...card, padding: '20px 24px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 14, animation: 'fadeUp 0.2s ease both' }}>
           <RefreshCw size={20} color={T.blue} style={{ animation: 'spin 1s linear infinite', flexShrink: 0 }} />
@@ -786,7 +967,7 @@ const ScannerPage = () => {
         </div>
       )}
 
-      {/* ── Recent Scans ── */}
+      {/* Recent Scans */}
       {recentScans.length > 0 && (
         <div style={{ ...card, overflow: 'hidden', animation: 'fadeUp 0.3s ease 0.1s both' }}>
           <div style={{ padding: '14px 20px', borderBottom: `1px solid ${T.slate100}`, display: 'flex', alignItems: 'center', gap: 9 }}>
@@ -794,46 +975,44 @@ const ScannerPage = () => {
             <span style={{ fontWeight: 700, color: T.slate800, fontSize: '0.88rem' }}>Recent Scans</span>
             <span style={{ marginLeft: 'auto', fontSize: '0.72rem', color: T.slate400 }}>Last {recentScans.length}</span>
           </div>
-          <div>
-            {recentScans.map((scan, i) => {
-              const isError = scan.error;
-              const isQR    = scan.type === 'QR';
-              return (
-                <div key={i}
-                  onClick={() => scan.item && setItemModal(scan.item)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px',
-                    borderBottom: i < recentScans.length - 1 ? `1px solid ${T.slate100}` : 'none',
-                    cursor: scan.item ? 'pointer' : 'default',
-                    transition: 'background 0.12s',
-                  }}
-                  onMouseEnter={e => scan.item && (e.currentTarget.style.backgroundColor = T.slate50)}
-                  onMouseLeave={e => scan.item && (e.currentTarget.style.backgroundColor = T.white)}>
-                  <div style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: isError ? '#FEF2F2' : isQR ? '#EFF6FF' : '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {isQR
-                      ? <QrCode size={15} color={isError ? T.red : T.blue} />
-                      : <Barcode size={15} color={isError ? T.red : T.violet} />
-                    }
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, color: isError ? T.red : T.slate800, fontSize: '0.84rem' }}>{scan.result}</div>
-                    <div style={{ fontSize: '0.71rem', color: T.slate400, fontFamily: 'monospace', marginTop: 1 }}>{scan.value}</div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                    <span style={pill(isQR ? '#EFF6FF' : '#F5F3FF', isQR ? T.blue : T.violet)}>{scan.type}</span>
-                    <span style={{ fontSize: '0.68rem', color: T.slate400 }}>
-                      {new Date(scan.ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                  {scan.item && <ChevronRight size={14} color={T.slate300} />}
+          {recentScans.map((scan, i) => {
+            const isError = scan.error;
+            const isQR    = scan.type === 'QR';
+            return (
+              <div key={i}
+                onClick={() => scan.item && setItemModal(scan.item)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px',
+                  borderBottom: i < recentScans.length - 1 ? `1px solid ${T.slate100}` : 'none',
+                  cursor: scan.item ? 'pointer' : 'default',
+                  transition: 'background 0.12s',
+                }}
+                onMouseEnter={e => scan.item && (e.currentTarget.style.backgroundColor = T.slate50)}
+                onMouseLeave={e => scan.item && (e.currentTarget.style.backgroundColor = T.white)}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, backgroundColor: isError ? '#FEF2F2' : isQR ? '#EFF6FF' : '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {isQR
+                    ? <QrCode size={15} color={isError ? T.red : T.blue} />
+                    : <Barcode size={15} color={isError ? T.red : T.violet} />
+                  }
                 </div>
-              );
-            })}
-          </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, color: isError ? T.red : T.slate800, fontSize: '0.84rem' }}>{scan.result}</div>
+                  <div style={{ fontSize: '0.71rem', color: T.slate400, fontFamily: 'monospace', marginTop: 1 }}>{scan.value}</div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                  <span style={pill(isQR ? '#EFF6FF' : '#F5F3FF', isQR ? T.blue : T.violet)}>{scan.type}</span>
+                  <span style={{ fontSize: '0.68rem', color: T.slate400 }}>
+                    {new Date(scan.ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+                {scan.item && <ChevronRight size={14} color={T.slate300} />}
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* ── Empty state ── */}
+      {/* Empty state */}
       {recentScans.length === 0 && (
         <div style={{ ...card, padding: '40px 20px', textAlign: 'center', animation: 'fadeUp 0.3s ease 0.15s both' }}>
           <div style={{ width: 64, height: 64, borderRadius: 16, backgroundColor: T.slate100, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -844,15 +1023,19 @@ const ScannerPage = () => {
         </div>
       )}
 
-      {/* ── Modals ── */}
+      {/* Modals */}
       {mode === 'qr'      && <QRScanner      onResult={handleQRResult}      onClose={() => setMode(null)} />}
       {mode === 'barcode' && <BarcodeScanner onResult={handleBarcodeResult} onClose={() => setMode(null)} />}
-      {itemModal          && (
+      {itemModal && (
         <ItemModal
           item={itemModal}
           onClose={() => setItemModal(null)}
           onUpdated={(updated) => {
-            setRecentScans(prev => prev.map(s => s.item?.barcode === updated.barcode ? { ...s, item: updated, result: `${updated.itemName} · ${updated.roomNumber}` } : s));
+            setRecentScans(prev => prev.map(s =>
+              s.item?.barcode === updated.barcode
+                ? { ...s, item: updated, result: `${updated.itemName} · ${updated.roomNumber}` }
+                : s
+            ));
           }}
         />
       )}
