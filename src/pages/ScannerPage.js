@@ -653,7 +653,7 @@ const ItemModal = ({ item: initialItem, onClose, onUpdated }) => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/api/update-item-status`, {
+      const res = await fetch(`${API_URL}/update-item-status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
