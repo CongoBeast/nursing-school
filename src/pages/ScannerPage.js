@@ -856,7 +856,7 @@ const ScannerPage = () => {
     setMode(null);
     setLookingUp(true);
     try {
-      const res  = await fetch(`${API_URL}/api/get-item-by-barcode/${barcode}`);
+      const res  = await fetch(`${API_URL}/get-item-by-barcode/${barcode}`);
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.message || 'Item not found');
