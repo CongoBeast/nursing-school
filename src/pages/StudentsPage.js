@@ -507,7 +507,7 @@ const StudentsPage = () => {
                         style={{cursor: 'pointer'}} 
                         onClick={() => navigate("/student-profile", { state: { student } })}
                       >
-                        <img src={student.avatar || student.photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student._id}` } style={styles.avatar} alt="avatar" />
+                        <img src={student.avatar || student.photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student._id}`} style={styles.avatar} alt="avatar" />
                         <div>
                           <div className="fw-bold" style={{color: '#1E3A8A'}}>{student.username}</div>
                           <small className="text-muted">{student.firstName} {student.lastName}</small>
@@ -885,6 +885,20 @@ const StudentsPage = () => {
                       room.roomNumber.toLowerCase().includes(occupancySearch.toLowerCase()) ||
                       room.residents.some(r => r.username?.toLowerCase().includes(occupancySearch.toLowerCase()))
                     )
+                    .sort((a, b) => {
+                      // Natural sort: split "A09" → prefix "A", number 9
+                      // Handles A01-A119, N01-N122, FL1, FL6A, D1A etc.
+                      const parse = (rn) => {
+                        const m = rn.match(/^([A-Za-z]+)(\d+)([A-Za-z]*)$/);
+                        if (!m) return { prefix: rn, num: 0, suffix: '' };
+                        return { prefix: m[1], num: parseInt(m[2], 10), suffix: m[3] };
+                      };
+                      const pa = parse(a.roomNumber);
+                      const pb = parse(b.roomNumber);
+                      if (pa.prefix !== pb.prefix) return pa.prefix.localeCompare(pb.prefix);
+                      if (pa.num   !== pb.num)    return pa.num - pb.num;
+                      return pa.suffix.localeCompare(pb.suffix);
+                    })
                     .map((room) => (
                       <div key={room.roomNumber} className="col-md-4 col-lg-3">
                         <div 
@@ -945,6 +959,4 @@ const StudentsPage = () => {
   );
 };
 
-
 export default StudentsPage;
-
