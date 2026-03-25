@@ -328,7 +328,7 @@ const StudentsPage = () => {
   const filterOptions = useMemo(() => ({
     houses: ['Adlam House', 'Nurse Home'],
     rentStatuses: ['Paid', 'Arrears', 'Pending'],
-    genders: ['Male', 'Female'],
+    genders: ['male', 'female'],
     statuses: ['Active', 'Inactive']
   }), []);
 
