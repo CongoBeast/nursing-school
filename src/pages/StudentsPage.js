@@ -904,13 +904,13 @@ const StudentsPage = () => {
                         <div 
                           className="p-3 rounded border"
                           style={{
-                            backgroundColor: room.occupancy === 0 ? '#F0FDF4' : room.occupancy >= 2 ? '#FEE2E2' : '#FEF3C7',
-                            borderColor: room.occupancy === 0 ? '#10B981' : room.occupancy >= 2 ? '#EF4444' : '#F59E0B'
+                            backgroundColor: room.occupancy === 0 ? '#F0FDF4' : room.occupancy >= room.capacity ? '#FEE2E2' : '#FEF3C7',
+                            borderColor: room.occupancy === 0 ? '#10B981' : room.occupancy >= room.capacity ? '#EF4444' : '#F59E0B'
                           }}
                         >
                           <div className="d-flex justify-content-between align-items-center mb-2">
                             <h6 className="m-0 fw-bold" style={{color: '#1E3A8A'}}>{room.roomNumber}</h6>
-                            <span className={`badge ${room.occupancy === 0 ? 'bg-success' : room.occupancy >= 2 ? 'bg-danger' : 'bg-warning text-dark'}`}>
+                            <span className={`badge ${room.occupancy === 0 ? 'bg-success' : room.occupancy >= room.capacity ? 'bg-danger' : 'bg-warning text-dark'}`}>
                               {room.occupancy}/{room.capacity}
                             </span>
                           </div>
