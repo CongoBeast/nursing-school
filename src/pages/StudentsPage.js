@@ -911,7 +911,7 @@ const StudentsPage = () => {
                           <div className="d-flex justify-content-between align-items-center mb-2">
                             <h6 className="m-0 fw-bold" style={{color: '#1E3A8A'}}>{room.roomNumber}</h6>
                             <span className={`badge ${room.occupancy === 0 ? 'bg-success' : room.occupancy >= 2 ? 'bg-danger' : 'bg-warning text-dark'}`}>
-                              {room.occupancy}/2
+                              {room.occupancy}/{room.capacity}
                             </span>
                           </div>
                           
