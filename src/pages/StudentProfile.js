@@ -180,7 +180,7 @@ const StudentProfile = () => {
           </div>
           <div style={styles.profileSection}>
             <div className="text-center" style={{ minWidth: '180px' }}>
-              <img src={studentData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${studentData._id}`} style={styles.avatar} alt="avatar" } alt={studentData.name} style={styles.avatar} />
+              <img src={studentData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${studentData._id}`} alt={studentData.name} style={styles.avatar} />
               <h4 style={{ color: colors.primary, marginBottom: '5px' }}>{studentData.name} {studentData.fullName}</h4>
               <p className="text-muted small">ID: {studentData.id}</p>
             </div>
