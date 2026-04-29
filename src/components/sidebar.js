@@ -77,8 +77,11 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "Home", icon: <Users size={18} />, href: "/#/" , onClick: handleNavClick },
       { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "/#/staff-attendance" },
       { name: "Schedule", icon: <Calendar size={18} />, href: "/#/my-schedule" , onClick: handleNavClick},
+      { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
+
       { name: "My Requests", icon: <BarChart2 size={18} />, href: "/#/staff-requests" },
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
+      { name: "Scan Codes", icon: <ScanBarcode size={18} />, href: "/#/scanner" , onClick: handleNavClick},
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" , onClick: handleNavClick},
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout ,  }
@@ -102,8 +105,7 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "Payment Records", icon: <DollarSign size={18} />, href: "/#/payments-records" , onClick: handleNavClick},
       { name: "Scan Codes", icon: <ScanBarcode size={18} />, href: "/#/scanner" , onClick: handleNavClick},
 
-
-      // { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
+      { name: "Schedule", icon: <Calendar size={18} />, href: "/#/manage-schedule" , onClick: handleNavClick},
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" },
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout }
