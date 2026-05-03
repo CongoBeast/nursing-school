@@ -244,6 +244,7 @@ const TopNavbar = ({ userRole = localStorage.userType }) => {
       { name: "Schedule", icon: <Calendar size={18} />, href: "/#/my-schedule" , onClick: handleNavClick},
       { name: "My Requests", icon: <BarChart2 size={18} />, href: "/#/staff-requests" },
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
+      { name: "Scan Codes", icon: <ScanBarcode size={18} />, href: "/#/scanner" , onClick: handleNavClick},
       { divider: true },
       { name: "View Profile", icon: <User size={18} />, href: "/#/user-profile" , onClick: handleNavClick},
       { name: "Log Out", icon: <LogOut size={18} />, onClick: handleLogout ,  }
