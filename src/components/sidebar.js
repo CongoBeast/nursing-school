@@ -78,6 +78,9 @@ const Sidebar = ({ userRole, show, onHide }) => {
       { name: "Attendance", icon: <ClipboardCheck size={18} />, href: "/#/staff-attendance" },
       { name: "Schedule", icon: <Calendar size={18} />, href: "/#/my-schedule" , onClick: handleNavClick},
       { name: "Student Management", icon: <ClipboardList size={18} />, href: "/#/students" , onClick: handleNavClick},
+      { name: "Facilities Management", icon: <Building2 size={18} />, href: "/#/facilities-management" , onClick: handleNavClick},
+      { name: "Payment Records", icon: <DollarSign size={18} />, href: "/#/payments-records" , onClick: handleNavClick},
+      
 
       { name: "My Requests", icon: <BarChart2 size={18} />, href: "/#/staff-requests" },
       { name: "Fault Reports", icon: <ShieldX size={18} />, href: "/#/fault-reporting" , onClick: handleNavClick},
