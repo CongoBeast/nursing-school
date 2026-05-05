@@ -10,7 +10,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API_URL from '../config';
 
-/* ── Design tokens (matches existing app palette) ── */
 const T = {
   navy:   '#0F172A',
   blue:   '#1D4ED8',
@@ -61,7 +60,6 @@ const fmtDateTime = (d) => {
   });
 };
 
-/* ── Avatar ── */
 const Av = ({ src, name, size = 38 }) => {
   const init = (name || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
   const palette = ['#1D4ED8','#059669','#D97706','#7C3AED','#0891B2','#DC2626'];
@@ -71,20 +69,54 @@ const Av = ({ src, name, size = 38 }) => {
     : <div style={{ width: size, height: size, borderRadius: '50%', backgroundColor: bg, color: T.white, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.33, fontWeight: 700, flexShrink: 0 }}>{init}</div>;
 };
 
-/* ── Inventory item icons ── */
-const ITEM_META = {
-  wardrobe:   { label: 'Wardrobe',    icon: Package,  color: T.blue   },
-  book_shelf: { label: 'Book Shelf',  icon: BookOpen, color: '#7C3AED' },
-  sink:       { label: 'Sink',        icon: Droplets, color: T.blueL  },
+/* ── Static inventory items (always present, 1 per room) ── */
+const STATIC_ITEM_META = {
+  wardrobe:   { label: 'Wardrobe',   icon: Package,  color: T.blue    },
+  book_shelf: { label: 'Book Shelf', icon: BookOpen, color: '#7C3AED' },
+  sink:       { label: 'Sink',       icon: Droplets, color: T.blueL   },
 };
 
-/* ── Edit Inventory Modal ── */
+/* ── Build the full inventory key list from the actual inventory object ──
+   This picks up headboard_1, headboard_2, headboard_3, headboard_4 etc.
+   dynamically based on whatever was seeded for this room's capacity.      */
+const buildInventoryKeys = (inventoryObj = {}) => {
+  const staticKeys = Object.keys(STATIC_ITEM_META);
+  const headboardKeys = Object.keys(inventoryObj)
+    .filter(k => k.startsWith('headboard_'))
+    .sort((a, b) => {
+      const na = parseInt(a.split('_')[1], 10);
+      const nb = parseInt(b.split('_')[1], 10);
+      return na - nb;
+    });
+  return [...staticKeys, ...headboardKeys];
+};
+
+/* ── Get display metadata for any inventory key ── */
+const getItemMeta = (key) => {
+  if (STATIC_ITEM_META[key]) return STATIC_ITEM_META[key];
+  if (key.startsWith('headboard_')) {
+    const slot = key.split('_')[1];
+    return {
+      label: `Headboard ${slot}`,
+      icon: BedDouble,
+      color: '#0891B2',
+    };
+  }
+  return { label: key, icon: Package, color: T.slate500 };
+};
+
+/* ══════════════════════════════════════════════
+   Edit Inventory Modal
+   — now handles both static items and headboards
+══════════════════════════════════════════════ */
 const EditInventoryModal = ({ roomNumber, inventory, onClose, onSaved }) => {
-  const [form, setForm] = useState({
-    wardrobe:   inventory?.wardrobe?.status   || 'normal',
-    book_shelf: inventory?.book_shelf?.status || 'normal',
-    sink:       inventory?.sink?.status       || 'normal',
-  });
+  // Build initial form state from ALL keys present in the inventory object
+  const allKeys = buildInventoryKeys(inventory);
+  const initialForm = Object.fromEntries(
+    allKeys.map(key => [key, inventory?.[key]?.status || 'normal'])
+  );
+
+  const [form, setForm] = useState(initialForm);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -110,10 +142,49 @@ const EditInventoryModal = ({ roomNumber, inventory, onClose, onSaved }) => {
     }
   };
 
+  // Group items for display: static items first, then headboards together
+  const staticKeys    = Object.keys(STATIC_ITEM_META).filter(k => allKeys.includes(k));
+  const headboardKeys = allKeys.filter(k => k.startsWith('headboard_'));
+
+  const renderItem = (key) => {
+    const meta = getItemMeta(key);
+    const Icon = meta.icon;
+    const isDamaged = form[key] === 'damaged';
+    return (
+      <div key={key} style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 16px', borderRadius: 10,
+        border: `1.5px solid ${isDamaged ? '#FEE2E2' : T.slate200}`,
+        backgroundColor: isDamaged ? '#FFF5F5' : T.slate50,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: isDamaged ? '#FEE2E2' : '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={16} color={isDamaged ? T.red : meta.color} />
+          </div>
+          <span style={{ fontWeight: 600, color: T.slate800, fontSize: '0.88rem' }}>{meta.label}</span>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {['normal', 'damaged'].map(s => (
+            <button key={s} onClick={() => setForm(p => ({ ...p, [key]: s }))}
+              style={{
+                padding: '6px 14px', borderRadius: 7, fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
+                border: `1.5px solid ${form[key] === s ? (s === 'normal' ? T.green : T.red) : T.slate200}`,
+                backgroundColor: form[key] === s ? (s === 'normal' ? '#F0FDF4' : '#FEF2F2') : T.white,
+                color: form[key] === s ? (s === 'normal' ? T.green : T.red) : T.slate400,
+                textTransform: 'capitalize', transition: 'all 0.12s',
+              }}>
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15,23,42,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)', padding: 16 }}
       onClick={onClose}>
-      <div style={{ ...card, width: '100%', maxWidth: 440, padding: 28 }} onClick={e => e.stopPropagation()}>
+      <div style={{ ...card, width: '100%', maxWidth: 480, padding: 28, maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
           <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -128,37 +199,26 @@ const EditInventoryModal = ({ roomNumber, inventory, onClose, onSaved }) => {
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {Object.entries(ITEM_META).map(([key, meta]) => {
-            const Icon = meta.icon;
-            const isDamaged = form[key] === 'damaged';
-            return (
-              <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderRadius: 10, border: `1.5px solid ${isDamaged ? '#FEE2E2' : T.slate200}`, backgroundColor: isDamaged ? '#FFF5F5' : T.slate50 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: isDamaged ? '#FEE2E2' : '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon size={16} color={isDamaged ? T.red : meta.color} />
-                  </div>
-                  <span style={{ fontWeight: 600, color: T.slate800, fontSize: '0.88rem' }}>{meta.label}</span>
-                </div>
-                {/* Toggle */}
-                <div style={{ display: 'flex', gap: 6 }}>
-                  {['normal', 'damaged'].map(s => (
-                    <button key={s} onClick={() => setForm(p => ({ ...p, [key]: s }))}
-                      style={{
-                        padding: '6px 14px', borderRadius: 7, fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
-                        border: `1.5px solid ${form[key] === s ? (s === 'normal' ? T.green : T.red) : T.slate200}`,
-                        backgroundColor: form[key] === s ? (s === 'normal' ? '#F0FDF4' : '#FEF2F2') : T.white,
-                        color: form[key] === s ? (s === 'normal' ? T.green : T.red) : T.slate400,
-                        textTransform: 'capitalize', transition: 'all 0.12s',
-                      }}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+        {/* Static items */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {staticKeys.map(renderItem)}
         </div>
+
+        {/* Headboards section — only shown if headboards were seeded */}
+        {headboardKeys.length > 0 && (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '18px 0 10px' }}>
+              <BedDouble size={14} color='#0891B2' />
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: T.slate600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Headboards ({headboardKeys.length} bed{headboardKeys.length > 1 ? 's' : ''})
+              </span>
+              <div style={{ flex: 1, height: 1, backgroundColor: T.slate200 }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {headboardKeys.map(renderItem)}
+            </div>
+          </>
+        )}
 
         <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>
           <button onClick={onClose} style={{ padding: '9px 20px', borderRadius: 8, border: `1.5px solid ${T.slate200}`, backgroundColor: T.white, color: T.slate600, fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}>
@@ -174,7 +234,6 @@ const EditInventoryModal = ({ roomNumber, inventory, onClose, onSaved }) => {
   );
 };
 
-/* ── Section header ── */
 const SectionHeader = ({ icon: Icon, title, color = T.blue, action }) => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '15px 20px', borderBottom: `1px solid ${T.slate100}` }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
@@ -185,12 +244,11 @@ const SectionHeader = ({ icon: Icon, title, color = T.blue, action }) => (
   </div>
 );
 
-/* ── Action badge for history ── */
 const ActionBadge = ({ action }) => {
   const map = {
-    assigned: { bg: '#F0FDF4', fg: T.green, label: 'Assigned' },
-    moved:    { bg: '#EFF6FF', fg: T.blue,  label: 'Moved In' },
-    deactivated: { bg: '#FEF2F2', fg: T.red, label: 'Moved Out' },
+    assigned:    { bg: '#F0FDF4', fg: T.green, label: 'Assigned'  },
+    moved:       { bg: '#EFF6FF', fg: T.blue,  label: 'Moved In'  },
+    deactivated: { bg: '#FEF2F2', fg: T.red,   label: 'Moved Out' },
   };
   const m = map[action] || { bg: T.slate100, fg: T.slate500, label: action };
   return <span style={pill(m.bg, m.fg)}>{m.label}</span>;
@@ -200,22 +258,19 @@ const ActionBadge = ({ action }) => {
    MAIN PAGE
 ════════════════════════════════════════════════ */
 const RoomPage = () => {
-  const { roomNumber } = useParams(); // e.g. "a04"
+  const { roomNumber } = useParams();
   const navigate = useNavigate();
 
-  // Derive uppercase version for routes that need it
-  const roomUpper = roomNumber?.toUpperCase(); // "A04"
-  const roomLower = roomNumber?.toLowerCase(); // "a04"
-
-  // Derive house from prefix
+  const roomUpper = roomNumber?.toUpperCase();
+  const roomLower = roomNumber?.toLowerCase();
   const houseName = roomLower?.startsWith('a') ? 'Adlam House' : 'Nurse Home';
 
-  const [loading, setLoading] = useState(true);
-  const [inventory, setInventory]   = useState(null);
-  const [housing, setHousing]       = useState(null);
-  const [faults, setFaults]         = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [inventory, setInventory]     = useState(null);
+  const [housing, setHousing]         = useState(null);
+  const [faults, setFaults]           = useState([]);
   const [roomHistory, setRoomHistory] = useState([]);
-  const [editOpen, setEditOpen]     = useState(false);
+  const [editOpen, setEditOpen]       = useState(false);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -251,23 +306,58 @@ const RoomPage = () => {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  /* When the modal saves, patch inventory state in place for all updated keys */
   const handleInventorySaved = (updatedForm) => {
-    setInventory(prev => ({
-      ...prev,
-      inventory: {
-        wardrobe:   { ...prev.inventory?.wardrobe,   status: updatedForm.wardrobe,   lastUpdated: new Date() },
-        book_shelf: { ...prev.inventory?.book_shelf, status: updatedForm.book_shelf, lastUpdated: new Date() },
-        sink:       { ...prev.inventory?.sink,       status: updatedForm.sink,       lastUpdated: new Date() },
-      }
-    }));
+    setInventory(prev => {
+      const patchedInventory = { ...prev.inventory };
+      Object.entries(updatedForm).forEach(([key, status]) => {
+        patchedInventory[key] = { ...patchedInventory[key], status, lastUpdated: new Date() };
+      });
+      return { ...prev, inventory: patchedInventory };
+    });
   };
 
-  /* ── Derived stats ── */
-  const occupancy  = housing?.residents?.length || 0;
-  const capacity   = 2;
-  const invItems   = inventory?.inventory || {};
-  const damagedCount = Object.values(invItems).filter(v => v.status === 'damaged').length;
-  const openFaults   = faults.filter(f => f.status === 'Pending' || f.status === 'In Progress').length;
+  const occupancy     = housing?.residents?.length || 0;
+  const capacity      = housing?.capacity || 2;
+  const invItems      = inventory?.inventory || {};
+  const allInvKeys    = buildInventoryKeys(invItems);
+  const damagedCount  = Object.values(invItems).filter(v => v?.status === 'damaged').length;
+  const openFaults    = faults.filter(f => f.status === 'Pending' || f.status === 'In Progress').length;
+
+  // Split keys for display
+  const staticDisplayKeys    = Object.keys(STATIC_ITEM_META).filter(k => allInvKeys.includes(k));
+  const headboardDisplayKeys = allInvKeys.filter(k => k.startsWith('headboard_'));
+
+  const renderInventoryRow = (key) => {
+    const meta = getItemMeta(key);
+    const Icon = meta.icon;
+    const item = invItems[key];
+    const isDamaged = item?.status === 'damaged';
+    return (
+      <div key={key} style={{
+        display: 'flex', alignItems: 'center', gap: 14,
+        padding: '13px 16px', borderRadius: 10,
+        border: `1.5px solid ${isDamaged ? '#FEE2E2' : T.slate100}`,
+        backgroundColor: isDamaged ? '#FFF8F8' : T.slate50,
+        transition: 'all 0.15s',
+      }}>
+        <div style={{ width: 38, height: 38, borderRadius: 9, backgroundColor: isDamaged ? '#FEE2E2' : '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon size={17} color={isDamaged ? T.red : meta.color} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 700, color: T.slate800, fontSize: '0.88rem' }}>{meta.label}</div>
+          <div style={{ fontSize: '0.71rem', color: T.slate400, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Clock size={10} />
+            Updated {fmtDate(item?.lastUpdated)}
+          </div>
+        </div>
+        <span style={pill(isDamaged ? '#FEF2F2' : '#F0FDF4', isDamaged ? T.red : T.green)}>
+          {isDamaged ? <AlertTriangle size={9} /> : <CheckCircle2 size={9} />}
+          {isDamaged ? 'Damaged' : 'Normal'}
+        </span>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -285,11 +375,11 @@ const RoomPage = () => {
     <div style={{ backgroundColor: '#F0F7FF', minHeight: '100vh', padding: '24px 20px', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-        @keyframes spin  { to { transform: rotate(360deg); } }
+        @keyframes spin   { to { transform: rotate(360deg); } }
         @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
 
-      {/* ── Breadcrumb ── */}
+      {/* Breadcrumb */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
         <Home size={15} color={T.blue} />
         <ChevronRight size={13} color={T.slate400} />
@@ -298,13 +388,12 @@ const RoomPage = () => {
         <span style={{ fontWeight: 700, color: T.slate800, fontSize: '0.84rem' }}>Room {roomUpper}</span>
       </div>
 
-      {/* ── Hero banner ── */}
+      {/* Hero banner */}
       <div style={{
         background: `linear-gradient(135deg, ${T.navy} 0%, #1E3A8A 55%, #1D4ED8 100%)`,
         borderRadius: 16, padding: '26px 28px', marginBottom: 24,
         position: 'relative', overflow: 'hidden',
       }}>
-        {/* Decorative circles */}
         <div style={{ position: 'absolute', right: -50, top: -50, width: 220, height: 220, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.04)' }} />
         <div style={{ position: 'absolute', right: 80, bottom: -80, width: 280, height: 280, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.03)' }} />
 
@@ -315,24 +404,20 @@ const RoomPage = () => {
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-            {/* Big room number badge */}
             <div style={{ width: 72, height: 72, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.15)', flexShrink: 0 }}>
               <span style={{ fontWeight: 900, fontSize: '1.6rem', color: T.white, letterSpacing: '-0.03em', fontFamily: 'monospace' }}>
                 {roomUpper}
               </span>
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '1.5rem', color: T.white, letterSpacing: '-0.02em' }}>
-                Room {roomUpper}
-              </div>
+              <div style={{ fontWeight: 800, fontSize: '1.5rem', color: T.white, letterSpacing: '-0.02em' }}>Room {roomUpper}</div>
               <div style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.6)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Building2 size={13} />
-                {houseName}
+                <Building2 size={13} /> {houseName}
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
                 <span style={pill(
                   occupancy === 0 ? '#F0FDF4' : occupancy >= capacity ? '#FEF2F2' : '#FEF3C7',
-                  occupancy === 0 ? T.green : occupancy >= capacity ? T.red : T.amber
+                  occupancy === 0 ? T.green   : occupancy >= capacity ? T.red     : T.amber
                 )}>
                   <Users size={9} /> {occupancy}/{capacity} Occupied
                 </span>
@@ -355,11 +440,10 @@ const RoomPage = () => {
             </div>
           </div>
 
-          {/* Quick stats on the right */}
           <div style={{ display: 'flex', gap: 16 }}>
             {[
-              { label: 'Fault Reports', val: faults.length, color: 'rgba(255,255,255,0.8)' },
-              { label: 'History Events', val: roomHistory.length, color: 'rgba(255,255,255,0.8)' },
+              { label: 'Fault Reports',  val: faults.length      },
+              { label: 'History Events', val: roomHistory.length  },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '1.8rem', fontWeight: 800, color: T.white, lineHeight: 1 }}>{s.val}</div>
@@ -370,12 +454,10 @@ const RoomPage = () => {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════
-          Main 2-column grid
-      ══════════════════════════════════════════ */}
+      {/* 2-column grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
 
-        {/* ── LEFT COLUMN ── */}
+        {/* LEFT COLUMN */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
           {/* CURRENT OCCUPANTS */}
@@ -436,35 +518,23 @@ const RoomPage = () => {
               </div>
             ) : (
               <div style={{ padding: '12px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {Object.entries(ITEM_META).map(([key, meta]) => {
-                  const Icon = meta.icon;
-                  const item = invItems[key];
-                  const isDamaged = item?.status === 'damaged';
-                  return (
-                    <div key={key} style={{
-                      display: 'flex', alignItems: 'center', gap: 14,
-                      padding: '13px 16px', borderRadius: 10,
-                      border: `1.5px solid ${isDamaged ? '#FEE2E2' : T.slate100}`,
-                      backgroundColor: isDamaged ? '#FFF8F8' : T.slate50,
-                      transition: 'all 0.15s',
-                    }}>
-                      <div style={{ width: 38, height: 38, borderRadius: 9, backgroundColor: isDamaged ? '#FEE2E2' : '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Icon size={17} color={isDamaged ? T.red : meta.color} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700, color: T.slate800, fontSize: '0.88rem' }}>{meta.label}</div>
-                        <div style={{ fontSize: '0.71rem', color: T.slate400, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <Clock size={10} />
-                          Updated {fmtDate(item?.lastUpdated)}
-                        </div>
-                      </div>
-                      <span style={pill(isDamaged ? '#FEF2F2' : '#F0FDF4', isDamaged ? T.red : T.green)}>
-                        {isDamaged ? <AlertTriangle size={9} /> : <CheckCircle2 size={9} />}
-                        {isDamaged ? 'Damaged' : 'Normal'}
+
+                {/* Static items: wardrobe, book_shelf, sink */}
+                {staticDisplayKeys.map(renderInventoryRow)}
+
+                {/* Headboards section */}
+                {headboardDisplayKeys.length > 0 && (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0 2px' }}>
+                      <BedDouble size={13} color='#0891B2' />
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: T.slate500, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        Headboards — {headboardDisplayKeys.length} bed{headboardDisplayKeys.length > 1 ? 's' : ''}
                       </span>
+                      <div style={{ flex: 1, height: 1, backgroundColor: T.slate200 }} />
                     </div>
-                  );
-                })}
+                    {headboardDisplayKeys.map(renderInventoryRow)}
+                  </>
+                )}
 
                 <div style={{ marginTop: 4, padding: '10px 12px', borderRadius: 8, backgroundColor: T.slate50, border: `1px solid ${T.slate200}`, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Clock size={12} color={T.slate400} />
@@ -477,7 +547,7 @@ const RoomPage = () => {
           </div>
         </div>
 
-        {/* ── RIGHT COLUMN ── */}
+        {/* RIGHT COLUMN */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
           {/* FAULT REPORTS */}
@@ -492,10 +562,10 @@ const RoomPage = () => {
               ) : (
                 faults.map((fault, i) => {
                   const statusMeta = {
-                    Pending:     { bg: '#FEF3C7', fg: T.amber },
-                    'In Progress': { bg: '#EFF6FF', fg: T.blue },
-                    Fixed:       { bg: '#F0FDF4', fg: T.green },
-                    Closed:      { bg: T.slate100, fg: T.slate500 },
+                    Pending:      { bg: '#FEF3C7', fg: T.amber },
+                    'In Progress':{ bg: '#EFF6FF', fg: T.blue  },
+                    Fixed:        { bg: '#F0FDF4', fg: T.green },
+                    Closed:       { bg: T.slate100, fg: T.slate500 },
                   };
                   const sm = statusMeta[fault.status] || { bg: T.slate100, fg: T.slate500 };
                   return (
@@ -541,13 +611,11 @@ const RoomPage = () => {
               ) : (
                 <div style={{ padding: '8px 0' }}>
                   {roomHistory.map((record, i) => {
-                    // Determine if student was moved in or out of THIS room
                     const isThisRoomDestination = record.roomNumber === roomUpper || record.newRoom === roomUpper;
                     return (
                       <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 20px', borderBottom: i < roomHistory.length - 1 ? `1px solid ${T.slate100}` : 'none' }}>
-                        {/* Timeline dot */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, flexShrink: 0 }}>
-                          <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: isThisRoomDestination ? T.green : T.red, marginTop: 3, flexShrink: 0 }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                          <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: isThisRoomDestination ? T.green : T.red, marginTop: 3 }} />
                           {i < roomHistory.length - 1 && <div style={{ width: 2, flex: 1, backgroundColor: T.slate100, marginTop: 4 }} />}
                         </div>
                         <div style={{ flex: 1, paddingBottom: 4 }}>
@@ -568,11 +636,10 @@ const RoomPage = () => {
               )}
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* ── Edit Inventory Modal ── */}
+      {/* Edit Inventory Modal */}
       {editOpen && (
         <EditInventoryModal
           roomNumber={roomLower}
