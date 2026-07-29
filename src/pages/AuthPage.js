@@ -76,7 +76,31 @@ const AuthPage = () => {
     { value: '+44', label: '+44 (UK)' }
   ];
 
+  // const handleToggle = (loginState) => {
+  //   setIsLogin(loginState);
+  //   setError('');
+  //   setMessage('');
+  //   if (loginState) {
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       email: '',
+  //       confirmPassword: '',
+  //       firstName: '',
+  //       lastName: '',
+  //       dateOfBirth: '',
+  //       studentId: '',
+  //       staffId: '',
+  //       position: '',
+  //       nationalId: '',
+  //       address: '',
+  //       emergencyContact: { name: '', phone: '' }
+  //     }));
+  //   }
+  // };
+  // const SIGNUP_ENABLED = false; // temporarily hide sign-up — set true to restore
+
   const handleToggle = (loginState) => {
+    if (!loginState && !SIGNUP_ENABLED) return; // block switching into sign-up mode
     setIsLogin(loginState);
     setError('');
     setMessage('');
