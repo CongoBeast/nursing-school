@@ -15,6 +15,7 @@ const AuthPage = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate()
+  const SIGNUP_ENABLED = false;
 
   const [formData, setFormData] = useState({
     username: '',
@@ -870,62 +871,84 @@ const AuthPage = () => {
                   )}
 
                   {/* Submit Button */}
-                  <Button
-                    type="submit"
-                    style={customStyles.btnPrimary}
-                    disabled={loading}
-                    className="mb-3"
-                  >
-                    {loading ? (
-                      <div className="d-flex align-items-center justify-content-center">
-                        <Spinner size="sm" className="me-2" />
-                        Processing...
-                      </div>
-                    ) : (
-                      isLogin ? 'Sign In' : 'Create Account'
+                  // <Button
+                  //   type="submit"
+                  //   style={customStyles.btnPrimary}
+                  //   disabled={loading}
+                  //   className="mb-3"
+                  // >
+                  //   {loading ? (
+                  //     <div className="d-flex align-items-center justify-content-center">
+                  //       <Spinner size="sm" className="me-2" />
+                  //       Processing...
+                  //     </div>
+                  //   ) : (
+                  //     isLogin ? 'Sign In' : 'Create Account'
+                  //   )}
+                  // </Button>
+                  <div className="d-flex justify-content-center">
+                    <Button
+                      style={{
+                        ...customStyles.toggleBtn,
+                        ...(isLogin ? customStyles.toggleBtnActive : {})
+                      }}
+                      onClick={() => handleToggle(true)}
+                    >
+                      Sign In
+                    </Button>
+                    {SIGNUP_ENABLED && (
+                      <Button
+                        style={{
+                          ...customStyles.toggleBtn,
+                          ...(!isLogin ? customStyles.toggleBtnActive : {})
+                        }}
+                        onClick={() => handleToggle(false)}
+                      >
+                        Sign Up
+                      </Button>
                     )}
-                  </Button>
+                  </div>
 
                   {/* Additional Links */}
-                  <div className="text-center">
-                    {isLogin ? (
-                      <p className="small mb-0" style={{ color: '#2563EB' }}>
-                        Don't have an account?{' '}
-                        <Button
-                          variant="link"
-                          className="p-0 fw-medium text-decoration-none"
-                          style={{ color: '#2563EB' }}
-                          onClick={() => handleToggle(false)}
-                        >
-                          Sign up here
-                        </Button>
-                      </p>
-                    ) : (
-                      <p className="small mb-0" style={{ color: '#2563EB' }}>
-                        Already have an account?{' '}
-                        <Button
-                          variant="link"
-                          className="p-0 fw-medium text-decoration-none"
-                          style={{ color: '#2563EB' }}
-                          onClick={() => handleToggle(true)}
-                        >
-                          Sign in here
-                        </Button>
-                      </p>
-                    )}
+                  // <div className="text-center">
+                  //   {isLogin ? (
+                  //     <p className="small mb-0" style={{ color: '#2563EB' }}>
+                  //       Don't have an account?{' '}
+                  //       <Button
+                  //         variant="link"
+                  //         className="p-0 fw-medium text-decoration-none"
+                  //         style={{ color: '#2563EB' }}
+                  //         onClick={() => handleToggle(false)}
+                  //       >
+                  //         Sign up here
+                  //       </Button>
+                  //     </p>
+                  //   ) : (
+                  //     <p className="small mb-0" style={{ color: '#2563EB' }}>
+                  //       Already have an account?{' '}
+                  //       <Button
+                  //         variant="link"
+                  //         className="p-0 fw-medium text-decoration-none"
+                  //         style={{ color: '#2563EB' }}
+                  //         onClick={() => handleToggle(true)}
+                  //       >
+                  //         Sign in here
+                  //       </Button>
+                  //     </p>
+                  //   )}
 
-                    <p className="small mb-0" style={{ color: '#2563EB' }}>
-                        Forgot password? Click here to reset?{' '}
-                        <Button
-                          variant="link"
-                          className="p-0 fw-medium text-decoration-none"
-                          style={{ color: '#2563EB' }}
-                          onClick={() => handleReset()}
-                        >
-                          RESET PASSWORD
-                        </Button>
-                      </p>
-                  </div>
+                  //   <p className="small mb-0" style={{ color: '#2563EB' }}>
+                  //       Forgot password? Click here to reset?{' '}
+                  //       <Button
+                  //         variant="link"
+                  //         className="p-0 fw-medium text-decoration-none"
+                  //         style={{ color: '#2563EB' }}
+                  //         onClick={() => handleReset()}
+                  //       >
+                  //         RESET PASSWORD
+                  //       </Button>
+                  //     </p>
+                  // </div>
                 </Form>
               </Card.Body>
             </Card>
